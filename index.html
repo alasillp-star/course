@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oryx Strategy - دورة السوق الليبي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            direction: rtl;
+            background-color: #f0f7ff;
+            color: #1e293b;
+            padding: 0;
+            margin: 0;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, #0b132b 0%, #1c2541 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            border-bottom: 5px solid #d4af37;
+            border-radius: 0 0 50px 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .hero-section h1 {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: #d4af37;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .content-container {
+            max-width: 900px;
+            margin: -40px auto 40px;
+            padding: 0 15px;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border-right: 10px solid #3e92cc;
+            transition: 0.3s;
+        }
+
+        .feature-card:hover { transform: translateY(-5px); }
+
+        .feature-card h3 {
+            color: #0b132b;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .program-box {
+            background: #ffffff;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            margin: 40px 0;
+        }
+
+        .program-header {
+            background: #3e92cc;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .step-item {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            gap: 15px;
+        }
+
+        .step-number {
+            background: #d4af37;
+            color: #0b132b;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .logistics-panel {
+            background: #e0f2fe;
+            border: 2px solid #3e92cc;
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .logistics-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .registration-card {
+            background: white;
+            border-radius: 25px;
+            padding: 35px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border: 3px solid #d4af37;
+            margin-top: 50px;
+        }
+
+        .price-box {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .price-tag {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #0b132b;
+            margin: 10px 0;
+        }
+
+        .price-tag span { font-size: 1.2rem; color: #64748b; }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #0b132b;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .cta-button {
+            background: #22c55e;
+            color: white !important;
+            text-decoration: none;
+            padding: 20px 60px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 50px;
+            display: block;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(34, 197, 94, 0.4);
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: 0.3s;
+        }
+
+        .cta-button:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .status-msg {
+            text-align: center;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .animate-btn { animation: pulse 2s infinite; }
+    </style>
+</head>
+<body>
+
+<div class="oryx-page">
+    <div class="hero-section">
+        <div style="background:#d4af37; color:#0b132b; display:inline-block; padding:5px 15px; border-radius:5px; font-weight:bold; margin-bottom:15px;">دورة احترافية حصرية من قلب الجزائر</div>
+        <h1>انطلق نحو السوق الليبي وحقق أرباحك بالعملة الصعبة! 🚀</h1>
+        <p style="font-size: 1.2rem; opacity: 0.9;">تعلم أسرار البيع والشحن والتحصيل في أقوى سوق "بكر" حالياً</p>
+    </div>
+
+    <div class="content-container">
+        <div class="feature-card">
+            <h3>📍 لماذا السوق الليبي؟</h3>
+            <p>هل تعلم أنه السوق الأقوى شرائياً حالياً مع انعدام المنافسة؟ نمنحك مفتاح هذه التجارة الدولية وأنت في بيتك، مع حلول كاملة للشحن والتحصيل.</p>
+        </div>
+
+        <div class="program-box">
+            <div class="program-header">ماذا ستتعلم في 5 أيام تطبيقية؟</div>
+            <div class="step-item"><div class="step-number">1</div><div><b>المتجر الاحترافي:</b><p>بناء صفحات هبوط تقنع الزبون الليبي من النظرة الأولى.</p></div></div>
+            <div class="step-item"><div class="step-number">2</div><div><b>استراتيجية السلعة الرابحة:</b><p>كيف تجد المنتجات التي تطلب بكثرة وتدرس منافسيك بذكاء.</p></div></div>
+            <div class="step-item"><div class="step-number">3</div><div><b>إعلانات Meta الاحترافية:</b><p>إطلاق حملات موجهة بدقة تضمن لك الوصول لطلبات يومية عالية.</p></div></div>
+            <div class="step-item"><div class="step-number">4</div><div><b>اللوجستيك والبيع:</b><p>أسرار التعامل مع المشتري الليبي وطرق شحن وتحصيل أموالك.</p></div></div>
+            <div class="step-item" style="background: #fffdf0;"><div class="step-number" style="background: #0b132b; color: #d4af37;">5</div><div><b>كشف حصري (السوق البكر):</b><p>سوق دولي جديد لم يكتشفه المنافسون بعد.</p></div></div>
+        </div>
+
+        <div class="logistics-panel">
+            <h3 style="text-align: center; color: #0b132b; margin-bottom: 25px;">📅 تفاصيل التنظيم</h3>
+            <div class="logistics-item">📌 <b>المكان:</b> غرداية، حي القرطي</div>
+            <div class="logistics-item">🗓️ <b>التاريخ:</b> بداية من 25 جانفي</div>
+            <div class="logistics-item">💳 <b>طريقة الدفع:</b> الدفع في اليوم الأول عند الحضور.</div>
+        </div>
+
+        <div class="registration-card" id="form">
+            <div class="price-box">
+                <div class="price-tag">35,000 <span>دج</span></div>
+                <div style="color: #e74c3c; font-weight: bold; margin-bottom: 20px;">⚠️ المقاعد محدودة جداً</div>
+            </div>
+
+            <form id="orderForm">
+                <div class="form-group"><label>الاسم الكامل</label><input type="text" name="الاسم الكامل" required></div>
+                <div class="form-group"><label>(واتساب) رقم الهاتف</label><input type="tel" name="(واتساب) رقم الهاتف" required></div>
+                <div class="form-group"><label>الولاية</label><input type="text" name="الولاية" required></div>
+                <div class="form-group" style="display: flex; gap: 10px;">
+                    <div style="flex: 1;"><label>العمر</label><input type="number" name="العمر"></div>
+                    <div style="flex: 1;"><label>الجنس</label><select name="الجنس"><option value="ذكر">ذكر</option><option value="أنثى">أنثى</option></select></div>
+                </div>
+                <div class="form-group"><label>الخبرة الحالية؟</label><input type="text" name="الخبرة الحالية ؟"></div>
+                <div class="form-group"><label>تحدي تواجهه حالياً؟</label><textarea name="اذا كان جوابك نعم ماهو اكبر تحدي تواجهه حاليا في تجارتك" rows="2"></textarea></div>
+                <div class="form-group"><label>الإيميل الشخصي</label><input type="email" name="الايميل الشخصي"></div>
+                <button type="submit" id="submitBtn" class="cta-button animate-btn">احجز مكانك الآن 📩</button>
+                <div id="statusMsg" class="status-msg"></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbydQ-Yr8LTynM8DIT7xKlwglVL5UxItS7uyK0f7Cjb1RUiScX-05KHiM76EWDDLlcwnVA/exec';
+    
+    const form = document.getElementById('orderForm');
+    const btn = document.getElementById('submitBtn');
+    const msg = document.getElementById('statusMsg');
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        btn.disabled = true;
+        btn.innerText = 'جاري إرسال طلبك...';
+        
+        fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: new FormData(form)})
+        .then(() => {
+            msg.innerHTML = "✅ تم استلام طلبك بنجاح! سنتصل بك فوراً.";
+            msg.style.color = "#16a34a";
+            form.reset();
+            btn.disabled = false;
+            btn.innerText = 'احجز مكانك الآن 📩';
+        })
+        .catch(error => {
+            msg.innerHTML = "❌ حدث خطأ في الاتصال، حاول لاحقاً.";
+            msg.style.color = "#dc2626";
+            btn.disabled = false;
+            btn.innerText = 'احجز مكانك الآن 📩';
+        });
+    });
+</script>
+
+</body>
+</html>
