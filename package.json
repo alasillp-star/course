@@ -22,7 +22,8 @@
     "db:studio": "drizzle-kit studio",
     "admin:grant-role": "tsx --conditions=react-server scripts/admin/grant-role.ts",
     "maintenance:cleanup": "tsx --conditions=react-server scripts/maintenance/cleanup.ts",
-    "secrets:generate": "tsx scripts/generate-secrets.ts"
+    "secrets:generate": "tsx scripts/generate-secrets.ts",
+    "e2e:prepare": "tsx --conditions=react-server scripts/db/reset.ts && tsx --conditions=react-server scripts/db/seed.ts"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
