@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import { DELIVERY_TOKEN, ORDERS_TOKEN } from "./tests/e2e/support";
 
 /**
  * End-to-end tests against a production build (`next build` + `next start`)
@@ -23,6 +24,8 @@ export const e2eEnv = {
   BOOTSTRAP_SUPER_ADMIN_EMAIL: "owner@e2e.test",
   STAFF_MFA_REQUIRED: "true",
   NEXT_TELEMETRY_DISABLED: "1",
+  ORDERS_INTEGRATION_TOKEN: ORDERS_TOKEN,
+  DELIVERY_WEBHOOK_TOKEN: DELIVERY_TOKEN,
 };
 
 export default defineConfig({
@@ -49,7 +52,7 @@ export default defineConfig({
     {
       name: "desktop",
       dependencies: ["setup"],
-      testMatch: /(admin|security|responsive)\.spec\.ts/,
+      testMatch: /(admin|security|responsive|delivery)\.spec\.ts/,
       use: { ...devices["Desktop Chrome"], locale: "fr" },
     },
   ],

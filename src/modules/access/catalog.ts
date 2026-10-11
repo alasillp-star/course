@@ -68,7 +68,9 @@ export const PERMISSIONS = {
 
   // Sales & finance
   "orders.read": "View orders and customers",
-  "orders.manage": "Create and update orders",
+  "orders.manage": "Create and update orders, pack cards into parcels, import carrier statuses",
+  "orders.delivery.override":
+    "Set a parcel's delivery status by hand (bypasses the carrier: unlocks or re-locks cards)",
   "payments.read": "View payments",
   "payments.record": "Record offline payments",
   "refunds.request": "Request refunds",

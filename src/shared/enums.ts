@@ -105,6 +105,9 @@ export const ACTIVATION_EVENT_TYPES = [
   "batch_secrets_purged",
   "code_sold",
   "code_unsold",
+  /** Card packed in a customer's parcel: redeemable once the carrier reports delivery. */
+  "code_assigned",
+  "code_unassigned",
   "code_activated",
   "code_revoked",
   "code_replaced",
@@ -146,6 +149,7 @@ export const ORDER_ITEM_KINDS = ["activation_card", "course_access"] as const;
 
 export const PAYMENT_PROVIDERS = [
   "cash",
+  "cash_on_delivery",
   "bank_transfer",
   "postal_transfer",
   "card_gateway",
@@ -161,6 +165,24 @@ export const PAYMENT_STATUSES = [
   "refunded",
 ] as const;
 export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
+
+/** Normalised delivery states (each carrier's own labels are kept in carrier_status). */
+export const SHIPMENT_STATUSES = [
+  "pending",
+  "in_transit",
+  "out_for_delivery",
+  "delivered",
+  "failed_attempt",
+  "returned",
+  "cancelled",
+] as const;
+export type ShipmentStatus = (typeof SHIPMENT_STATUSES)[number];
+
+export const SHIPMENT_EVENT_SOURCES = ["webhook", "poll", "manual", "import"] as const;
+export type ShipmentEventSource = (typeof SHIPMENT_EVENT_SOURCES)[number];
+
+export const INTEGRATION_EVENT_STATUSES = ["processed", "ignored", "failed"] as const;
+export type IntegrationEventStatus = (typeof INTEGRATION_EVENT_STATUSES)[number];
 
 export const REFUND_STATUSES = ["requested", "approved", "rejected", "processed"] as const;
 export type RefundStatus = (typeof REFUND_STATUSES)[number];

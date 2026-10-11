@@ -90,6 +90,15 @@ const EnvSchema = z
     MAX_UPLOAD_FILE_MB: z.coerce.number().int().min(1).max(2048).default(50),
     MAX_UPLOAD_VIDEO_MB: z.coerce.number().int().min(1).max(30_000).default(8192),
 
+    /**
+     * Integrations. Each token is a shared secret given to ONE sender and kept
+     * server-side there (never in a website's front-end code). Unset = endpoint off.
+     */
+    ORDERS_INTEGRATION_TOKEN: z.string().min(32, "use at least 32 random characters").optional(),
+    DELIVERY_WEBHOOK_TOKEN: z.string().min(32, "use at least 32 random characters").optional(),
+    /** Optional: also require an HMAC-SHA256 signature of the body on delivery webhooks. */
+    DELIVERY_WEBHOOK_SECRET: z.string().min(16).optional(),
+
     LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
   })
   .superRefine((env, ctx) => {
@@ -143,6 +152,12 @@ const EnvSchema = z
       }
       if (env.STORAGE_PROVIDER === "local") {
         issue("STORAGE_PROVIDER", "local writes files to the server's disk; use s3");
+      }
+      if (
+        env.ORDERS_INTEGRATION_TOKEN &&
+        env.ORDERS_INTEGRATION_TOKEN === env.DELIVERY_WEBHOOK_TOKEN
+      ) {
+        issue("DELIVERY_WEBHOOK_TOKEN", "must differ from ORDERS_INTEGRATION_TOKEN");
       }
       const keys = [env.AUTH_SECRET, env.ACTIVATION_CODE_PEPPER, env.DATA_ENCRYPTION_KEY];
       if (new Set(keys).size !== keys.length) {

@@ -7,6 +7,7 @@ import {
   activationEvents,
   courses,
   orders,
+  shipments,
   users,
 } from "@/server/db/schema";
 import { uuidv7 } from "@/server/db/uuid";
@@ -38,32 +39,27 @@ function normalizeSerials(serials: string[]): string[] {
 }
 
 /**
- * Point-of-sale activation: marks available cards as sold (optionally linked
- * to an order). Cards from batches that require a sale cannot be redeemed
- * before this step, so stolen stock is worthless.
+ * Point-of-sale activation: marks available cards as sold. Cards from batches
+ * that require a sale cannot be redeemed before this step, so stolen stock is
+ * worthless. Cards packed into a delivery order are skipped: those are sold by
+ * the carrier's delivery confirmation (see modules/commerce/orders.service).
  */
 export async function markCardsSold(
   actor: Actor,
-  params: { serials: string[]; orderId?: string | null },
+  params: { serials: string[] },
   meta: RequestMeta,
 ): Promise<{ sold: string[]; skipped: Array<{ serial: string; reason: string }> }> {
   assertCan(actor, "activation.codes.sell");
   const serials = normalizeSerials(params.serials);
   const db = getDb();
   return db.transaction(async (tx) => {
-    if (params.orderId) {
-      const [order] = await tx
-        .select({ id: orders.id })
-        .from(orders)
-        .where(eq(orders.id, params.orderId));
-      if (!order) throw new AppError("NOT_FOUND", "Order not found", { field: "orderId" });
-    }
     const rows = await tx
       .select({
         id: activationCodes.id,
         serial: activationCodes.serial,
         status: activationCodes.status,
         batchId: activationCodes.batchId,
+        orderId: activationCodes.orderId,
       })
       .from(activationCodes)
       .where(inArray(activationCodes.serial, serials))
@@ -74,6 +70,7 @@ export async function markCardsSold(
     for (const serial of serials) {
       const row = found.get(serial);
       if (!row) skipped.push({ serial, reason: "NOT_FOUND" });
+      else if (row.orderId) skipped.push({ serial, reason: "IN_ORDER" });
       else if (row.status !== "available")
         skipped.push({ serial, reason: `STATUS_${row.status.toUpperCase()}` });
       else sellable.push(row);
@@ -82,7 +79,7 @@ export async function markCardsSold(
       const now = new Date();
       await tx
         .update(activationCodes)
-        .set({ status: "sold", soldAt: now, soldBy: actor.userId, orderId: params.orderId ?? null })
+        .set({ status: "sold", soldAt: now, soldBy: actor.userId })
         .where(
           inArray(
             activationCodes.id,
@@ -97,7 +94,6 @@ export async function markCardsSold(
           codeId: row.id,
           actorUserId: actor.userId,
           meta,
-          metadata: params.orderId ? { orderId: params.orderId } : {},
         })),
       );
       await recordAudit(tx, {
@@ -109,7 +105,6 @@ export async function markCardsSold(
         metadata: {
           count: sellable.length,
           serials: sellable.slice(0, 50).map((row) => row.serial),
-          orderId: params.orderId,
         },
       });
     }
@@ -117,7 +112,7 @@ export async function markCardsSold(
   });
 }
 
-/** Reverts a mistaken sale (only while the card is unused). */
+/** Reverts a mistaken counter sale (only while the card is unused and not in an order). */
 export async function markCardUnsold(
   actor: Actor,
   codeId: string,
@@ -134,9 +129,11 @@ export async function markCardUnsold(
     if (!code) throw new AppError("NOT_FOUND");
     if (code.status !== "sold")
       throw new AppError("INVALID_STATE", undefined, { status: code.status });
+    // Delivery orders are re-locked by a delivery-status override, never here.
+    if (code.orderId) throw new AppError("INVALID_STATE", undefined, { status: "in_order" });
     await tx
       .update(activationCodes)
-      .set({ status: "available", soldAt: null, soldBy: null, orderId: null, orderItemId: null })
+      .set({ status: "available", soldAt: null, soldBy: null })
       .where(eq(activationCodes.id, codeId));
     await recordActivationEvents(tx, [
       { type: "code_unsold", batchId: code.batchId, codeId, actorUserId: actor.userId, meta },
@@ -282,6 +279,7 @@ export async function replaceCard(
       soldAt: old.status === "sold" ? now : null,
       soldBy: old.status === "sold" ? actor.userId : null,
       orderId: old.orderId,
+      orderItemId: old.orderItemId,
       replacesCodeId: old.id,
     });
 
@@ -397,10 +395,29 @@ export async function getCardDetails(actor: Actor, codeId: string) {
     .orderBy(desc(activationEvents.occurredAt))
     .limit(200);
 
+  // Delivery gate: support sees why a packed card does not work yet (no customer PII).
+  const [delivery] = row.orderId
+    ? await db
+        .select({
+          orderId: orders.id,
+          orderNumber: orders.orderNumber,
+          orderStatus: orders.status,
+          shipmentStatus: shipments.status,
+          carrier: shipments.carrier,
+          trackingNumber: shipments.trackingNumber,
+          carrierStatus: shipments.carrierStatus,
+          deliveredAt: shipments.deliveredAt,
+        })
+        .from(orders)
+        .leftJoin(shipments, eq(shipments.orderId, orders.id))
+        .where(eq(orders.id, row.orderId))
+    : [];
+
   const revealEmails = can(actor, "users.read");
   const mask = (email: string | null) => (email ? (revealEmails ? email : maskEmail(email)) : null);
   return {
     ...row,
+    delivery: delivery ?? null,
     activatedByEmail: mask(row.activatedByEmail),
     replacement: replacement ?? null,
     replaces: replaces ?? null,

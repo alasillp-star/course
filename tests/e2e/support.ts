@@ -15,7 +15,13 @@ export type E2EData = {
   batchId: string;
   courseId: string;
   cards: Card[];
+  /** QR-only cards (no PIN), never sold at the counter: for the delivery flow. */
+  qrCards: Array<{ serial: string; code: string; url: string }>;
 };
+
+/** Shared secrets of the test server's integrations (see playwright.config.ts). */
+export const ORDERS_TOKEN = "e2e-orders-token-0123456789abcdefghijklmnop";
+export const DELIVERY_TOKEN = "e2e-delivery-token-0123456789abcdefghijklmn";
 
 export function saveData(data: E2EData) {
   mkdirSync(STATE_DIR, { recursive: true });

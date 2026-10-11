@@ -47,10 +47,9 @@ export default async function AdminLayout({ children }: LayoutProps<"/[locale]/a
       visible: canAny(actor, ["activation.batches.read", "activation.codes.read"]),
     },
     {
-      href: `${base}/sales`,
+      href: `${base}/orders`,
       label: t.sales,
       icon: <ShoppingBagIcon />,
-      soonLabel: soon,
       visible: can(actor, "orders.read"),
     },
     {

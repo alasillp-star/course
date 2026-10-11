@@ -8,7 +8,10 @@ import { closeDb, getDb } from "@/server/db/client";
  *  - OTP challenges older than 7 days,
  *  - sessions expired or revoked more than 30 days ago,
  *  - elapsed rate-limit windows,
- *  - e-mail delivery logs older than 90 days.
+ *  - e-mail delivery logs older than 90 days,
+ *  - raw integration messages (landing-site orders, carrier updates: customer
+ *    names, phones, addresses) older than 30 days — the orders and shipments
+ *    themselves are kept.
  * Audit logs and activation events are kept (append-only by design).
  */
 async function main() {
@@ -23,6 +26,9 @@ async function main() {
     rateLimits: await tx.execute(sql`delete from rate_limit_buckets where reset_at < now()`),
     emails: await tx.execute(
       sql`delete from email_deliveries where created_at < now() - interval '90 days'`,
+    ),
+    integrationEvents: await tx.execute(
+      sql`delete from integration_events where received_at < now() - interval '30 days'`,
     ),
   }));
   for (const [name, result] of Object.entries(results)) {

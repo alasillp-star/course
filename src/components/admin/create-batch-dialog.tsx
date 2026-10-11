@@ -45,7 +45,8 @@ export function CreateBatchDialog({
   const [name, setName] = useState("");
   const [courseId, setCourseId] = useState(courses[0]?.id ?? "");
   const [quantity, setQuantity] = useState(100);
-  const [requiresPin, setRequiresPin] = useState(true);
+  // Cards are QR-only: the scratch-off PIN stays available in the API for legacy print runs.
+  const requiresPin = false;
   const [requiresSale, setRequiresSale] = useState(true);
   const [redeemBy, setRedeemBy] = useState("");
   const [notes, setNotes] = useState("");
@@ -140,17 +141,6 @@ export function CreateBatchDialog({
               />
             </Field>
           </div>
-          <label className="border-border flex items-start justify-between gap-4 rounded-xl border p-3">
-            <span>
-              <span className="block text-sm font-medium">{t.requiresPin}</span>
-              <span className="text-muted-foreground block text-xs">{t.requiresPinHint}</span>
-            </span>
-            <Switch
-              checked={requiresPin}
-              onCheckedChange={setRequiresPin}
-              aria-label={t.requiresPin}
-            />
-          </label>
           <label className="border-border flex items-start justify-between gap-4 rounded-xl border p-3">
             <span>
               <span className="block text-sm font-medium">{t.requiresSale}</span>

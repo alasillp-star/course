@@ -33,6 +33,16 @@ export type AuditAction =
   | "activation.code_replaced"
   | "activation.code_unlocked"
   | "activation.code_redeemed"
+  // Orders & delivery
+  | "orders.created"
+  | "orders.updated"
+  | "orders.cancelled"
+  | "orders.card_assigned"
+  | "orders.card_unassigned"
+  | "orders.shipment_set"
+  | "orders.delivery_status_changed"
+  | "orders.delivery_override"
+  | "orders.delivery_imported"
   // Entitlements
   | "entitlement.granted"
   | "entitlement.revoked"

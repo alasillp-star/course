@@ -21,6 +21,7 @@ import {
   PAYMENT_PROVIDERS,
   PAYMENT_STATUSES,
   REFUND_STATUSES,
+  SHIPMENT_STATUSES,
 } from "../../../shared/enums";
 import { createdAt, deletedAt, enumCheck, pk, rule, tstz, updatedAt } from "./_columns";
 import { activationCodes } from "./activation";
@@ -35,6 +36,23 @@ import { users } from "./identity";
  * `payments.provider = 'card_gateway'` and `payment_webhook_events`.
  * All amounts are integers in minor units (e.g. centimes of DZD).
  */
+export type ShippingAddress = {
+  /** Province (wilaya). */
+  region?: string;
+  /** Municipality (commune) / city. */
+  city?: string;
+  address?: string;
+};
+
+export type ShipmentHistoryEntry = {
+  at: string;
+  status: string;
+  carrierStatus?: string | null;
+  source: string;
+  actorUserId?: string | null;
+  note?: string | null;
+};
+
 export const orderNumberSeq = pgSequence("order_number_seq", { startWith: 1000 });
 export const invoiceNumberSeq = pgSequence("invoice_number_seq", { startWith: 1000 });
 
@@ -113,6 +131,12 @@ export const orders = pgTable(
     totalMinor: bigint({ mode: "number" }).notNull().default(0),
     discountCodeId: uuid().references(() => discountCodes.id, { onDelete: "set null" }),
     notes: text(),
+    /** Where the order came from (e.g. "landing_site") and its id there (idempotency). */
+    externalSource: text(),
+    externalId: text(),
+    shippingAddress: jsonb().$type<ShippingAddress>(),
+    /** Original payload / extra fields from the source system. */
+    metadata: jsonb().$type<Record<string, unknown>>().notNull().default({}),
     placedAt: tstz(),
     paidAt: tstz(),
     cancelledAt: tstz(),
@@ -122,6 +146,9 @@ export const orders = pgTable(
   },
   (t) => [
     uniqueIndex("orders_number_key").on(t.orderNumber),
+    uniqueIndex("orders_external_key")
+      .on(t.externalSource, t.externalId)
+      .where(sql`${t.externalId} is not null`),
     enumCheck("orders_status_check", t.status, ORDER_STATUSES),
     enumCheck("orders_channel_check", t.channel, ORDER_CHANNELS),
     rule("orders_currency_check", sql`${t.currency} ~ '^[A-Z]{3}$'`),
@@ -282,5 +309,45 @@ export const paymentWebhookEvents = pgTable(
     index("payment_webhook_events_unprocessed_idx")
       .on(t.receivedAt)
       .where(sql`${t.processedAt} is null`),
+  ],
+);
+
+/**
+ * Delivery of an order's parcel. The carrier is the source of truth: its
+ * updates (webhook, polling, CSV import) or a staff override move `status`;
+ * "delivered" is what unlocks the activation card packed in the parcel.
+ */
+export const shipments = pgTable(
+  "shipments",
+  {
+    id: pk(),
+    orderId: uuid()
+      .notNull()
+      .references(() => orders.id, { onDelete: "cascade" }),
+    /** Carrier key, e.g. "yalidine", "zr-express", "manual". */
+    carrier: text().notNull(),
+    trackingNumber: text().notNull(),
+    status: text({ enum: SHIPMENT_STATUSES }).notNull().default("pending"),
+    /** The carrier's own label for the latest status (e.g. "Livré"). */
+    carrierStatus: text(),
+    deliveredAt: tstz(),
+    returnedAt: tstz(),
+    lastEventAt: tstz(),
+    lastSyncedAt: tstz(),
+    history: jsonb().$type<ShipmentHistoryEntry[]>().notNull().default([]),
+    createdBy: uuid().references(() => users.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    uniqueIndex("shipments_order_key").on(t.orderId),
+    uniqueIndex("shipments_carrier_tracking_key").on(t.carrier, t.trackingNumber),
+    enumCheck("shipments_status_check", t.status, SHIPMENT_STATUSES),
+    rule(
+      "shipments_delivered_check",
+      sql`${t.status} <> 'delivered' or ${t.deliveredAt} is not null`,
+    ),
+    index("shipments_tracking_idx").on(t.trackingNumber),
+    index("shipments_status_idx").on(t.status, t.updatedAt),
   ],
 );

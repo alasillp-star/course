@@ -4,7 +4,8 @@ import { ADMIN_STATE, apiLogin, parseCsv, saveData, totp, type Card } from "./su
 /**
  * Bootstraps the E2E world through the public API only:
  * the seeded Super Admin signs in with an e-mailed OTP, enrols TOTP MFA,
- * creates a card batch, downloads the printer file and sells 8 of 12 cards.
+ * creates a card batch, downloads the printer file and sells 8 of 12 cards,
+ * then prints a small QR-only batch for the delivery flow.
  */
 setup(
   "admin signs in, enrols MFA and prepares activation cards",
@@ -64,7 +65,25 @@ setup(
     expect((await sold.json()).data.sold).toHaveLength(8);
     cards.slice(0, 8).forEach((card) => (card.sold = true));
 
-    saveData({ adminEmail, adminSecret: secret, batchId: batch.id, courseId, cards });
+    // QR-only print run (the current card format) for the delivery-gated flow.
+    const qrBatch = await api.post("/api/v1/admin/activation/batches", {
+      data: { name: "E2E QR-only", courseId, quantity: 3, requiresPin: false, requiresSale: true },
+    });
+    expect(qrBatch.status(), await qrBatch.text()).toBe(201);
+    const qrId = ((await qrBatch.json()).data as { id: string }).id;
+    const qrPrinter = await api.get(
+      `/api/v1/admin/activation/batches/${qrId}/printer-data?from=1&to=3`,
+    );
+    const qrCards = parseCsv(await qrPrinter.text())
+      .slice(1)
+      .map(([serial, code, , url]) => ({
+        serial: serial!,
+        code: code!.replaceAll("-", ""),
+        url: url!,
+      }));
+    expect(qrCards).toHaveLength(3);
+
+    saveData({ adminEmail, adminSecret: secret, batchId: batch.id, courseId, cards, qrCards });
     await api.storageState({ path: ADMIN_STATE });
     await api.dispose();
   },

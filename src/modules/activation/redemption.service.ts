@@ -1,9 +1,16 @@
 import "server-only";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import type { Locale } from "@/i18n/config";
 import { isLocale } from "@/i18n/config";
 import { getDb, type Executor, type Transaction } from "@/server/db/client";
-import { activationBatches, activationCodes, courses, users } from "@/server/db/schema";
+import {
+  activationBatches,
+  activationCodes,
+  courses,
+  customers,
+  orders,
+  users,
+} from "@/server/db/schema";
 import { AppError } from "@/server/http/errors";
 import type { RequestMeta } from "@/server/http/request-meta";
 import { enforceRateLimit } from "@/server/rate-limit";
@@ -47,7 +54,10 @@ function assertRedeemable(code: CodeRow, batch: BatchRow): void {
   if (batch.redeemBy && batch.redeemBy.getTime() <= Date.now()) {
     throw new AppError("ACTIVATION_CODE_EXPIRED");
   }
-  if (batch.requiresSale && code.status !== "sold") throw new AppError("ACTIVATION_CODE_NOT_SOLD");
+  if (batch.requiresSale && code.status !== "sold") {
+    // Packed in a customer's parcel: unlocked when the carrier reports delivery.
+    throw new AppError(code.orderId ? "ACTIVATION_AWAITING_DELIVERY" : "ACTIVATION_CODE_NOT_SOLD");
+  }
 }
 
 async function loadCardByCode(executor: Executor, rawCode: string, lock: boolean) {
@@ -241,6 +251,18 @@ export async function completeActivation(
         })
         .where(eq(activationCodes.id, code.id));
       await tx.update(users).set({ lastLoginAt: now }).where(eq(users.id, user.id));
+      if (code.orderId) {
+        // Link the delivery customer to the student account (support: order <-> student).
+        await tx
+          .update(customers)
+          .set({ userId: user.id })
+          .where(
+            and(
+              isNull(customers.userId),
+              sql`${customers.id} = (select ${orders.customerId} from ${orders} where ${orders.id} = ${code.orderId})`,
+            ),
+          );
+      }
 
       await recordActivationEvents(tx, [
         {

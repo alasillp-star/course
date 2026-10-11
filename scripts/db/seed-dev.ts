@@ -7,7 +7,11 @@ import { ALL_PERMISSIONS } from "@/modules/access/catalog";
 import { assignRoleUnchecked } from "@/modules/access/rbac.service";
 import { markCardsSold } from "@/modules/activation/admin-codes.service";
 import { createBatch, loadPrintableCards } from "@/modules/activation/batches.service";
-import { formatCardCode, formatCardPin } from "@/modules/activation/codes";
+import {
+  applyDeliveryEvent,
+  assignCardToOrder,
+  ingestLandingOrder,
+} from "@/modules/commerce/orders.service";
 import { addLinkResource } from "@/modules/content/content.service";
 import {
   completeUpload,
@@ -23,7 +27,8 @@ import type { SystemRole } from "@/shared/enums";
 /**
  * DEVELOPMENT DATA ONLY — refuses to run in staging/production.
  * Creates demo course content (based on the existing course outline), one
- * account per staff role and a small card batch for manual testing.
+ * account per staff role, a small QR-only card batch and three delivery orders
+ * for manual testing.
  */
 const APP_ENV = process.env.APP_ENV ?? "development";
 if (APP_ENV === "production" || APP_ENV === "staging") {
@@ -164,13 +169,14 @@ async function main() {
   };
   await attachSampleVideo(systemActor, courseId);
 
+  // QR-only cards (no scratch PIN), activatable only after a sale or a delivery.
   const batch = await createBatch(
     systemActor,
     {
       name: "Demo batch (development)",
       courseId,
       quantity: 20,
-      requiresPin: true,
+      requiresPin: false,
       requiresSale: true,
     },
     SYSTEM_REQUEST_META,
@@ -185,16 +191,96 @@ async function main() {
     { serials: cards.slice(0, 10).map((card) => card.serial) },
     SYSTEM_REQUEST_META,
   );
+  console.log(
+    `✓ demo batch ${batch.serialPrefix}: 20 QR-only cards, the first 10 sold at the counter`,
+  );
 
-  console.log(`✓ demo batch ${batch.serialPrefix}: 20 cards, the first 10 marked as sold`);
-  console.log("\n  Sold demo cards (development only):");
-  for (const card of cards.slice(0, 3)) {
-    console.log(
-      `   ${card.serial}  code ${formatCardCode(card.code)}  PIN ${formatCardPin(card.pin!)}`,
-    );
-    console.log(`   ${card.url}`);
+  const delivery = await seedDemoOrders(systemActor, cards.slice(10, 12));
+
+  console.log("\n  Counter-sold demo cards (development only):");
+  for (const card of cards.slice(0, 2)) {
+    console.log(`   ${card.serial}  ${card.url}`);
   }
+  console.log("\n  Delivery orders (development only):");
+  console.log(
+    `   ${delivery.inTransit.orderNumber}  card ${delivery.inTransit.card.serial} — parcel in transit, card LOCKED`,
+  );
+  console.log(`   ${delivery.inTransit.card.url}`);
+  console.log(
+    `   ${delivery.delivered.orderNumber}  card ${delivery.delivered.card.serial} — parcel delivered, card works`,
+  );
+  console.log(`   ${delivery.delivered.card.url}`);
+  console.log(`   ${delivery.waiting.orderNumber}  — new landing-page order, no card packed yet`);
   console.log("\n  Sign-in codes are written to the dev mailbox (.data/mailbox).");
+}
+
+/**
+ * Three landing-page orders through the real intake and carrier code paths:
+ * one in transit (card locked), one delivered (card unlocked), one waiting.
+ */
+async function seedDemoOrders(actor: Actor, cards: Array<{ serial: string; url: string }>) {
+  const intake = async (id: string, extra: Record<string, unknown>) =>
+    ingestLandingOrder(
+      {
+        order_id: id,
+        full_name: extra.name,
+        phone: extra.phone,
+        wilaya: extra.wilaya,
+        commune: extra.commune,
+        product: "Formation e-commerce — carte d'accès",
+        total: 4900,
+        shipping_fee: 400,
+        ...extra,
+      },
+      SYSTEM_REQUEST_META,
+    );
+  const suffix = Date.now().toString(36).toUpperCase();
+  const inTransit = await intake(`demo-${suffix}-1`, {
+    name: "Yacine Benali",
+    phone: "0555 12 34 56",
+    wilaya: "16 - Alger",
+    commune: "Bab Ezzouar",
+    tracking_number: `DEMO-${suffix}-1`,
+    carrier: "Demo carrier",
+  });
+  const delivered = await intake(`demo-${suffix}-2`, {
+    name: "Amina Khelifi",
+    phone: "0661 22 33 44",
+    wilaya: "31 - Oran",
+    commune: "Bir El Djir",
+    tracking_number: `DEMO-${suffix}-2`,
+    carrier: "Demo carrier",
+  });
+  const waiting = await intake(`demo-${suffix}-3`, {
+    name: "Sofiane Haddad",
+    phone: "0770 98 76 54",
+    wilaya: "25 - Constantine",
+    commune: "El Khroub",
+  });
+  await assignCardToOrder(
+    actor,
+    { orderId: inTransit.orderId!, serial: cards[0]!.serial },
+    SYSTEM_REQUEST_META,
+  );
+  await assignCardToOrder(
+    actor,
+    { orderId: delivered.orderId!, serial: cards[1]!.serial },
+    SYSTEM_REQUEST_META,
+  );
+  await applyDeliveryEvent(
+    { trackingNumber: `DEMO-${suffix}-1`, status: "En transit" },
+    { source: "webhook" },
+  );
+  await applyDeliveryEvent(
+    { trackingNumber: `DEMO-${suffix}-2`, status: "Livré" },
+    { source: "webhook" },
+  );
+  console.log("✓ demo orders: 1 in transit, 1 delivered, 1 waiting for a card");
+  return {
+    inTransit: { orderNumber: inTransit.orderNumber, card: cards[0]! },
+    delivered: { orderNumber: delivered.orderNumber, card: cards[1]! },
+    waiting: { orderNumber: waiting.orderNumber },
+  };
 }
 
 /**

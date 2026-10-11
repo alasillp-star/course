@@ -13,6 +13,7 @@ import {
   PartyPopperIcon,
   QrCodeIcon,
   ShieldCheckIcon,
+  RefreshCwIcon,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button, Spinner } from "@/components/ui/button";
@@ -32,6 +33,7 @@ const BLOCKING: ReadonlySet<string> = new Set<BlockingCode>([
   "ACTIVATION_CODE_ALREADY_USED",
   "ACTIVATION_CODE_REVOKED",
   "ACTIVATION_CODE_NOT_SOLD",
+  "ACTIVATION_AWAITING_DELIVERY",
   "ACTIVATION_CODE_EXPIRED",
   "ACTIVATION_CODE_LOCKED",
 ]);
@@ -217,8 +219,17 @@ export function ActivationFlow({
               void check(code);
             }}
           >
+            <div className="border-border bg-card flex items-start gap-4 rounded-2xl border p-5">
+              <span className="bg-primary text-primary-foreground grid size-12 shrink-0 place-items-center rounded-xl">
+                <QrCodeIcon className="size-6" />
+              </span>
+              <div>
+                <p className="font-semibold">{t.scanTitle}</p>
+                <p className="text-muted-foreground mt-1 text-sm leading-relaxed">{t.scanBody}</p>
+              </div>
+            </div>
             <div>
-              <p className="font-semibold">{t.manualTitle}</p>
+              <p className="text-sm font-semibold">{t.manualTitle}</p>
               <p className="text-muted-foreground mt-1 text-sm">{t.manualBody}</p>
             </div>
             <Field label={t.codeLabel} htmlFor="card-code">
@@ -238,7 +249,7 @@ export function ActivationFlow({
             {error ? <ErrorAlert message={error} /> : null}
             <Button
               type="submit"
-              size="lg"
+              variant="secondary"
               disabled={code.replace(/[^0-9A-Za-z]/g, "").length < 16}
             >
               {t.checkCode}
@@ -380,6 +391,11 @@ export function ActivationFlow({
               {state.code === "ACTIVATION_CODE_ALREADY_USED" ? (
                 <Button asChild>
                   <Link href={`/${locale}/login`}>{signInLabel}</Link>
+                </Button>
+              ) : state.code === "ACTIVATION_AWAITING_DELIVERY" && code ? (
+                <Button onClick={() => void check(code)}>
+                  <RefreshCwIcon />
+                  {t.retry}
                 </Button>
               ) : (
                 <Button asChild variant="secondary">

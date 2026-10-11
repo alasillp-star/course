@@ -34,6 +34,8 @@ export const RATE_LIMITS = {
   "download:user": { limit: 120, windowSeconds: 60 * 60 },
   // Staff uploads
   "media:upload:user": { limit: 200, windowSeconds: 60 * 60 },
+  // Server-to-server integrations (landing site, carrier): a ceiling, not a quota
+  "integration:ip": { limit: 3000, windowSeconds: 60 * 60 },
 } as const satisfies Record<string, RateLimitPolicy>;
 
 export type RateLimitName = keyof typeof RATE_LIMITS;

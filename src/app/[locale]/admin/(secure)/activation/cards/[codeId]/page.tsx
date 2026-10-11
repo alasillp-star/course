@@ -5,6 +5,7 @@ import { ArrowRightIcon } from "lucide-react";
 import { ApiActionDialog } from "@/components/admin/api-action-dialog";
 import { PageHeader } from "@/components/admin/page-header";
 import { ReplaceCardDialog } from "@/components/admin/replace-card-dialog";
+import { ShipmentStatusBadge } from "@/components/admin/orders/badges";
 import { CodeStatusBadge } from "@/components/admin/status-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format, formatDateTime, pickLocalized } from "@/i18n/format";
@@ -129,6 +130,54 @@ export default async function CardDetailPage({
               ) : null}
             </CardContent>
           </Card>
+          {card.delivery ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>{t.delivery}</CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-3 text-sm">
+                <div className="flex flex-wrap items-center gap-2">
+                  {can(actor, "orders.read") ? (
+                    <Link
+                      href={`/${locale}/admin/orders/${card.delivery.orderId}`}
+                      className="font-mono font-semibold hover:underline"
+                      dir="ltr"
+                    >
+                      {card.delivery.orderNumber}
+                    </Link>
+                  ) : (
+                    <span className="font-mono font-semibold" dir="ltr">
+                      {card.delivery.orderNumber}
+                    </span>
+                  )}
+                  {card.delivery.shipmentStatus ? (
+                    <ShipmentStatusBadge
+                      status={card.delivery.shipmentStatus}
+                      labels={dict.admin.orders.shipmentStatus}
+                    />
+                  ) : (
+                    <span className="text-muted-foreground text-xs">
+                      {dict.admin.orders.noShipment}
+                    </span>
+                  )}
+                </div>
+                {card.delivery.trackingNumber ? (
+                  <p className="text-muted-foreground">
+                    {card.delivery.carrier} ·{" "}
+                    <span dir="ltr" className="font-mono">
+                      {card.delivery.trackingNumber}
+                    </span>
+                    {card.delivery.carrierStatus ? ` · ${card.delivery.carrierStatus}` : null}
+                  </p>
+                ) : null}
+                {card.status === "available" ? (
+                  <p className="text-warning-foreground dark:text-warning font-medium">
+                    {t.deliveryLocked}
+                  </p>
+                ) : null}
+              </CardContent>
+            </Card>
+          ) : null}
           <Card>
             <CardHeader>
               <CardTitle>{t.timeline}</CardTitle>
@@ -163,7 +212,7 @@ export default async function CardDetailPage({
             <CardTitle>{t.actions}</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
-            {card.status === "available" && can(actor, "activation.codes.sell") ? (
+            {card.status === "available" && !card.orderId && can(actor, "activation.codes.sell") ? (
               <ApiActionDialog
                 label={t.sell}
                 title={t.sell}
@@ -174,7 +223,7 @@ export default async function CardDetailPage({
                 errors={dict.errors}
               />
             ) : null}
-            {card.status === "sold" && can(actor, "activation.codes.sell") ? (
+            {card.status === "sold" && !card.orderId && can(actor, "activation.codes.sell") ? (
               <ApiActionDialog
                 label={t.unsell}
                 title={t.unsell}
