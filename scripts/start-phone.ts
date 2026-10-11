@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from "node:child_process";
-import { existsSync, readdirSync, statSync } from "node:fs";
+import { existsSync, mkdirSync, openSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { createConnection } from "node:net";
 import { networkInterfaces } from "node:os";
 import path from "node:path";
@@ -8,16 +8,23 @@ import QRCode from "qrcode";
 /**
  * Serves a production build of the platform beyond this computer:
  *
- *   npm run start:phone   phones on the same Wi-Fi (http://<this computer's IP>:3000)
- *   npm run codespace     GitHub Codespaces: setup + build + start on the codespace's
- *                         https address (run automatically when the codespace opens)
+ *   npm run start:phone   phones on the same Wi-Fi (http://<this computer's IP>:3000);
+ *                         runs in this terminal, Ctrl+C stops it
+ *   npm run codespace     GitHub Codespaces (run automatically when the codespace opens):
+ *                         setup + build + server on the codespace's https address, kept
+ *                         running in the background — closing the terminal or Ctrl+C
+ *                         does not stop it (npm run stop does; log in .data/server.log)
  *
  * APP_URL is set for the server process only (QR codes of cards downloaded
  * meanwhile open on that address); .env.local is not modified. The build is
- * reused while the code has not changed.
+ * reused while the code has not changed. The links are printed once the site
+ * actually answers.
  */
 const PORT = Number(process.env.PORT ?? 3000);
 const ROOT = process.cwd();
+const DATA_DIR = path.join(ROOT, ".data");
+const LOG_FILE = path.join(DATA_DIR, "server.log");
+const PID_FILE = path.join(DATA_DIR, "server.pid");
 const isWindows = process.platform === "win32";
 const withSetup = process.argv.includes("--setup");
 
@@ -50,6 +57,20 @@ function portInUse(port: number): Promise<boolean> {
   });
 }
 
+async function waitUntilHealthy(seconds: number): Promise<boolean> {
+  const deadline = Date.now() + seconds * 1000;
+  while (Date.now() < deadline) {
+    try {
+      const response = await fetch(`http://127.0.0.1:${PORT}/api/health`);
+      if (response.ok) return true;
+    } catch {
+      // not listening yet
+    }
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+  return false;
+}
+
 /** Newest modification time among the sources that end up in the build. */
 function newestSource(): number {
   let newest = 0;
@@ -71,6 +92,32 @@ function npm(args: string[], env: NodeJS.ProcessEnv) {
   if (result.status !== 0) process.exit(result.status ?? 1);
 }
 
+async function banner(url: string, cloud: boolean) {
+  const inbox = codespaceUrl(8025) ?? "http://localhost:8025";
+  console.log(`
+════════════════════════════════════════════════════════════════════
+ ✓ Abdou Academy est en ligne / is running
+
+   Plateforme / Platform     ${url}/ar
+   Connexion admin / Admin   ${url}/ar/login   (owner@academy.test)
+   Codes de connexion        ${inbox}
+${
+  cloud
+    ? `
+   Le serveur tourne en arrière-plan : vous pouvez fermer ce terminal.
+   (Ctrl+C ne l'arrête plus. Arrêter : npm run stop · Journal : .data/server.log)
+   Ouvrir : Ctrl+clic sur le lien, ou onglet « Ports » → ${PORT} → icône globe.
+   Téléphone : scannez le QR code ci-dessous. S'il demande une connexion GitHub :
+   onglet « Ports » → ${PORT} → clic droit → Visibilité du port → Public.`
+    : `
+   Phones on the same Wi-Fi: scan the QR code below.
+   If the phone cannot connect, allow Node.js in the computer's firewall.
+   Ctrl+C stops the platform.`
+}
+════════════════════════════════════════════════════════════════════`);
+  console.log(await QRCode.toString(`${url}/ar`, { type: "terminal", small: true }));
+}
+
 async function main() {
   const cloud = codespaceUrl(PORT);
   const ip = cloud ? undefined : lanAddress();
@@ -82,7 +129,7 @@ async function main() {
   const env = { ...process.env, APP_URL: url };
 
   if (await portInUse(PORT)) {
-    console.log(`✓ The platform is already running: ${url}/ar`);
+    await banner(url, !!cloud);
     return;
   }
   if (withSetup) npm(["run", "setup"], env);
@@ -99,29 +146,35 @@ async function main() {
     spawnSync(
       "gh",
       ["codespace", "ports", "visibility", `${PORT}:public`, "-c", process.env.CODESPACE_NAME],
-      {
-        stdio: "ignore",
-      },
+      { stdio: "ignore" },
     );
   }
 
-  console.log(`
-────────────────────────────────────────────────────────────────────
- Abdou Academy: ${url}/ar
- Admin:         ${url}/ar/login   (owner@academy.test)
- Sign-in codes: ${codespaceUrl(8025) ?? "http://localhost:8025"}
- Cards downloaded now (Admin → Activation cards → PDF) open on phones.
-${cloud ? " If a phone asks for a GitHub login: Ports tab → port 3000 → Port Visibility → Public." : " If the phone cannot connect, allow Node.js in the computer's firewall."}
-────────────────────────────────────────────────────────────────────`);
-  console.log(await QRCode.toString(`${url}/ar`, { type: "terminal", small: true }));
+  const args = ["run", "start", "--", "-H", "0.0.0.0", "-p", String(PORT)];
+  if (cloud) {
+    // Detached: survives Ctrl+C and closed terminals; stopped by `npm run stop`.
+    mkdirSync(DATA_DIR, { recursive: true });
+    const log = openSync(LOG_FILE, "a");
+    const server = spawn("npm", args, {
+      cwd: ROOT,
+      env,
+      detached: true,
+      stdio: ["ignore", log, log],
+    });
+    server.unref();
+    writeFileSync(PID_FILE, String(server.pid));
+    console.log("\n▸ Starting the platform…");
+    if (!(await waitUntilHealthy(90))) {
+      console.error(`✗ The platform did not start. See ${LOG_FILE}`);
+      process.exit(1);
+    }
+    await banner(url, true);
+    return;
+  }
 
-  const server = spawn("npm", ["run", "start", "--", "-H", "0.0.0.0", "-p", String(PORT)], {
-    cwd: ROOT,
-    env,
-    shell: isWindows,
-    stdio: "inherit",
-  });
+  const server = spawn("npm", args, { cwd: ROOT, env, shell: isWindows, stdio: "inherit" });
   server.on("exit", (code) => process.exit(code ?? 0));
+  if (await waitUntilHealthy(90)) await banner(url, false);
 }
 
 void main();
