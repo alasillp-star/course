@@ -23,7 +23,11 @@ describe("database hardening", () => {
   });
 
   it("keeps the audit log append-only", async () => {
-    await recordAudit(getDb(), { action: "auth.login", meta: testMeta(), metadata: { pin: "12345678" } });
+    await recordAudit(getDb(), {
+      action: "auth.login",
+      meta: testMeta(),
+      metadata: { pin: "12345678" },
+    });
     const [entry] = await getDb().select().from(auditLogs);
     expect(entry?.metadata).toEqual({ pin: "[redacted]" });
     await expect(getDb().execute(sql`update audit_logs set action = 'tampered'`)).rejects.toThrow();
@@ -47,15 +51,23 @@ describe("database hardening", () => {
     const courseId = await createCourse();
     const userId = await createUser("one@example.com");
     const db = getDb();
-    await db.execute(sql`insert into course_entitlements (user_id, course_id, source) values (${userId}, ${courseId}, 'manual_grant')`);
+    await db.execute(
+      sql`insert into course_entitlements (user_id, course_id, source) values (${userId}, ${courseId}, 'manual_grant')`,
+    );
     await expect(
-      db.execute(sql`insert into course_entitlements (user_id, course_id, source) values (${userId}, ${courseId}, 'manual_grant')`),
+      db.execute(
+        sql`insert into course_entitlements (user_id, course_id, source) values (${userId}, ${courseId}, 'manual_grant')`,
+      ),
     ).rejects.toThrow();
   });
 
   it("stores e-mails normalised and unique", async () => {
     await createUser("unique@example.com");
-    await expect(getDb().execute(sql`insert into users (email) values ('UNIQUE@example.com')`)).rejects.toThrow();
-    await expect(getDb().execute(sql`insert into users (email) values ('unique@example.com')`)).rejects.toThrow();
+    await expect(
+      getDb().execute(sql`insert into users (email) values ('UNIQUE@example.com')`),
+    ).rejects.toThrow();
+    await expect(
+      getDb().execute(sql`insert into users (email) values ('unique@example.com')`),
+    ).rejects.toThrow();
   });
 });

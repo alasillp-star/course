@@ -22,8 +22,12 @@ export default async function SecurityPage() {
     <div className="grid max-w-3xl gap-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
-        <p className="mt-1 text-muted-foreground">{t.subtitle}</p>
-        {limit > 0 ? <p className="mt-1 text-xs text-muted-foreground">{format(t.deviceLimit, { count: limit })}</p> : null}
+        <p className="text-muted-foreground mt-1">{t.subtitle}</p>
+        {limit > 0 ? (
+          <p className="text-muted-foreground mt-1 text-xs">
+            {format(t.deviceLimit, { count: limit })}
+          </p>
+        ) : null}
       </div>
       <SessionsManager
         locale={locale}

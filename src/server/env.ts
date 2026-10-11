@@ -11,10 +11,13 @@ const secretKey = (name: string, exactBytes?: number) =>
   z
     .string({ error: `${name} is required` })
     .min(1, `${name} is required`)
-    .refine((value) => {
-      const length = Buffer.from(value, "base64").length;
-      return exactBytes ? length === exactBytes : length >= 32;
-    }, `${name} must be base64 encoding ${exactBytes ?? "at least 32"} random bytes (openssl rand -base64 32)`);
+    .refine(
+      (value) => {
+        const length = Buffer.from(value, "base64").length;
+        return exactBytes ? length === exactBytes : length >= 32;
+      },
+      `${name} must be base64 encoding ${exactBytes ?? "at least 32"} random bytes (openssl rand -base64 32)`,
+    );
 
 const booleanish = z
   .enum(["true", "false", "1", "0"])
@@ -73,7 +76,10 @@ const EnvSchema = z
       }
       const keys = [env.AUTH_SECRET, env.ACTIVATION_CODE_PEPPER, env.DATA_ENCRYPTION_KEY];
       if (new Set(keys).size !== keys.length) {
-        issue("AUTH_SECRET", "AUTH_SECRET, ACTIVATION_CODE_PEPPER and DATA_ENCRYPTION_KEY must differ");
+        issue(
+          "AUTH_SECRET",
+          "AUTH_SECRET, ACTIVATION_CODE_PEPPER and DATA_ENCRYPTION_KEY must differ",
+        );
       }
     }
   });

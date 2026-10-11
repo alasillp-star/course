@@ -13,7 +13,8 @@ export const e2eEnv = {
   APP_ENV: "test",
   APP_URL: BASE_URL,
   DATABASE_URL:
-    process.env.E2E_DATABASE_URL ?? "postgres://academy:academy_dev_password@127.0.0.1:5432/academy_e2e",
+    process.env.E2E_DATABASE_URL ??
+    "postgres://academy:academy_dev_password@127.0.0.1:5432/academy_e2e",
   AUTH_SECRET: Buffer.alloc(32, 11).toString("base64"),
   ACTIVATION_CODE_PEPPER: Buffer.alloc(32, 12).toString("base64"),
   DATA_ENCRYPTION_KEY: Buffer.alloc(32, 13).toString("base64"),

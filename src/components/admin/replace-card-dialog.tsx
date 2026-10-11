@@ -44,7 +44,11 @@ export function ReplaceCardDialog({
     setPending(true);
     setError(null);
     try {
-      setResult(await api<Replacement>(`/api/v1/admin/activation/codes/${codeId}/replace`, { body: { reason } }));
+      setResult(
+        await api<Replacement>(`/api/v1/admin/activation/codes/${codeId}/replace`, {
+          body: { reason },
+        }),
+      );
     } catch (caught) {
       setError(errorMessage(caught, errors));
     } finally {
@@ -75,7 +79,10 @@ export function ReplaceCardDialog({
         </DialogHeader>
         {result ? (
           <div className="grid gap-3">
-            <dl className="grid gap-2 rounded-xl border border-border bg-muted/50 p-4 font-mono text-sm" dir="ltr">
+            <dl
+              className="border-border bg-muted/50 grid gap-2 rounded-xl border p-4 font-mono text-sm"
+              dir="ltr"
+            >
               <div className="flex justify-between gap-4">
                 <dt className="text-muted-foreground">Serial</dt>
                 <dd className="font-semibold">{result.serial}</dd>
@@ -98,8 +105,12 @@ export function ReplaceCardDialog({
             <Button
               variant="outline"
               onClick={() => {
-                const lines = [result.serial, result.code, result.pin ?? "", result.url].filter(Boolean);
-                void navigator.clipboard.writeText(lines.join("\n")).then(() => toast.success(common.copied));
+                const lines = [result.serial, result.code, result.pin ?? "", result.url].filter(
+                  Boolean,
+                );
+                void navigator.clipboard
+                  .writeText(lines.join("\n"))
+                  .then(() => toast.success(common.copied));
               }}
             >
               <CopyIcon />
@@ -115,11 +126,19 @@ export function ReplaceCardDialog({
             }}
           >
             <Field label={t.reason} htmlFor="replace-reason">
-              <Textarea id="replace-reason" required minLength={3} maxLength={500} placeholder={t.reasonPlaceholder} value={reason} onChange={(event) => setReason(event.target.value)} />
+              <Textarea
+                id="replace-reason"
+                required
+                minLength={3}
+                maxLength={500}
+                placeholder={t.reasonPlaceholder}
+                value={reason}
+                onChange={(event) => setReason(event.target.value)}
+              />
             </Field>
             {error ? (
               <Alert variant="destructive">
-                <AlertDescription className="col-start-1 text-foreground">{error}</AlertDescription>
+                <AlertDescription className="text-foreground col-start-1">{error}</AlertDescription>
               </Alert>
             ) : null}
             <Button type="submit" loading={pending}>

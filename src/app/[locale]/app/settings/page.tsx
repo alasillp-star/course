@@ -38,7 +38,9 @@ export default async function SettingsPage() {
           </div>
           <div>
             <p className="text-muted-foreground">{t.memberSince}</p>
-            <p className="font-medium">{formatDate(user?.createdAt, locale, { dateStyle: "long" })}</p>
+            <p className="font-medium">
+              {formatDate(user?.createdAt, locale, { dateStyle: "long" })}
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -52,21 +54,23 @@ export default async function SettingsPage() {
             <EmailChangeForm t={t} errors={dict.errors} />
           ) : (
             <Alert variant="info">
-              <AlertDescription className="col-start-1 text-foreground">{t.reauth}</AlertDescription>
+              <AlertDescription className="text-foreground col-start-1">
+                {t.reauth}
+              </AlertDescription>
             </Alert>
           )}
         </CardContent>
       </Card>
       <Link
         href={`/${locale}/app/settings/security`}
-        className="flex items-center gap-4 rounded-2xl border border-border bg-card p-5 shadow-soft transition hover:bg-muted/40"
+        className="border-border bg-card shadow-soft hover:bg-muted/40 flex items-center gap-4 rounded-2xl border p-5 transition"
       >
-        <ShieldIcon className="size-5 text-gold-strong dark:text-gold" />
+        <ShieldIcon className="text-gold-strong dark:text-gold size-5" />
         <div className="flex-1">
           <p className="font-semibold">{dict.student.security.title}</p>
-          <p className="text-sm text-muted-foreground">{dict.student.security.subtitle}</p>
+          <p className="text-muted-foreground text-sm">{dict.student.security.subtitle}</p>
         </div>
-        <ChevronRightIcon className="size-4 text-muted-foreground rtl:rotate-180" />
+        <ChevronRightIcon className="text-muted-foreground size-4 rtl:rotate-180" />
       </Link>
     </div>
   );

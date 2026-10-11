@@ -95,7 +95,15 @@ function drawQr(page: PDFPage, text: string, x: number, y: number, size: number,
   page.pushOperators(...ops);
 }
 
-function roundedRect(page: PDFPage, x: number, y: number, w: number, h: number, r: number, color: RGB) {
+function roundedRect(
+  page: PDFPage,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number,
+  color: RGB,
+) {
   const k = 0.5523 * r;
   page.pushOperators(
     pushGraphicsState(),
@@ -162,14 +170,28 @@ function drawCard(
     page.drawImage(background, { x, y, width: CARD_W, height: CARD_H });
   } else {
     page.drawRectangle({ x, y, width: CARD_W, height: CARD_H, color: design.primary });
-    page.drawRectangle({ x, y: y + CARD_H - 1.2 * MM, width: CARD_W, height: 1.2 * MM, color: design.accent });
+    page.drawRectangle({
+      x,
+      y: y + CARD_H - 1.2 * MM,
+      width: CARD_W,
+      height: 1.2 * MM,
+      color: design.accent,
+    });
   }
 
   // QR panel (always dark-on-white for reliable scanning).
   const qrSize = 30 * MM;
   const qrX = x + pad;
   const qrY = y + (CARD_H - qrSize) / 2 - 2 * MM;
-  roundedRect(page, qrX - 1.2 * MM, qrY - 1.2 * MM, qrSize + 2.4 * MM, qrSize + 2.4 * MM, 2 * MM, white);
+  roundedRect(
+    page,
+    qrX - 1.2 * MM,
+    qrY - 1.2 * MM,
+    qrSize + 2.4 * MM,
+    qrSize + 2.4 * MM,
+    2 * MM,
+    white,
+  );
   drawQr(page, card.url, qrX, qrY, qrSize, rgb(0, 0, 0));
 
   const textX = qrX + qrSize + 4 * MM;
@@ -179,14 +201,32 @@ function drawCard(
 
   let cursor = y + CARD_H - pad - 3.2 * MM;
   const titleSize = fitText(fonts.bold, design.title, 8.5, textW);
-  page.drawText(design.title, { x: textX, y: cursor, size: titleSize, font: fonts.bold, color: design.accent });
+  page.drawText(design.title, {
+    x: textX,
+    y: cursor,
+    size: titleSize,
+    font: fonts.bold,
+    color: design.accent,
+  });
   cursor -= 3.6 * MM;
   const subtitleSize = fitText(fonts.regular, design.subtitle, 6, textW);
-  page.drawText(design.subtitle, { x: textX, y: cursor, size: subtitleSize, font: fonts.regular, color: muted });
+  page.drawText(design.subtitle, {
+    x: textX,
+    y: cursor,
+    size: subtitleSize,
+    font: fonts.regular,
+    color: muted,
+  });
 
   cursor -= 5.2 * MM;
   page.drawText("N°", { x: textX, y: cursor, size: 5.5, font: fonts.regular, color: muted });
-  page.drawText(card.serial, { x: textX + 3.4 * MM, y: cursor, size: 7.5, font: fonts.bold, color: light });
+  page.drawText(card.serial, {
+    x: textX + 3.4 * MM,
+    y: cursor,
+    size: 7.5,
+    font: fonts.bold,
+    color: light,
+  });
 
   cursor -= 4.2 * MM;
   const codeText = formatCardCode(card.code);
@@ -203,7 +243,13 @@ function drawCard(
     const panelH = 8.5 * MM;
     const panelY = y + pad;
     roundedRect(page, textX, panelY, textW, panelH, 1.5 * MM, design.accent);
-    page.drawText("PIN", { x: textX + 2 * MM, y: panelY + panelH - 3 * MM, size: 5, font: fonts.bold, color: design.primary });
+    page.drawText("PIN", {
+      x: textX + 2 * MM,
+      y: panelY + panelH - 3 * MM,
+      size: 5,
+      font: fonts.bold,
+      color: design.primary,
+    });
     const pinText = formatCardPin(card.pin);
     page.drawText(pinText, {
       x: textX + 2 * MM,

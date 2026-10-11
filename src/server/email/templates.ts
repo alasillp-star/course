@@ -147,7 +147,10 @@ const NO_ACCOUNT_COPY = {
   },
 } as const;
 
-export function renderNoAccountEmail(params: { locale: Locale; activationUrl: string }): RenderedEmail {
+export function renderNoAccountEmail(params: {
+  locale: Locale;
+  activationUrl: string;
+}): RenderedEmail {
   const copy = NO_ACCOUNT_COPY[params.locale];
   const subject = `${copy.subject} — ${ACADEMY.name[params.locale]}`;
   const html = layout(
@@ -178,7 +181,10 @@ const EMAIL_CHANGED_COPY = {
   },
 } as const;
 
-export function renderEmailChangedEmail(params: { locale: Locale; newEmailMasked: string }): RenderedEmail {
+export function renderEmailChangedEmail(params: {
+  locale: Locale;
+  newEmailMasked: string;
+}): RenderedEmail {
   const copy = EMAIL_CHANGED_COPY[params.locale];
   const subject = `${copy.subject} — ${ACADEMY.name[params.locale]}`;
   const body = copy.body(params.newEmailMasked);

@@ -81,7 +81,11 @@ export function ActivationFlow({
         "/api/v1/activation/check",
         { body: { code: rawCode } },
       );
-      setState({ step: "details", requiresPin: result.requiresPin, courseTitle: result.course.title });
+      setState({
+        step: "details",
+        requiresPin: result.requiresPin,
+        courseTitle: result.course.title,
+      });
     } catch (caught) {
       if (caught instanceof ApiError && BLOCKING.has(caught.code)) {
         setState({ step: "blocked", code: caught.code as BlockingCode });
@@ -113,9 +117,12 @@ export function ActivationFlow({
     setPending(true);
     setError(null);
     try {
-      const result = await api<{ challengeId: string; emailMasked: string }>("/api/v1/activation/start", {
-        body: { code, pin: pin || null, email, locale },
-      });
+      const result = await api<{ challengeId: string; emailMasked: string }>(
+        "/api/v1/activation/start",
+        {
+          body: { code, pin: pin || null, email, locale },
+        },
+      );
       setOtp("");
       setState({ step: "otp", challengeId: result.challengeId, emailMasked: result.emailMasked });
     } catch (caught) {
@@ -158,12 +165,12 @@ export function ActivationFlow({
   return (
     <div>
       <div className="flex items-center gap-3">
-        <span className="grid size-11 place-items-center rounded-xl bg-primary text-primary-foreground dark:bg-gold/15 dark:text-gold">
+        <span className="bg-primary text-primary-foreground dark:bg-gold/15 dark:text-gold grid size-11 place-items-center rounded-xl">
           <QrCodeIcon className="size-5" />
         </span>
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
-          <p className="text-sm text-muted-foreground">{t.subtitle}</p>
+          <p className="text-muted-foreground text-sm">{t.subtitle}</p>
         </div>
       </div>
 
@@ -173,12 +180,17 @@ export function ActivationFlow({
             <li key={label} className="grid gap-1.5">
               <span
                 className={cn(
-                  "h-1.5 rounded-full bg-muted transition-colors duration-500",
+                  "bg-muted h-1.5 rounded-full transition-colors duration-500",
                   index < stepIndex && "bg-gold",
                   index === stepIndex && "bg-primary dark:bg-gold/60",
                 )}
               />
-              <span className={cn("text-xs text-muted-foreground", index <= stepIndex && "font-medium text-foreground")}>
+              <span
+                className={cn(
+                  "text-muted-foreground text-xs",
+                  index <= stepIndex && "text-foreground font-medium",
+                )}
+              >
                 {label}
               </span>
             </li>
@@ -188,7 +200,10 @@ export function ActivationFlow({
 
       <div className="mt-7">
         {state.step === "init" || state.step === "checking" ? (
-          <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-5 text-sm" role="status">
+          <div
+            className="border-border bg-card flex items-center gap-3 rounded-2xl border p-5 text-sm"
+            role="status"
+          >
             <Spinner />
             {t.checking}
           </div>
@@ -204,7 +219,7 @@ export function ActivationFlow({
           >
             <div>
               <p className="font-semibold">{t.manualTitle}</p>
-              <p className="mt-1 text-sm text-muted-foreground">{t.manualBody}</p>
+              <p className="text-muted-foreground mt-1 text-sm">{t.manualBody}</p>
             </div>
             <Field label={t.codeLabel} htmlFor="card-code">
               <Input
@@ -216,12 +231,16 @@ export function ActivationFlow({
                 placeholder={t.codePlaceholder}
                 value={code}
                 onChange={(event) => setCode(event.target.value.toUpperCase())}
-                className="font-mono tracking-widest text-center"
+                className="text-center font-mono tracking-widest"
                 required
               />
             </Field>
             {error ? <ErrorAlert message={error} /> : null}
-            <Button type="submit" size="lg" disabled={code.replace(/[^0-9A-Za-z]/g, "").length < 16}>
+            <Button
+              type="submit"
+              size="lg"
+              disabled={code.replace(/[^0-9A-Za-z]/g, "").length < 16}
+            >
               {t.checkCode}
               <ArrowRightIcon className="rtl:rotate-180" />
             </Button>
@@ -236,18 +255,18 @@ export function ActivationFlow({
               void start();
             }}
           >
-            <div className="rounded-2xl border border-success/25 bg-success/8 p-4">
-              <p className="inline-flex items-center gap-2 font-semibold text-success">
+            <div className="border-success/25 bg-success/8 rounded-2xl border p-4">
+              <p className="text-success inline-flex items-center gap-2 font-semibold">
                 <CheckCircle2Icon className="size-4" />
                 {t.validTitle}
               </p>
-              <p className="mt-1 text-sm text-muted-foreground">{t.validBody}</p>
+              <p className="text-muted-foreground mt-1 text-sm">{t.validBody}</p>
               <p className="mt-1 font-semibold">{pickLocalized(state.courseTitle, locale)}</p>
             </div>
             {state.requiresPin ? (
               <Field label={t.pinLabel} htmlFor="card-pin" hint={t.pinHint}>
                 <div className="relative">
-                  <KeyRoundIcon className="pointer-events-none absolute start-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <KeyRoundIcon className="text-muted-foreground pointer-events-none absolute start-3.5 top-1/2 size-4 -translate-y-1/2" />
                   <Input
                     id="card-pin"
                     dir="ltr"
@@ -265,7 +284,7 @@ export function ActivationFlow({
             ) : null}
             <Field label={t.emailLabel} htmlFor="activation-email" hint={t.emailHint}>
               <div className="relative">
-                <MailIcon className="pointer-events-none absolute start-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <MailIcon className="text-muted-foreground pointer-events-none absolute start-3.5 top-1/2 size-4 -translate-y-1/2" />
                 <Input
                   id="activation-email"
                   type="email"
@@ -285,7 +304,7 @@ export function ActivationFlow({
               {t.sendCode}
               <ArrowRightIcon className="rtl:rotate-180" />
             </Button>
-            <p className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+            <p className="text-muted-foreground inline-flex items-center gap-2 text-xs">
               <LockKeyholeIcon className="size-3.5" />
               {t.securityNote}
             </p>
@@ -302,11 +321,17 @@ export function ActivationFlow({
           >
             <div>
               <p className="font-semibold">{t.otpTitle}</p>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="text-muted-foreground mt-1 text-sm">
                 {format(t.otpBody, { email: "⁨" + state.emailMasked + "⁩" })}
               </p>
             </div>
-            <OtpField label={t.otpLabel} value={otp} onChange={setOtp} onComplete={(value) => void complete(value)} disabled={pending} />
+            <OtpField
+              label={t.otpLabel}
+              value={otp}
+              onChange={setOtp}
+              onComplete={(value) => void complete(value)}
+              disabled={pending}
+            />
             {error ? <ErrorAlert message={error} /> : null}
             <Button type="submit" size="lg" loading={pending} disabled={otp.length !== 6}>
               <ShieldCheckIcon />
@@ -316,10 +341,10 @@ export function ActivationFlow({
         ) : null}
 
         {state.step === "success" ? (
-          <div className="rounded-2xl border border-border bg-card p-6 text-center shadow-soft">
-            <PartyPopperIcon className="mx-auto size-10 text-gold-strong dark:text-gold" />
+          <div className="border-border bg-card shadow-soft rounded-2xl border p-6 text-center">
+            <PartyPopperIcon className="text-gold-strong dark:text-gold mx-auto size-10" />
             <p className="mt-4 text-xl font-bold">{t.successTitle}</p>
-            <p className="mt-2 text-sm text-muted-foreground">{t.successBody}</p>
+            <p className="text-muted-foreground mt-2 text-sm">{t.successBody}</p>
             <Button
               size="lg"
               variant="gold"
@@ -336,10 +361,12 @@ export function ActivationFlow({
         ) : null}
 
         {state.step === "blocked" ? (
-          <div className="rounded-2xl border border-border bg-card p-6 shadow-soft" role="alert">
-            <AlertTriangleIcon className="size-8 text-warning" />
+          <div className="border-border bg-card shadow-soft rounded-2xl border p-6" role="alert">
+            <AlertTriangleIcon className="text-warning size-8" />
             <p className="mt-4 text-lg font-bold">{t.statuses[state.code].title}</p>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t.statuses[state.code].body}</p>
+            <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+              {t.statuses[state.code].body}
+            </p>
             <div className="mt-6 grid gap-2 sm:grid-cols-2">
               <Button
                 variant="outline"
@@ -371,14 +398,15 @@ export function ActivationFlow({
 /** Reads the card code from #fragment and removes it from the address bar and history. */
 function readAndClearFragment(): string {
   const value = decodeURIComponent(window.location.hash.replace(/^#/, "")).trim();
-  if (value) window.history.replaceState(null, "", window.location.pathname + window.location.search);
+  if (value)
+    window.history.replaceState(null, "", window.location.pathname + window.location.search);
   return value;
 }
 
 function ErrorAlert({ message }: { message: string }) {
   return (
     <Alert variant="destructive">
-      <AlertDescription className="col-start-1 text-foreground">{message}</AlertDescription>
+      <AlertDescription className="text-foreground col-start-1">{message}</AlertDescription>
     </Alert>
   );
 }

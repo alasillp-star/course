@@ -9,7 +9,9 @@ export function errorMessage(error: unknown, errors: Dictionary["errors"]): stri
     const template = (errors as Record<string, string>)[error.code];
     if (template) {
       const vars = Object.fromEntries(
-        Object.entries(error.details).filter(([, value]) => typeof value === "string" || typeof value === "number"),
+        Object.entries(error.details).filter(
+          ([, value]) => typeof value === "string" || typeof value === "number",
+        ),
       ) as Record<string, string | number>;
       return format(template, vars);
     }

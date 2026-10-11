@@ -38,9 +38,21 @@ export default async function AdminOverviewPage() {
   const metrics = can(actor, "reports.read") ? await getOverviewMetrics(actor) : null;
 
   const quickActions = [
-    can(actor, "activation.batches.create") && { href: `/${locale}/admin/activation?new=1`, label: t.newBatch, icon: <PlusIcon /> },
-    can(actor, "activation.codes.sell") && { href: `/${locale}/admin/activation?sell=1`, label: t.sellCards, icon: <ShoppingCartIcon /> },
-    can(actor, "users.read") && { href: `/${locale}/admin/students`, label: t.findStudent, icon: <SearchIcon /> },
+    can(actor, "activation.batches.create") && {
+      href: `/${locale}/admin/activation?new=1`,
+      label: t.newBatch,
+      icon: <PlusIcon />,
+    },
+    can(actor, "activation.codes.sell") && {
+      href: `/${locale}/admin/activation?sell=1`,
+      label: t.sellCards,
+      icon: <ShoppingCartIcon />,
+    },
+    can(actor, "users.read") && {
+      href: `/${locale}/admin/students`,
+      label: t.findStudent,
+      icon: <SearchIcon />,
+    },
   ].filter(Boolean) as Array<{ href: string; label: string; icon: React.ReactNode }>;
 
   return (
@@ -50,21 +62,50 @@ export default async function AdminOverviewPage() {
         <div className="grid gap-6">
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <StatCard label={t.students} value={n(metrics.students.total)} icon={<UsersIcon />} />
-            <StatCard label={t.active30d} value={n(metrics.students.active30d)} icon={<ActivityIcon />} />
+            <StatCard
+              label={t.active30d}
+              value={n(metrics.students.active30d)}
+              icon={<ActivityIcon />}
+            />
             <StatCard label={t.new7d} value={n(metrics.students.new7d)} icon={<UserPlusIcon />} />
-            <StatCard label={t.withAccess} value={n(metrics.students.withAccess)} icon={<BadgeCheckIcon />} />
-            <StatCard label={t.cardsIssued} value={n(metrics.activation.issued)} icon={<CreditCardIcon />} />
+            <StatCard
+              label={t.withAccess}
+              value={n(metrics.students.withAccess)}
+              icon={<BadgeCheckIcon />}
+            />
+            <StatCard
+              label={t.cardsIssued}
+              value={n(metrics.activation.issued)}
+              icon={<CreditCardIcon />}
+            />
             <StatCard
               label={t.activationRate}
               value={formatPercent(metrics.activation.activationRate, locale)}
               hint={t.activationRateHint}
               icon={<PercentIcon />}
             />
-            <StatCard label={t.completion} value={metrics.learning.averageCompletion === null ? "—" : `${metrics.learning.averageCompletion}%`} icon={<GraduationCapIcon />} />
+            <StatCard
+              label={t.completion}
+              value={
+                metrics.learning.averageCompletion === null
+                  ? "—"
+                  : `${metrics.learning.averageCompletion}%`
+              }
+              icon={<GraduationCapIcon />}
+            />
             {metrics.sales ? (
-              <StatCard label={t.revenue} value={formatMoney(metrics.sales.revenueMinor, metrics.sales.currency, locale)} hint={`${t.paidOrders}: ${n(metrics.sales.paidOrders)}`} icon={<WalletIcon />} />
+              <StatCard
+                label={t.revenue}
+                value={formatMoney(metrics.sales.revenueMinor, metrics.sales.currency, locale)}
+                hint={`${t.paidOrders}: ${n(metrics.sales.paidOrders)}`}
+                icon={<WalletIcon />}
+              />
             ) : (
-              <StatCard label={t.communityPosts} value={n(metrics.community.posts30d)} icon={<MessagesSquareIcon />} />
+              <StatCard
+                label={t.communityPosts}
+                value={n(metrics.community.posts30d)}
+                icon={<MessagesSquareIcon />}
+              />
             )}
           </div>
           <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
@@ -81,23 +122,24 @@ export default async function AdminOverviewPage() {
                     ["revoked", metrics.activation.revoked],
                   ] as const
                 ).map(([status, value]) => {
-                  const share = metrics.activation.issued > 0 ? (value / metrics.activation.issued) * 100 : 0;
+                  const share =
+                    metrics.activation.issued > 0 ? (value / metrics.activation.issued) * 100 : 0;
                   return (
                     <div key={status} className="grid gap-1.5">
                       <div className="flex justify-between text-sm">
                         <span>{dict.statuses.code[status]}</span>
-                        <span className="font-semibold tabular">{n(value)}</span>
+                        <span className="tabular font-semibold">{n(value)}</span>
                       </div>
-                      <div className="h-2 overflow-hidden rounded-full bg-muted">
+                      <div className="bg-muted h-2 overflow-hidden rounded-full">
                         <div
                           className={
                             status === "activated"
-                              ? "h-full rounded-full bg-success"
+                              ? "bg-success h-full rounded-full"
                               : status === "sold"
-                                ? "h-full rounded-full bg-gold"
+                                ? "bg-gold h-full rounded-full"
                                 : status === "revoked"
-                                  ? "h-full rounded-full bg-destructive/70"
-                                  : "h-full rounded-full bg-primary/70"
+                                  ? "bg-destructive/70 h-full rounded-full"
+                                  : "bg-primary/70 h-full rounded-full"
                           }
                           style={{ width: `${share}%` }}
                         />
@@ -105,13 +147,19 @@ export default async function AdminOverviewPage() {
                     </div>
                   );
                 })}
-                <div className="flex flex-wrap gap-4 border-t border-border pt-4 text-sm text-muted-foreground">
+                <div className="border-border text-muted-foreground flex flex-wrap gap-4 border-t pt-4 text-sm">
                   <span>
-                    {t.activated7d}: <strong className="text-foreground tabular">{n(metrics.activation.activated7d)}</strong>
+                    {t.activated7d}:{" "}
+                    <strong className="text-foreground tabular">
+                      {n(metrics.activation.activated7d)}
+                    </strong>
                   </span>
                   <span className="inline-flex items-center gap-1">
                     <LockIcon className="size-3.5" />
-                    {t.lockedCards}: <strong className="text-foreground tabular">{n(metrics.activation.locked)}</strong>
+                    {t.lockedCards}:{" "}
+                    <strong className="text-foreground tabular">
+                      {n(metrics.activation.locked)}
+                    </strong>
                   </span>
                 </div>
               </CardContent>
@@ -126,7 +174,13 @@ export default async function AdminOverviewPage() {
   );
 }
 
-function QuickActions({ title, actions }: { title: string; actions: Array<{ href: string; label: string; icon: React.ReactNode }> }) {
+function QuickActions({
+  title,
+  actions,
+}: {
+  title: string;
+  actions: Array<{ href: string; label: string; icon: React.ReactNode }>;
+}) {
   if (actions.length === 0) return null;
   return (
     <Card>

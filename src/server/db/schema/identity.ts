@@ -126,7 +126,10 @@ export const authOtpChallenges = pgTable(
   },
   (t) => [
     enumCheck("auth_otp_challenges_purpose_check", t.purpose, OTP_PURPOSES),
-    rule("auth_otp_challenges_attempts_check", sql`${t.attempts} >= 0 and ${t.attempts} <= ${t.maxAttempts}`),
+    rule(
+      "auth_otp_challenges_attempts_check",
+      sql`${t.attempts} >= 0 and ${t.attempts} <= ${t.maxAttempts}`,
+    ),
     rule(
       "auth_otp_challenges_activation_check",
       sql`(${t.purpose} = 'activation') = (${t.activationCodeId} is not null)`,
@@ -273,4 +276,3 @@ export const dataRequests = pgTable(
     index("data_requests_user_idx").on(t.userId),
   ],
 );
-

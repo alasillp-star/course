@@ -12,11 +12,11 @@ export default async function AuthLayout({ children }: LayoutProps<"/[locale]">)
         <div className="grid-pattern pointer-events-none absolute inset-0 opacity-[0.06]" />
         <Logo href={`/${locale}`} inverted className="relative" />
         <div className="relative mt-auto max-w-md">
-          <SparklesIcon className="size-6 text-gold" />
+          <SparklesIcon className="text-gold size-6" />
           <p className="mt-4 text-3xl leading-snug font-bold">{dict.auth.sideTitle}</p>
           <p className="mt-3 text-white/70">{dict.auth.sideBody}</p>
           <p className="mt-10 inline-flex items-center gap-2 text-sm text-white/60">
-            <ShieldCheckIcon className="size-4 text-gold" />
+            <ShieldCheckIcon className="text-gold size-4" />
             {dict.home.footer.secure}
           </p>
         </div>
@@ -29,8 +29,11 @@ export default async function AuthLayout({ children }: LayoutProps<"/[locale]">)
             <ThemeToggle labels={dict.common.theme} />
           </div>
         </div>
-        <main id="main" className="flex flex-1 items-start justify-center px-4 pt-4 pb-12 sm:items-center sm:px-8">
-          <div className="w-full max-w-[440px] animate-fade-up">{children}</div>
+        <main
+          id="main"
+          className="flex flex-1 items-start justify-center px-4 pt-4 pb-12 sm:items-center sm:px-8"
+        >
+          <div className="animate-fade-up w-full max-w-[440px]">{children}</div>
         </main>
       </div>
     </div>

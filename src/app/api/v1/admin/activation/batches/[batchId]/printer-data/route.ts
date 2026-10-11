@@ -6,7 +6,10 @@ import { csvResponse, toCsv } from "@/server/csv";
 import { parseSearchParams, withApi } from "@/server/http/api";
 import { parseIdParam } from "@/server/http/schemas";
 
-const Range = z.object({ from: z.coerce.number().int().min(1), to: z.coerce.number().int().min(1) });
+const Range = z.object({
+  from: z.coerce.number().int().min(1),
+  to: z.coerce.number().int().min(1),
+});
 
 /** Variable-data file for professional printers (serial, code, PIN, QR URL). Audited. */
 export const GET = withApi<{ batchId: string }>(
@@ -20,7 +23,12 @@ export const GET = withApi<{ batchId: string }>(
     );
     const csv = toCsv(
       ["serial", "code", "pin", "qr_url"],
-      cards.map((card) => [card.serial, formatCardCode(card.code), card.pin ? formatCardPin(card.pin) : "", card.url]),
+      cards.map((card) => [
+        card.serial,
+        formatCardCode(card.code),
+        card.pin ? formatCardPin(card.pin) : "",
+        card.url,
+      ]),
     );
     return csvResponse(`printer-data-${batch.serialPrefix}-${from}-${to}.csv`, csv);
   },

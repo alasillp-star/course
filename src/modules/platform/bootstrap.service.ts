@@ -26,7 +26,10 @@ const SPACE_NAMES: Record<CommunitySpaceKey, { ar: string; fr: string; en: strin
 };
 
 export async function ensureMainCourse(executor: Executor): Promise<string> {
-  const [existing] = await executor.select({ id: courses.id }).from(courses).where(eq(courses.slug, ACADEMY.mainCourseSlug));
+  const [existing] = await executor
+    .select({ id: courses.id })
+    .from(courses)
+    .where(eq(courses.slug, ACADEMY.mainCourseSlug));
   if (existing) return existing.id;
   const [created] = await executor
     .insert(courses)
@@ -48,7 +51,10 @@ export async function ensureMainCourse(executor: Executor): Promise<string> {
     .onConflictDoNothing({ target: courses.slug })
     .returning({ id: courses.id });
   if (created) return created.id;
-  const [winner] = await executor.select({ id: courses.id }).from(courses).where(eq(courses.slug, ACADEMY.mainCourseSlug));
+  const [winner] = await executor
+    .select({ id: courses.id })
+    .from(courses)
+    .where(eq(courses.slug, ACADEMY.mainCourseSlug));
   return winner!.id;
 }
 
@@ -69,7 +75,10 @@ export async function ensureCommunitySpaces(executor: Executor, courseId: string
 }
 
 /** Creates the first Super Admin (unverified until they sign in with an e-mailed code). */
-export async function ensureBootstrapSuperAdmin(executor: Executor, email: string | undefined): Promise<string | null> {
+export async function ensureBootstrapSuperAdmin(
+  executor: Executor,
+  email: string | undefined,
+): Promise<string | null> {
   if (!email) return null;
   const [existingSuperAdmin] = await executor
     .select({ userId: userRoles.userId })
@@ -79,7 +88,10 @@ export async function ensureBootstrapSuperAdmin(executor: Executor, email: strin
     .limit(1);
   if (existingSuperAdmin) return null;
   const normalized = email.trim().toLowerCase();
-  let [user] = await executor.select({ id: users.id }).from(users).where(eq(users.email, normalized));
+  let [user] = await executor
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.email, normalized));
   if (!user) {
     [user] = await executor.insert(users).values({ email: normalized }).returning({ id: users.id });
     await executor.insert(profiles).values({ userId: user!.id }).onConflictDoNothing();

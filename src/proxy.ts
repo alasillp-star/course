@@ -53,7 +53,10 @@ export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
   if (pathname === "/a" || pathname === "/a/") {
-    const response = NextResponse.redirect(new URL(`/${preferredLocale(request)}/activate`, request.url), 307);
+    const response = NextResponse.redirect(
+      new URL(`/${preferredLocale(request)}/activate`, request.url),
+      307,
+    );
     response.headers.set("Referrer-Policy", "no-referrer");
     return response;
   }
@@ -67,7 +70,10 @@ export function proxy(request: NextRequest) {
   }
 
   const area = pathname.split("/")[2];
-  if ((area === "app" || area === "admin") && !SESSION_COOKIES.some((name) => request.cookies.has(name))) {
+  if (
+    (area === "app" || area === "admin") &&
+    !SESSION_COOKIES.some((name) => request.cookies.has(name))
+  ) {
     const login = new URL(`/${segment}/login`, request.url);
     login.searchParams.set("next", `${pathname}${search}`);
     return NextResponse.redirect(login, 307);
@@ -81,7 +87,8 @@ export function proxy(request: NextRequest) {
   const response = NextResponse.next({ request: { headers: requestHeaders } });
   response.headers.set("Content-Security-Policy", csp);
   if (area === "activate") response.headers.set("Referrer-Policy", "no-referrer");
-  if (area === "app" || area === "admin") response.headers.set("Cache-Control", "private, no-store");
+  if (area === "app" || area === "admin")
+    response.headers.set("Cache-Control", "private, no-store");
   return response;
 }
 

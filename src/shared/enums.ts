@@ -62,7 +62,13 @@ export const MEDIA_PROVIDERS = [
 ] as const;
 export type MediaProvider = (typeof MEDIA_PROVIDERS)[number];
 
-export const MEDIA_STATUSES = ["pending_upload", "processing", "ready", "failed", "deleted"] as const;
+export const MEDIA_STATUSES = [
+  "pending_upload",
+  "processing",
+  "ready",
+  "failed",
+  "deleted",
+] as const;
 export type MediaStatus = (typeof MEDIA_STATUSES)[number];
 
 export const TEXT_TRACK_KINDS = ["subtitles", "captions"] as const;
@@ -145,7 +151,13 @@ export const PAYMENT_PROVIDERS = [
 ] as const;
 export type PaymentProvider = (typeof PAYMENT_PROVIDERS)[number];
 
-export const PAYMENT_STATUSES = ["pending", "succeeded", "failed", "cancelled", "refunded"] as const;
+export const PAYMENT_STATUSES = [
+  "pending",
+  "succeeded",
+  "failed",
+  "cancelled",
+  "refunded",
+] as const;
 export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
 
 export const REFUND_STATUSES = ["requested", "approved", "rejected", "processed"] as const;
@@ -175,7 +187,14 @@ export type UgcStatus = (typeof UGC_STATUSES)[number];
 export const REACTION_TYPES = ["like", "love", "insightful", "celebrate", "support"] as const;
 export type ReactionType = (typeof REACTION_TYPES)[number];
 
-export const REPORT_REASONS = ["spam", "abuse", "harassment", "off_topic", "misinformation", "other"] as const;
+export const REPORT_REASONS = [
+  "spam",
+  "abuse",
+  "harassment",
+  "off_topic",
+  "misinformation",
+  "other",
+] as const;
 export type ReportReason = (typeof REPORT_REASONS)[number];
 
 export const REPORT_STATUSES = ["open", "resolved", "dismissed"] as const;

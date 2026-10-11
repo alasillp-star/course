@@ -89,7 +89,7 @@ export function LoginForm({
       >
         <Field label={t.emailLabel} htmlFor="email">
           <div className="relative">
-            <MailIcon className="pointer-events-none absolute start-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <MailIcon className="text-muted-foreground pointer-events-none absolute start-3.5 top-1/2 size-4 -translate-y-1/2" />
             <Input
               id="email"
               name="email"
@@ -108,7 +108,7 @@ export function LoginForm({
         </Field>
         {error ? (
           <Alert variant="destructive">
-            <AlertDescription className="col-start-1 text-foreground">{error}</AlertDescription>
+            <AlertDescription className="text-foreground col-start-1">{error}</AlertDescription>
           </Alert>
         ) : null}
         <Button type="submit" size="lg" loading={pending}>
@@ -127,33 +127,43 @@ export function LoginForm({
         void verify(code);
       }}
     >
-      <p className="text-sm text-muted-foreground">
+      <p className="text-muted-foreground text-sm">
         {format(t.codeSent, { email: "⁨" + email + "⁩" })}
       </p>
-      <OtpField label={t.codeLabel} value={code} onChange={setCode} onComplete={(value) => void verify(value)} disabled={pending} />
+      <OtpField
+        label={t.codeLabel}
+        value={code}
+        onChange={setCode}
+        onComplete={(value) => void verify(value)}
+        disabled={pending}
+      />
       {error ? (
         <Alert variant="destructive">
-          <AlertDescription className="col-start-1 text-foreground">{error}</AlertDescription>
+          <AlertDescription className="text-foreground col-start-1">{error}</AlertDescription>
         </Alert>
       ) : null}
       <Button type="submit" size="lg" loading={pending} disabled={code.length !== 6}>
         {t.verify}
       </Button>
       <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
-        <button type="button" className="font-medium text-muted-foreground hover:text-foreground" onClick={() => setStep("email")}>
+        <button
+          type="button"
+          className="text-muted-foreground hover:text-foreground font-medium"
+          onClick={() => setStep("email")}
+        >
           {t.changeEmail}
         </button>
         <button
           type="button"
-          className="font-medium text-foreground underline-offset-4 hover:underline disabled:text-muted-foreground disabled:no-underline"
+          className="text-foreground disabled:text-muted-foreground font-medium underline-offset-4 hover:underline disabled:no-underline"
           disabled={cooldown > 0 || pending}
           onClick={() => void requestCode()}
         >
           {cooldown > 0 ? format(t.resendIn, { seconds: cooldown }) : t.resend}
         </button>
       </div>
-      <p className="text-xs text-muted-foreground">{t.checkSpam}</p>
-      <p className="text-xs text-muted-foreground">
+      <p className="text-muted-foreground text-xs">{t.checkSpam}</p>
+      <p className="text-muted-foreground text-xs">
         <Link href={`/${locale}/recover`} className="underline underline-offset-4">
           {t.recoverLink}
         </Link>

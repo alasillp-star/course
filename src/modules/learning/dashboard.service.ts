@@ -20,17 +20,35 @@ export async function getStudentDashboard(actor: Actor) {
   const db = getDb();
   const course = await getMainCourse();
   const [profileRows, entitlements, hasAccess] = await Promise.all([
-    db.select({ displayName: profiles.displayName, fullName: profiles.fullName }).from(profiles).where(eq(profiles.userId, actor.userId)),
+    db
+      .select({ displayName: profiles.displayName, fullName: profiles.fullName })
+      .from(profiles)
+      .where(eq(profiles.userId, actor.userId)),
     listUserEntitlements(db, actor.userId),
     course ? hasCourseAccess(db, actor.userId, course.id) : Promise.resolve(false),
   ]);
 
-  const [outline, progress, upcoming, latestNotifications, unread, notesCount, certificateRows, openAssignments, latestPosts] = await Promise.all([
+  const [
+    outline,
+    progress,
+    upcoming,
+    latestNotifications,
+    unread,
+    notesCount,
+    certificateRows,
+    openAssignments,
+    latestPosts,
+  ] = await Promise.all([
     course && hasAccess ? getCourseOutline(course.id) : Promise.resolve([]),
     course && hasAccess ? getLearnerProgress(actor.userId, course.id) : Promise.resolve(null),
     course && hasAccess
       ? db
-          .select({ id: liveSessions.id, title: liveSessions.title, startsAt: liveSessions.startsAt, kind: liveSessions.kind })
+          .select({
+            id: liveSessions.id,
+            title: liveSessions.title,
+            startsAt: liveSessions.startsAt,
+            kind: liveSessions.kind,
+          })
           .from(liveSessions)
           .where(
             and(
@@ -44,7 +62,14 @@ export async function getStudentDashboard(actor: Actor) {
           .limit(3)
       : Promise.resolve([]),
     db
-      .select({ id: notifications.id, type: notifications.type, data: notifications.data, link: notifications.link, readAt: notifications.readAt, createdAt: notifications.createdAt })
+      .select({
+        id: notifications.id,
+        type: notifications.type,
+        data: notifications.data,
+        link: notifications.link,
+        readAt: notifications.readAt,
+        createdAt: notifications.createdAt,
+      })
       .from(notifications)
       .where(eq(notifications.userId, actor.userId))
       .orderBy(desc(notifications.createdAt))
@@ -58,38 +83,67 @@ export async function getStudentDashboard(actor: Actor) {
       .from(studentNotes)
       .where(and(eq(studentNotes.userId, actor.userId), isNull(studentNotes.deletedAt))),
     db
-      .select({ id: certificates.id, number: certificates.certificateNumber, issuedAt: certificates.issuedAt, courseTitle: certificates.courseTitleSnapshot })
+      .select({
+        id: certificates.id,
+        number: certificates.certificateNumber,
+        issuedAt: certificates.issuedAt,
+        courseTitle: certificates.courseTitleSnapshot,
+      })
       .from(certificates)
       .where(and(eq(certificates.userId, actor.userId), isNull(certificates.revokedAt))),
     course && hasAccess
       ? db
           .select({ id: assignments.id, title: assignments.title })
           .from(assignments)
-          .where(and(eq(assignments.courseId, course.id), eq(assignments.status, "published"), isNull(assignments.deletedAt)))
+          .where(
+            and(
+              eq(assignments.courseId, course.id),
+              eq(assignments.status, "published"),
+              isNull(assignments.deletedAt),
+            ),
+          )
           .limit(3)
       : Promise.resolve([]),
     course && hasAccess
       ? db
-          .select({ id: communityPosts.id, title: communityPosts.title, body: communityPosts.body, createdAt: communityPosts.createdAt })
+          .select({
+            id: communityPosts.id,
+            title: communityPosts.title,
+            body: communityPosts.body,
+            createdAt: communityPosts.createdAt,
+          })
           .from(communityPosts)
           .innerJoin(communitySpaces, eq(communitySpaces.id, communityPosts.spaceId))
-          .where(and(eq(communitySpaces.courseId, course.id), eq(communityPosts.status, "published"), isNull(communityPosts.deletedAt)))
+          .where(
+            and(
+              eq(communitySpaces.courseId, course.id),
+              eq(communityPosts.status, "published"),
+              isNull(communityPosts.deletedAt),
+            ),
+          )
           .orderBy(desc(communityPosts.lastActivityAt))
           .limit(3)
       : Promise.resolve([]),
   ]);
 
   const totalLessons = outline.reduce((sum, module) => sum + module.lessons.length, 0);
-  const completed = progress ? outline.flatMap((module) => module.lessons).filter((lesson) => progress.completedLessonIds.has(lesson.id)).length : 0;
+  const completed = progress
+    ? outline
+        .flatMap((module) => module.lessons)
+        .filter((lesson) => progress.completedLessonIds.has(lesson.id)).length
+    : 0;
 
   return {
     displayName: profileRows[0]?.displayName ?? profileRows[0]?.fullName ?? null,
     course,
     hasAccess,
-    entitlement: entitlements.find((row) => row.courseId === course?.id && row.status === "active") ?? null,
+    entitlement:
+      entitlements.find((row) => row.courseId === course?.id && row.status === "active") ?? null,
     outline: outline.map((module) => ({
       ...module,
-      completedLessons: progress ? module.lessons.filter((lesson) => progress.completedLessonIds.has(lesson.id)).length : 0,
+      completedLessons: progress
+        ? module.lessons.filter((lesson) => progress.completedLessonIds.has(lesson.id)).length
+        : 0,
     })),
     totalLessons,
     completedLessons: completed,

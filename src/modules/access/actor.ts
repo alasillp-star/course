@@ -27,7 +27,10 @@ export function can(actor: Pick<Actor, "permissions">, permission: Permission): 
   return actor.permissions.has(permission);
 }
 
-export function canAny(actor: Pick<Actor, "permissions">, permissions: readonly Permission[]): boolean {
+export function canAny(
+  actor: Pick<Actor, "permissions">,
+  permissions: readonly Permission[],
+): boolean {
   return permissions.some((permission) => actor.permissions.has(permission));
 }
 

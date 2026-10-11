@@ -121,7 +121,10 @@ export async function validateSessionToken(
     const patch: Partial<SessionRecord> = { lastSeenAt: new Date(now) };
     if (shouldExtend) patch.expiresAt = new Date(now + ttl);
     await executor.update(authSessions).set(patch).where(eq(authSessions.id, session.id));
-    await executor.update(users).set({ lastSeenAt: new Date(now) }).where(eq(users.id, user.id));
+    await executor
+      .update(users)
+      .set({ lastSeenAt: new Date(now) })
+      .where(eq(users.id, user.id));
     Object.assign(session, patch);
   }
   return { session, user };

@@ -5,7 +5,13 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { NativeSelect, Textarea } from "@/components/ui/input";
 import { Field } from "@/components/ui/label";
 import type { Dictionary } from "@/i18n/dictionaries/ar";
@@ -71,7 +77,11 @@ export function GrantAccessDialog({
           }}
         >
           <Field label={courseLabel} htmlFor="grant-course">
-            <NativeSelect id="grant-course" value={courseId} onChange={(event) => setCourseId(event.target.value)}>
+            <NativeSelect
+              id="grant-course"
+              value={courseId}
+              onChange={(event) => setCourseId(event.target.value)}
+            >
               {courses.map((course) => (
                 <option key={course.id} value={course.id}>
                   {course.title}
@@ -80,11 +90,18 @@ export function GrantAccessDialog({
             </NativeSelect>
           </Field>
           <Field label={noteLabel} htmlFor="grant-note">
-            <Textarea id="grant-note" required minLength={3} maxLength={500} value={note} onChange={(event) => setNote(event.target.value)} />
+            <Textarea
+              id="grant-note"
+              required
+              minLength={3}
+              maxLength={500}
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+            />
           </Field>
           {error ? (
             <Alert variant="destructive">
-              <AlertDescription className="col-start-1 text-foreground">{error}</AlertDescription>
+              <AlertDescription className="text-foreground col-start-1">{error}</AlertDescription>
             </Alert>
           ) : null}
           <Button type="submit" loading={pending}>

@@ -32,7 +32,8 @@ export async function startEmailChange(
   params: { newEmail: string },
   meta: RequestMeta,
 ): Promise<{ challengeId: string; emailMasked: string }> {
-  if (params.newEmail === actor.email) throw new AppError("VALIDATION_ERROR", "same e-mail", { field: "newEmail" });
+  if (params.newEmail === actor.email)
+    throw new AppError("VALIDATION_ERROR", "same e-mail", { field: "newEmail" });
   await enforceRateLimit("otp:request:email", params.newEmail);
   await enforceRateLimit("otp:request:email:daily", actor.email);
   const db = getDb();
@@ -82,7 +83,10 @@ export async function confirmEmailChange(
   try {
     await db.transaction(async (tx) => {
       await consumeOtpChallenge(tx, challenge.id);
-      await tx.update(users).set({ email: newEmail, emailVerifiedAt: new Date() }).where(eq(users.id, actor.userId));
+      await tx
+        .update(users)
+        .set({ email: newEmail, emailVerifiedAt: new Date() })
+        .where(eq(users.id, actor.userId));
       await tx.insert(userEmailChanges).values({
         userId: actor.userId,
         oldEmail,
@@ -90,7 +94,11 @@ export async function confirmEmailChange(
         changedBy: actor.userId,
         reason: "self_service",
       });
-      await revokeAllSessions(tx, { userId: actor.userId, reason: "email_changed", exceptSessionId: actor.sessionId });
+      await revokeAllSessions(tx, {
+        userId: actor.userId,
+        reason: "email_changed",
+        exceptSessionId: actor.sessionId,
+      });
       await recordAudit(tx, {
         action: "auth.email_changed",
         actorUserId: actor.userId,
@@ -109,7 +117,10 @@ export async function confirmEmailChange(
     template: "account.email_changed",
     locale: actor.locale,
     userId: actor.userId,
-    rendered: renderEmailChangedEmail({ locale: actor.locale, newEmailMasked: maskEmail(newEmail) }),
+    rendered: renderEmailChangedEmail({
+      locale: actor.locale,
+      newEmailMasked: maskEmail(newEmail),
+    }),
   }).catch((error: unknown) => logger.warn("email-changed notification failed", { error }));
   return { email: newEmail };
 }

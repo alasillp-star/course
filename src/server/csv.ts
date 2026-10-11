@@ -12,7 +12,11 @@ function neutralise(value: string): string {
 function cell(value: CsvValue): string {
   if (value === null || value === undefined) return "";
   const text =
-    value instanceof Date ? value.toISOString() : typeof value === "string" ? neutralise(value) : String(value);
+    value instanceof Date
+      ? value.toISOString()
+      : typeof value === "string"
+        ? neutralise(value)
+        : String(value);
   return /[",\r\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
 }
 

@@ -8,9 +8,9 @@ export default async function NotFound() {
   return (
     <main id="main" className="grid min-h-dvh place-items-center px-4">
       <div className="max-w-md text-center">
-        <CompassIcon className="mx-auto size-12 text-muted-foreground" />
+        <CompassIcon className="text-muted-foreground mx-auto size-12" />
         <h1 className="mt-4 text-2xl font-bold">{dict.notFound.title}</h1>
-        <p className="mt-2 text-muted-foreground">{dict.notFound.body}</p>
+        <p className="text-muted-foreground mt-2">{dict.notFound.body}</p>
         <Button asChild className="mt-6">
           <Link href={`/${locale}`}>{dict.notFound.home}</Link>
         </Button>

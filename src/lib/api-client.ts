@@ -15,7 +15,11 @@ export class ApiError extends Error {
 
 export async function api<T>(
   path: string,
-  options: { method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE"; body?: unknown; signal?: AbortSignal } = {},
+  options: {
+    method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+    body?: unknown;
+    signal?: AbortSignal;
+  } = {},
 ): Promise<T> {
   let response: Response;
   try {
@@ -30,11 +34,16 @@ export async function api<T>(
   } catch {
     throw new ApiError("NETWORK_ERROR", 0);
   }
-  const payload = (await response.json().catch(() => null)) as
-    | { data?: T; error?: { code?: string; details?: Record<string, unknown> } }
-    | null;
+  const payload = (await response.json().catch(() => null)) as {
+    data?: T;
+    error?: { code?: string; details?: Record<string, unknown> };
+  } | null;
   if (!response.ok) {
-    throw new ApiError(payload?.error?.code ?? "INTERNAL_ERROR", response.status, payload?.error?.details ?? {});
+    throw new ApiError(
+      payload?.error?.code ?? "INTERNAL_ERROR",
+      response.status,
+      payload?.error?.details ?? {},
+    );
   }
   return payload?.data as T;
 }

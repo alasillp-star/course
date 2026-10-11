@@ -55,6 +55,9 @@ export function LocaleSwitcher({
 function switchLocale(next: Locale, pathname: string) {
   document.cookie = `${LOCALE_COOKIE}=${next}; path=/; max-age=31536000; samesite=lax`;
   const rest = pathname.replace(/^\/(ar|fr|en)(?=\/|$)/, "");
-  const target = new URL(`/${next}${rest}${window.location.search}${window.location.hash}`, window.location.origin);
+  const target = new URL(
+    `/${next}${rest}${window.location.search}${window.location.hash}`,
+    window.location.origin,
+  );
   window.location.href = target.toString();
 }

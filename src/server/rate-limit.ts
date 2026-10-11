@@ -90,7 +90,10 @@ export async function enforceRateLimit(name: RateLimitName, identifier: string |
   if (!identifier) return;
   const result = await consumeRateLimit(name, identifier);
   if (!result.allowed) {
-    const retryAfterSeconds = Math.max(1, Math.ceil((result.resetAt.getTime() - Date.now()) / 1000));
+    const retryAfterSeconds = Math.max(
+      1,
+      Math.ceil((result.resetAt.getTime() - Date.now()) / 1000),
+    );
     throw new AppError("RATE_LIMITED", `Rate limit ${name} exceeded`, { retryAfterSeconds });
   }
 }

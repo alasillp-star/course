@@ -63,7 +63,12 @@ export async function requestLoginCode(params: {
       template: "otp.login",
       locale,
       userId: user.id,
-      rendered: renderOtpEmail({ locale, purpose: "login", code, expiresInMinutes: OTP_TTL_MINUTES }),
+      rendered: renderOtpEmail({
+        locale,
+        purpose: "login",
+        code,
+        expiresInMinutes: OTP_TTL_MINUTES,
+      }),
     });
   } else {
     await sendEmail({

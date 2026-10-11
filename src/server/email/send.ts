@@ -39,7 +39,11 @@ export async function sendEmail(params: {
         providerMessageId: messageId ?? null,
       });
   } catch (error) {
-    logger.error("email delivery failed", { template: params.template, transport: transport.name, error });
+    logger.error("email delivery failed", {
+      template: params.template,
+      transport: transport.name,
+      error,
+    });
     await getDb()
       .insert(emailDeliveries)
       .values({

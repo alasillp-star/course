@@ -23,13 +23,16 @@ export default async function LoginPage({ searchParams }: PageProps<"/[locale]/l
   return (
     <div>
       <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{t.title}</h1>
-      <p className="mt-2 text-muted-foreground">{t.subtitle}</p>
+      <p className="text-muted-foreground mt-2">{t.subtitle}</p>
       <div className="mt-8">
         <LoginForm locale={locale} next={nextParam} t={t} errors={dict.errors} />
       </div>
-      <div className="mt-10 rounded-2xl border border-border bg-card p-4 text-sm">
+      <div className="border-border bg-card mt-10 rounded-2xl border p-4 text-sm">
         <span className="text-muted-foreground">{t.noAccount} </span>
-        <Link href={`/${locale}/activate`} className="font-semibold underline-offset-4 hover:underline">
+        <Link
+          href={`/${locale}/activate`}
+          className="font-semibold underline-offset-4 hover:underline"
+        >
           {t.activateLink}
         </Link>
       </div>

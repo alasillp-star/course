@@ -7,7 +7,10 @@ import { getEnv } from "@/server/env";
 import { parseSearchParams, withApi } from "@/server/http/api";
 import { parseIdParam } from "@/server/http/schemas";
 
-const Range = z.object({ from: z.coerce.number().int().min(1), to: z.coerce.number().int().min(1) });
+const Range = z.object({
+  from: z.coerce.number().int().min(1),
+  to: z.coerce.number().int().min(1),
+});
 
 export const maxDuration = 120;
 

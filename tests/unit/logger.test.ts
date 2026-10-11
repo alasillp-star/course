@@ -7,14 +7,24 @@ describe("log redaction", () => {
       code: "ABCD",
       pin: "12345678",
       otp: "123456",
-      nested: { session_token: "x", authorization: "Bearer y", apiKey: "z", cardSerial: "B0001-00001" },
+      nested: {
+        session_token: "x",
+        authorization: "Bearer y",
+        apiKey: "z",
+        cardSerial: "B0001-00001",
+      },
       list: [{ password: "p" }],
     }) as Record<string, unknown>;
     expect(output).toEqual({
       code: "[redacted]",
       pin: "[redacted]",
       otp: "[redacted]",
-      nested: { session_token: "[redacted]", authorization: "[redacted]", apiKey: "[redacted]", cardSerial: "B0001-00001" },
+      nested: {
+        session_token: "[redacted]",
+        authorization: "[redacted]",
+        apiKey: "[redacted]",
+        cardSerial: "B0001-00001",
+      },
       list: [{ password: "[redacted]" }],
     });
   });

@@ -57,11 +57,14 @@ export function MfaFlow({
       <div className="grid gap-5">
         <div>
           <h2 className="text-lg font-semibold">{t.recoveryTitle}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">{t.recoveryBody}</p>
+          <p className="text-muted-foreground mt-1 text-sm">{t.recoveryBody}</p>
         </div>
-        <ul className="grid grid-cols-2 gap-2 rounded-2xl border border-border bg-muted/50 p-4 font-mono text-sm" dir="ltr">
+        <ul
+          className="border-border bg-muted/50 grid grid-cols-2 gap-2 rounded-2xl border p-4 font-mono text-sm"
+          dir="ltr"
+        >
           {recoveryCodes.map((value) => (
-            <li key={value} className="rounded-lg bg-card px-3 py-2 text-center tracking-wider">
+            <li key={value} className="bg-card rounded-lg px-3 py-2 text-center tracking-wider">
               {value}
             </li>
           ))}
@@ -70,7 +73,9 @@ export function MfaFlow({
           <Button
             variant="outline"
             onClick={() => {
-              void navigator.clipboard.writeText(recoveryCodes.join("\n")).then(() => toast.success(common.copied));
+              void navigator.clipboard
+                .writeText(recoveryCodes.join("\n"))
+                .then(() => toast.success(common.copied));
             }}
           >
             <CopyIcon />
@@ -88,13 +93,16 @@ export function MfaFlow({
     if (!enrollment) {
       return (
         <div className="grid gap-5">
-          <p className="text-sm leading-relaxed text-muted-foreground">{t.enrollBody}</p>
+          <p className="text-muted-foreground text-sm leading-relaxed">{t.enrollBody}</p>
           {error ? <ErrorAlert message={error} /> : null}
           <Button
             size="lg"
             loading={pending}
             onClick={async () => {
-              const result = await call<{ secret: string; qrDataUrl: string }>("/api/v1/auth/mfa/totp/enroll", {});
+              const result = await call<{ secret: string; qrDataUrl: string }>(
+                "/api/v1/auth/mfa/totp/enroll",
+                {},
+              );
               if (result) setEnrollment(result);
             }}
           >
@@ -109,17 +117,22 @@ export function MfaFlow({
         className="grid gap-5"
         onSubmit={async (event) => {
           event.preventDefault();
-          const result = await call<{ recoveryCodes: string[] }>("/api/v1/auth/mfa/totp/confirm", { code });
+          const result = await call<{ recoveryCodes: string[] }>("/api/v1/auth/mfa/totp/confirm", {
+            code,
+          });
           if (result) setRecoveryCodes(result.recoveryCodes);
         }}
       >
-        <div className="grid justify-items-center gap-3 rounded-2xl border border-border bg-white p-4">
+        <div className="border-border grid justify-items-center gap-3 rounded-2xl border bg-white p-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={enrollment.qrDataUrl} alt="" width={200} height={200} className="size-48" />
         </div>
         <details className="text-sm">
-          <summary className="cursor-pointer text-muted-foreground">{t.manualKey}</summary>
-          <code className="mt-2 block rounded-lg bg-muted px-3 py-2 font-mono text-xs break-all" dir="ltr">
+          <summary className="text-muted-foreground cursor-pointer">{t.manualKey}</summary>
+          <code
+            className="bg-muted mt-2 block rounded-lg px-3 py-2 font-mono text-xs break-all"
+            dir="ltr"
+          >
             {enrollment.secret}
           </code>
         </details>
@@ -138,16 +151,18 @@ export function MfaFlow({
       onSubmit={async (event) => {
         event.preventDefault();
         const value = recovery.trim() || code;
-        const result = await call<{ verified: boolean }>("/api/v1/auth/mfa/verify", { code: value });
+        const result = await call<{ verified: boolean }>("/api/v1/auth/mfa/verify", {
+          code: value,
+        });
         if (result) finish();
       }}
     >
-      <p className="text-sm text-muted-foreground">{t.verifyBody}</p>
+      <p className="text-muted-foreground text-sm">{t.verifyBody}</p>
       <OtpField label={t.codeLabel} value={code} onChange={setCode} disabled={pending} />
       <details className="text-sm">
-        <summary className="cursor-pointer text-muted-foreground">{t.recoveryTitle}</summary>
+        <summary className="text-muted-foreground cursor-pointer">{t.recoveryTitle}</summary>
         <div className="relative mt-2">
-          <KeyRoundIcon className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <KeyRoundIcon className="text-muted-foreground pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2" />
           <Input
             dir="ltr"
             value={recovery}
@@ -159,7 +174,12 @@ export function MfaFlow({
         </div>
       </details>
       {error ? <ErrorAlert message={error} /> : null}
-      <Button type="submit" size="lg" loading={pending} disabled={code.length !== 6 && recovery.trim().length < 10}>
+      <Button
+        type="submit"
+        size="lg"
+        loading={pending}
+        disabled={code.length !== 6 && recovery.trim().length < 10}
+      >
         {t.verify}
       </Button>
     </form>
@@ -169,7 +189,7 @@ export function MfaFlow({
 function ErrorAlert({ message }: { message: string }) {
   return (
     <Alert variant="destructive">
-      <AlertDescription className="col-start-1 text-foreground">{message}</AlertDescription>
+      <AlertDescription className="text-foreground col-start-1">{message}</AlertDescription>
     </Alert>
   );
 }

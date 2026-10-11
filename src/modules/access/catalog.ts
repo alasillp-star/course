@@ -132,12 +132,7 @@ export const ROLE_PERMISSIONS: Record<SystemRole, readonly Permission[]> = {
     "live.host",
     "reports.read",
   ],
-  moderator: [
-    "users.read",
-    "community.participate",
-    "community.moderate",
-    "community.pin",
-  ],
+  moderator: ["users.read", "community.participate", "community.moderate", "community.pin"],
   support_agent: [
     "users.read",
     "users.sessions.manage",

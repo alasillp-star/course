@@ -9,7 +9,13 @@ export const ADMIN_STATE = path.join(STATE_DIR, "admin.json");
 export const DATA_FILE = path.join(STATE_DIR, "data.json");
 
 export type Card = { serial: string; code: string; pin: string; url: string; sold: boolean };
-export type E2EData = { adminEmail: string; adminSecret: string; batchId: string; courseId: string; cards: Card[] };
+export type E2EData = {
+  adminEmail: string;
+  adminSecret: string;
+  batchId: string;
+  courseId: string;
+  cards: Card[];
+};
 
 export function saveData(data: E2EData) {
   mkdirSync(STATE_DIR, { recursive: true });
@@ -23,11 +29,18 @@ export function loadData(): E2EData {
 type OtpTemplate = "otp.login" | "otp.activation" | "otp.email_change";
 
 /** Waits for the newest OTP e-mail (of `template`) sent to `to` after `sinceMs`. */
-export async function readOtp(to: string, sinceMs: number, template?: OtpTemplate): Promise<string> {
+export async function readOtp(
+  to: string,
+  sinceMs: number,
+  template?: OtpTemplate,
+): Promise<string> {
   const deadline = Date.now() + 15_000;
   while (Date.now() < deadline) {
     if (existsSync(MAILBOX)) {
-      const files = readdirSync(MAILBOX).filter((file) => file.endsWith(".json")).sort().reverse();
+      const files = readdirSync(MAILBOX)
+        .filter((file) => file.endsWith(".json"))
+        .sort()
+        .reverse();
       for (const file of files) {
         const message = JSON.parse(readFileSync(path.join(MAILBOX, file), "utf8")) as {
           to: string;
@@ -73,12 +86,19 @@ export function totp(secret: string, offsetSteps = 0): string {
   message.writeBigUInt64BE(BigInt(counter));
   const hmac = createHmac("sha1", base32Decode(secret)).update(message).digest();
   const offset = hmac[hmac.length - 1]! & 15;
-  const binary = ((hmac[offset]! & 127) << 24) | (hmac[offset + 1]! << 16) | (hmac[offset + 2]! << 8) | hmac[offset + 3]!;
+  const binary =
+    ((hmac[offset]! & 127) << 24) |
+    (hmac[offset + 1]! << 16) |
+    (hmac[offset + 2]! << 8) |
+    hmac[offset + 3]!;
   return String(binary % 1_000_000).padStart(6, "0");
 }
 
 /** Signs `email` in through the public OTP API (the context keeps the cookie). */
-export async function apiLogin(api: APIRequestContext, email: string): Promise<{ redirectTo: string; isStaff: boolean }> {
+export async function apiLogin(
+  api: APIRequestContext,
+  email: string,
+): Promise<{ redirectTo: string; isStaff: boolean }> {
   const since = Date.now();
   const request = await api.post("/api/v1/auth/otp/request", { data: { email, locale: "ar" } });
   expect(request.status(), await request.text()).toBe(200);
@@ -93,7 +113,9 @@ export async function apiLogin(api: APIRequestContext, email: string): Promise<{
 /** Redeems a card through the public activation API, returning the student's context. */
 export async function apiActivate(api: APIRequestContext, card: Card, email: string) {
   const since = Date.now();
-  const start = await api.post("/api/v1/activation/start", { data: { code: card.code, pin: card.pin, email, locale: "ar" } });
+  const start = await api.post("/api/v1/activation/start", {
+    data: { code: card.code, pin: card.pin, email, locale: "ar" },
+  });
   expect(start.status(), await start.text()).toBe(200);
   const { challengeId } = (await start.json()).data as { challengeId: string };
   const complete = await api.post("/api/v1/activation/complete", {

@@ -21,7 +21,9 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: dict.admin.students.title };
 }
 
-export default async function StudentDetailPage({ params }: PageProps<"/[locale]/admin/students/[userId]">) {
+export default async function StudentDetailPage({
+  params,
+}: PageProps<"/[locale]/admin/students/[userId]">) {
   const { locale, dict } = await getI18n();
   const actor = await requirePageActor(locale, { adminArea: true, permission: "users.read" });
   const { userId } = await params;
@@ -36,7 +38,10 @@ export default async function StudentDetailPage({ params }: PageProps<"/[locale]
     <div className="grid gap-6">
       <PageHeader
         back={
-          <Link href={`/${locale}/admin/students`} className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground">
+          <Link
+            href={`/${locale}/admin/students`}
+            className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
+          >
             <ArrowRightIcon className="size-4 ltr:rotate-180" />
             {t.back}
           </Link>
@@ -45,7 +50,9 @@ export default async function StudentDetailPage({ params }: PageProps<"/[locale]
         description={
           <span className="flex flex-wrap items-center gap-2">
             <span dir="ltr">{student.email}</span>
-            <Badge variant={student.status === "active" ? "success" : "danger"}>{dict.statuses.user[student.status]}</Badge>
+            <Badge variant={student.status === "active" ? "success" : "danger"}>
+              {dict.statuses.user[student.status]}
+            </Badge>
             {student.roles
               .filter((role) => role !== "student")
               .map((role) => (
@@ -67,7 +74,9 @@ export default async function StudentDetailPage({ params }: PageProps<"/[locale]
                 errors={dict.errors}
               />
             ) : null}
-            {can(actor, "users.suspend") && student.status === "active" && student.id !== actor.userId ? (
+            {can(actor, "users.suspend") &&
+            student.status === "active" &&
+            student.id !== actor.userId ? (
               <ApiActionDialog
                 label={t.suspend}
                 title={t.suspend}
@@ -79,15 +88,25 @@ export default async function StudentDetailPage({ params }: PageProps<"/[locale]
               />
             ) : null}
             {can(actor, "users.suspend") && student.status === "suspended" ? (
-              <ApiActionDialog label={t.reactivate} title={t.reactivate} endpoint={`${apiBase}/reactivate`} variant="default" common={dict.common} errors={dict.errors} />
+              <ApiActionDialog
+                label={t.reactivate}
+                title={t.reactivate}
+                endpoint={`${apiBase}/reactivate`}
+                variant="default"
+                common={dict.common}
+                errors={dict.errors}
+              />
             ) : null}
           </>
         }
       />
 
       {student.status === "suspended" && student.suspendedAt ? (
-        <p className="rounded-xl border border-destructive/25 bg-destructive/8 p-4 text-sm">
-          {format(t.suspended, { date: formatDateTime(student.suspendedAt, locale), reason: student.suspendedReason ?? "" })}
+        <p className="border-destructive/25 bg-destructive/8 rounded-xl border p-4 text-sm">
+          {format(t.suspended, {
+            date: formatDateTime(student.suspendedAt, locale),
+            reason: student.suspendedReason ?? "",
+          })}
         </p>
       ) : null}
 
@@ -97,8 +116,14 @@ export default async function StudentDetailPage({ params }: PageProps<"/[locale]
             <CardTitle>{t.profile}</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-3 text-sm sm:grid-cols-2">
-            <Fact label={dict.admin.students.columns.joined} value={formatDate(student.createdAt, locale)} />
-            <Fact label={dict.admin.students.columns.lastSeen} value={student.lastSeenAt ? formatRelative(student.lastSeenAt, locale) : "—"} />
+            <Fact
+              label={dict.admin.students.columns.joined}
+              value={formatDate(student.createdAt, locale)}
+            />
+            <Fact
+              label={dict.admin.students.columns.lastSeen}
+              value={student.lastSeenAt ? formatRelative(student.lastSeenAt, locale) : "—"}
+            />
             <Fact label={t.fullName} value={student.fullName ?? "—"} />
             <Fact label={t.phone} value={student.phone ?? "—"} />
           </CardContent>
@@ -111,7 +136,10 @@ export default async function StudentDetailPage({ params }: PageProps<"/[locale]
               {can(actor, "entitlements.grant") ? (
                 <GrantAccessDialog
                   userId={student.id}
-                  courses={courses.map((course) => ({ id: course.id, title: pickLocalized(course.title, locale) || course.slug }))}
+                  courses={courses.map((course) => ({
+                    id: course.id,
+                    title: pickLocalized(course.title, locale) || course.slug,
+                  }))}
                   label={t.grantAccess}
                   noteLabel={t.grantNote}
                   courseLabel={dict.admin.batches.form.course}
@@ -122,15 +150,25 @@ export default async function StudentDetailPage({ params }: PageProps<"/[locale]
             </CardHeader>
             <CardContent className="grid gap-3">
               {student.entitlements.length === 0 ? (
-                <p className="text-sm text-muted-foreground">{t.noEntitlements}</p>
+                <p className="text-muted-foreground text-sm">{t.noEntitlements}</p>
               ) : (
                 student.entitlements.map((entitlement) => (
-                  <div key={entitlement.id} className="flex flex-wrap items-center gap-2 rounded-xl border border-border p-3 text-sm">
-                    <span className="me-auto font-medium">{pickLocalized(entitlement.courseTitle, locale)}</span>
-                    <Badge variant={entitlement.status === "active" ? "success" : "muted"}>{dict.statuses.entitlement[entitlement.status]}</Badge>
+                  <div
+                    key={entitlement.id}
+                    className="border-border flex flex-wrap items-center gap-2 rounded-xl border p-3 text-sm"
+                  >
+                    <span className="me-auto font-medium">
+                      {pickLocalized(entitlement.courseTitle, locale)}
+                    </span>
+                    <Badge variant={entitlement.status === "active" ? "success" : "muted"}>
+                      {dict.statuses.entitlement[entitlement.status]}
+                    </Badge>
                     <Badge variant="outline">{dict.statuses.source[entitlement.source]}</Badge>
-                    <span className="w-full text-xs text-muted-foreground">
-                      {formatDate(entitlement.startsAt, locale)} → {entitlement.expiresAt ? formatDate(entitlement.expiresAt, locale) : dict.student.dashboard.lifetime}
+                    <span className="text-muted-foreground w-full text-xs">
+                      {formatDate(entitlement.startsAt, locale)} →{" "}
+                      {entitlement.expiresAt
+                        ? formatDate(entitlement.expiresAt, locale)
+                        : dict.student.dashboard.lifetime}
                     </span>
                     {entitlement.status === "active" && can(actor, "entitlements.revoke") ? (
                       <ApiActionDialog
@@ -157,12 +195,15 @@ export default async function StudentDetailPage({ params }: PageProps<"/[locale]
             </CardHeader>
             <CardContent className="grid gap-2">
               {student.sessions.length === 0 ? (
-                <p className="text-sm text-muted-foreground">{t.noSessions}</p>
+                <p className="text-muted-foreground text-sm">{t.noSessions}</p>
               ) : (
                 student.sessions.map((session) => (
-                  <div key={session.id} className="flex items-center justify-between gap-3 rounded-xl border border-border p-3 text-sm">
+                  <div
+                    key={session.id}
+                    className="border-border flex items-center justify-between gap-3 rounded-xl border p-3 text-sm"
+                  >
                     <span dir="ltr">{session.deviceLabel ?? "—"}</span>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-muted-foreground text-xs">
                       {formatRelative(session.lastSeenAt, locale)}
                       {session.ipAddress ? <span dir="ltr"> · {session.ipAddress}</span> : null}
                     </span>
@@ -183,11 +224,17 @@ export default async function StudentDetailPage({ params }: PageProps<"/[locale]
                 <p className="text-muted-foreground">—</p>
               ) : (
                 student.cards.map((card) => (
-                  <Link key={card.id} href={`/${locale}/admin/activation/cards/${card.id}`} className="flex justify-between rounded-xl border border-border p-3 hover:bg-muted/50">
+                  <Link
+                    key={card.id}
+                    href={`/${locale}/admin/activation/cards/${card.id}`}
+                    className="border-border hover:bg-muted/50 flex justify-between rounded-xl border p-3"
+                  >
                     <span className="font-mono" dir="ltr">
                       {card.serial}
                     </span>
-                    <span className="text-xs text-muted-foreground">{formatDate(card.activatedAt, locale)}</span>
+                    <span className="text-muted-foreground text-xs">
+                      {formatDate(card.activatedAt, locale)}
+                    </span>
                   </Link>
                 ))
               )}
@@ -202,13 +249,13 @@ export default async function StudentDetailPage({ params }: PageProps<"/[locale]
             </CardHeader>
             <CardContent className="grid gap-3">
               {student.progress.length === 0 ? (
-                <p className="text-sm text-muted-foreground">0%</p>
+                <p className="text-muted-foreground text-sm">0%</p>
               ) : (
                 student.progress.map((row) => (
                   <div key={row.courseId} className="grid gap-1.5 text-sm">
                     <div className="flex justify-between">
                       <span>{pickLocalized(row.courseTitle, locale)}</span>
-                      <span className="font-semibold tabular">{row.percentComplete}%</span>
+                      <span className="tabular font-semibold">{row.percentComplete}%</span>
                     </div>
                     <Progress value={row.percentComplete} />
                   </div>
@@ -225,7 +272,7 @@ export default async function StudentDetailPage({ params }: PageProps<"/[locale]
 function Fact({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div>
-      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="text-muted-foreground text-xs">{label}</p>
       <p className="mt-0.5 font-medium">{value}</p>
     </div>
   );

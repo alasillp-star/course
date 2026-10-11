@@ -29,13 +29,20 @@ export function formatDateTime(value: Date | string | null | undefined, locale: 
   return formatDate(value, locale, { dateStyle: "medium", timeStyle: "short" });
 }
 
-export function formatNumber(value: number, locale: Locale, options?: Intl.NumberFormatOptions): string {
+export function formatNumber(
+  value: number,
+  locale: Locale,
+  options?: Intl.NumberFormatOptions,
+): string {
   return new Intl.NumberFormat(INTL_LOCALE[locale], options).format(value);
 }
 
 export function formatPercent(ratio: number | null, locale: Locale): string {
   if (ratio === null || Number.isNaN(ratio)) return "—";
-  return new Intl.NumberFormat(INTL_LOCALE[locale], { style: "percent", maximumFractionDigits: 1 }).format(ratio);
+  return new Intl.NumberFormat(INTL_LOCALE[locale], {
+    style: "percent",
+    maximumFractionDigits: 1,
+  }).format(ratio);
 }
 
 export function formatMoney(minor: number, currency: string, locale: Locale): string {
@@ -55,7 +62,11 @@ const RELATIVE_UNITS: Array<[Intl.RelativeTimeFormatUnit, number]> = [
   ["minute", 60],
 ];
 
-export function formatRelative(value: Date | string | null | undefined, locale: Locale, now = Date.now()): string {
+export function formatRelative(
+  value: Date | string | null | undefined,
+  locale: Locale,
+  now = Date.now(),
+): string {
   if (!value) return "—";
   const date = typeof value === "string" ? new Date(value) : value;
   const seconds = Math.round((date.getTime() - now) / 1000);

@@ -22,19 +22,28 @@ export default async function MfaPage() {
   const t = dict.admin.mfa;
   return (
     <div className="surface-hero flex min-h-dvh items-start justify-center px-4 py-10 sm:items-center">
-      <main id="main" className="w-full max-w-md animate-fade-up rounded-3xl border border-border bg-background p-6 shadow-lifted sm:p-8">
+      <main
+        id="main"
+        className="animate-fade-up border-border bg-background shadow-lifted w-full max-w-md rounded-3xl border p-6 sm:p-8"
+      >
         <Logo href={`/${locale}`} />
         <div className="mt-6 flex items-center gap-3">
-          <span className="grid size-10 place-items-center rounded-xl bg-gold/15 text-gold-strong dark:text-gold">
+          <span className="bg-gold/15 text-gold-strong dark:text-gold grid size-10 place-items-center rounded-xl">
             <ShieldCheckIcon className="size-5" />
           </span>
           <h1 className="text-xl font-bold">{enrolled ? t.verifyTitle : t.enrollTitle}</h1>
         </div>
-        <p className="mt-1 text-xs text-muted-foreground" dir="ltr">
+        <p className="text-muted-foreground mt-1 text-xs" dir="ltr">
           {actor.email}
         </p>
         <div className="mt-6">
-          <MfaFlow enrolled={enrolled} redirectTo={`/${locale}/admin`} t={t} common={dict.common} errors={dict.errors} />
+          <MfaFlow
+            enrolled={enrolled}
+            redirectTo={`/${locale}/admin`}
+            t={t}
+            common={dict.common}
+            errors={dict.errors}
+          />
         </div>
       </main>
     </div>

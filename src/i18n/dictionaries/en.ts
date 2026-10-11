@@ -4,7 +4,8 @@ import type { Dictionary } from "./ar";
 export const en: Dictionary = {
   meta: {
     title: "Oryx Strategy Academy",
-    description: "A complete learning platform: lifetime course access, a student community and progress tracking.",
+    description:
+      "A complete learning platform: lifetime course access, a student community and progress tracking.",
   },
   common: {
     continue: "Continue",
@@ -52,11 +53,21 @@ export const en: Dictionary = {
     card: { label: "Activation card", scan: "Scan to activate", serial: "Card no." },
     how: {
       title: "Three steps and you're learning",
-      subtitle: "Your printed card is only needed for the first sign-in; after that, your e-mail is enough.",
+      subtitle:
+        "Your printed card is only needed for the first sign-in; after that, your e-mail is enough.",
       steps: [
-        { title: "Buy an activation card", body: "Each card carries a unique QR code and a secret PIN hidden under a scratch-off panel." },
-        { title: "Scan and confirm your e-mail", body: "The QR code opens the activation page. We e-mail you a code to confirm the address." },
-        { title: "Learn with no time limit", body: "Lifetime access is activated instantly; afterwards you sign in with your e-mail." },
+        {
+          title: "Buy an activation card",
+          body: "Each card carries a unique QR code and a secret PIN hidden under a scratch-off panel.",
+        },
+        {
+          title: "Scan and confirm your e-mail",
+          body: "The QR code opens the activation page. We e-mail you a code to confirm the address.",
+        },
+        {
+          title: "Learn with no time limit",
+          body: "Lifetime access is activated instantly; afterwards you sign in with your e-mail.",
+        },
       ],
     },
     curriculum: {
@@ -69,27 +80,58 @@ export const en: Dictionary = {
     features: {
       title: "Everything you need, in one place",
       items: [
-        { title: "Structured video lessons", body: "Short lessons with resources that resume where you left off." },
-        { title: "Private community", body: "Ask questions and share wins with every enrolled student." },
-        { title: "Progress tracking", body: "Completion for each lesson, module and the whole course." },
-        { title: "Verifiable certificate", body: "A digital certificate with a verification number and QR code." },
+        {
+          title: "Structured video lessons",
+          body: "Short lessons with resources that resume where you left off.",
+        },
+        {
+          title: "Private community",
+          body: "Ask questions and share wins with every enrolled student.",
+        },
+        {
+          title: "Progress tracking",
+          body: "Completion for each lesson, module and the whole course.",
+        },
+        {
+          title: "Verifiable certificate",
+          body: "A digital certificate with a verification number and QR code.",
+        },
       ],
     },
     faq: {
       title: "Frequently asked questions",
       items: [
-        { q: "Do I need the card every time I sign in?", a: "No. The card is used once to activate your account. Afterwards you sign in with your e-mail and a code we send you." },
-        { q: "What if I lose my phone?", a: "Your account is tied to your e-mail, not your phone. Sign in from any device and sign the lost one out under Security & devices." },
-        { q: "Can one card activate two accounts?", a: "No. Each card activates exactly one account and is permanently used up." },
-        { q: "The scratch-off panel was already scratched?", a: "Refuse the card and ask for an intact one: a scratched panel means someone may have seen the PIN." },
+        {
+          q: "Do I need the card every time I sign in?",
+          a: "No. The card is used once to activate your account. Afterwards you sign in with your e-mail and a code we send you.",
+        },
+        {
+          q: "What if I lose my phone?",
+          a: "Your account is tied to your e-mail, not your phone. Sign in from any device and sign the lost one out under Security & devices.",
+        },
+        {
+          q: "Can one card activate two accounts?",
+          a: "No. Each card activates exactly one account and is permanently used up.",
+        },
+        {
+          q: "The scratch-off panel was already scratched?",
+          a: "Refuse the card and ask for an intact one: a scratched panel means someone may have seen the PIN.",
+        },
       ],
     },
-    cta: { title: "Ready to start?", subtitle: "Scan the QR code on your card or type its code manually." },
-    footer: { rights: "All rights reserved.", secure: "Encrypted connections and protected accounts" },
+    cta: {
+      title: "Ready to start?",
+      subtitle: "Scan the QR code on your card or type its code manually.",
+    },
+    footer: {
+      rights: "All rights reserved.",
+      secure: "Encrypted connections and protected accounts",
+    },
   },
   auth: {
     sideTitle: "Welcome back",
-    sideBody: "Sign in with your e-mail only — no passwords. We send you a temporary code every time.",
+    sideBody:
+      "Sign in with your e-mail only — no passwords. We send you a temporary code every time.",
     login: {
       title: "Sign in",
       subtitle: "Enter your e-mail and we'll send you a 6-digit sign-in code.",
@@ -115,7 +157,8 @@ export const en: Dictionary = {
     steps: { card: "Card", email: "E-mail", verify: "Confirm" },
     checking: "Checking your card…",
     manualTitle: "Enter the card code",
-    manualBody: "If you can't scan the QR code, type the code printed on your card (16 characters).",
+    manualBody:
+      "If you can't scan the QR code, type the code printed on your card (16 characters).",
     codeLabel: "Card code",
     codePlaceholder: "XXXX-XXXX-XXXX-XXXX",
     checkCode: "Check card",
@@ -136,24 +179,44 @@ export const en: Dictionary = {
     useAnotherCard: "Use another card",
     securityNote: "Never share your card code or PIN.",
     statuses: {
-      ACTIVATION_CODE_INVALID: { title: "Invalid card code", body: "Check the code and try again, or scan the QR code again." },
-      ACTIVATION_CODE_ALREADY_USED: { title: "Card already used", body: "This card was already activated and cannot be reused. If it's yours, sign in with your e-mail." },
-      ACTIVATION_CODE_REVOKED: { title: "Card revoked", body: "This card was revoked and is no longer valid. Contact support or the seller." },
-      ACTIVATION_CODE_NOT_SOLD: { title: "Sale not recorded", body: "This card's sale hasn't been recorded yet. Ask the seller to record it, then try again." },
-      ACTIVATION_CODE_EXPIRED: { title: "Card expired", body: "The activation period for this card has ended. Contact support." },
-      ACTIVATION_CODE_LOCKED: { title: "Card temporarily locked", body: "Too many wrong PINs were entered. Contact support with a photo of the card to unlock it." },
+      ACTIVATION_CODE_INVALID: {
+        title: "Invalid card code",
+        body: "Check the code and try again, or scan the QR code again.",
+      },
+      ACTIVATION_CODE_ALREADY_USED: {
+        title: "Card already used",
+        body: "This card was already activated and cannot be reused. If it's yours, sign in with your e-mail.",
+      },
+      ACTIVATION_CODE_REVOKED: {
+        title: "Card revoked",
+        body: "This card was revoked and is no longer valid. Contact support or the seller.",
+      },
+      ACTIVATION_CODE_NOT_SOLD: {
+        title: "Sale not recorded",
+        body: "This card's sale hasn't been recorded yet. Ask the seller to record it, then try again.",
+      },
+      ACTIVATION_CODE_EXPIRED: {
+        title: "Card expired",
+        body: "The activation period for this card has ended. Contact support.",
+      },
+      ACTIVATION_CODE_LOCKED: {
+        title: "Card temporarily locked",
+        body: "Too many wrong PINs were entered. Contact support with a photo of the card to unlock it.",
+      },
     },
   },
   recover: {
     title: "Trouble signing in?",
     subtitle: "Your account is tied to your e-mail, not to a device.",
     lostPhoneTitle: "Lost or changed your phone",
-    lostPhoneBody: "No problem: sign in from any device with your e-mail, then sign the lost device out under Security & devices.",
+    lostPhoneBody:
+      "No problem: sign in from any device with your e-mail, then sign the lost device out under Security & devices.",
     lostEmailTitle: "You lost access to your e-mail",
     lostEmailBody:
       "Contact support with the card number, the PIN and proof of purchase if available. After verification we move your account to a new address you confirm with a code.",
     noCodeTitle: "I'm not receiving the code",
-    noCodeBody: "Check your spam folder and the spelling of the address you activated with. You can request a new code after a minute.",
+    noCodeBody:
+      "Check your spam folder and the spelling of the address you activated with. You can request a new code after a minute.",
     contact: "Contact support",
     backToLogin: "Back to sign in",
   },
@@ -202,7 +265,8 @@ export const en: Dictionary = {
       email: "E-mail",
       memberSince: "Member since",
       changeEmail: "Change e-mail",
-      changeEmailBody: "We'll send a code to the new address to confirm it. Your current address will be notified and other devices signed out.",
+      changeEmailBody:
+        "We'll send a code to the new address to confirm it. Your current address will be notified and other devices signed out.",
       newEmail: "New e-mail",
       sendCode: "Send code",
       codeSent: "If the address is available, we sent it a code. Enter it here:",
@@ -251,7 +315,8 @@ export const en: Dictionary = {
       codeLabel: "Code from the app",
       confirm: "Confirm",
       recoveryTitle: "Recovery codes",
-      recoveryBody: "Store these codes somewhere safe. Each works once if you lose your phone. They won't be shown again.",
+      recoveryBody:
+        "Store these codes somewhere safe. Each works once if you lose your phone. They won't be shown again.",
       recoverySaved: "I saved the codes — continue",
       verifyTitle: "Enter your verification code",
       verifyBody: "Enter the code from your authenticator app, or a recovery code.",
@@ -348,7 +413,13 @@ export const en: Dictionary = {
       filterStatus: "Status",
       searchSerial: "Search card number",
       locked: "Locked",
-      columns: { serial: "Card no.", status: "Status", sold: "Sold", activated: "Activated", by: "Activated by" },
+      columns: {
+        serial: "Card no.",
+        status: "Status",
+        sold: "Sold",
+        activated: "Activated",
+        by: "Activated by",
+      },
       empty: "No matching cards.",
     },
     card: {
@@ -370,7 +441,8 @@ export const en: Dictionary = {
       reason: "Reason",
       reasonPlaceholder: "e.g. customer reported the card lost",
       replacementTitle: "Replacement card",
-      replacementBody: "Print these details now and hand them to the customer. They won't be shown again.",
+      replacementBody:
+        "Print these details now and hand them to the customer. They won't be shown again.",
       events: {
         batch_created: "Batch created",
         batch_exported: "Exported",
@@ -393,7 +465,14 @@ export const en: Dictionary = {
       filterAccess: "Access",
       withAccess: "Active access",
       withoutAccess: "No access",
-      columns: { student: "Student", status: "Status", access: "Access", progress: "Progress", joined: "Joined", lastSeen: "Last active" },
+      columns: {
+        student: "Student",
+        status: "Status",
+        access: "Access",
+        progress: "Progress",
+        joined: "Joined",
+        lastSeen: "Last active",
+      },
       empty: "No matching students.",
       detail: {
         back: "All students",
@@ -442,7 +521,13 @@ export const en: Dictionary = {
     },
   },
   statuses: {
-    code: { available: "Available", sold: "Sold", activated: "Activated", revoked: "Revoked", locked: "Locked" },
+    code: {
+      available: "Available",
+      sold: "Sold",
+      activated: "Activated",
+      revoked: "Revoked",
+      locked: "Locked",
+    },
     user: { active: "Active", suspended: "Suspended", deleted: "Deleted" },
     entitlement: { active: "Active", revoked: "Revoked" },
     source: {
@@ -491,7 +576,8 @@ export const en: Dictionary = {
     ACTIVATION_CODE_LOCKED: "Card locked after wrong attempts. Contact support.",
     ACTIVATION_PIN_INVALID: "Wrong PIN. Attempts left: {attemptsRemaining}.",
     ACTIVATION_PIN_REQUIRED: "Enter the PIN under the scratch-off panel.",
-    ALREADY_ENTITLED: "Your account already has access to this course. Keep the card for someone else.",
+    ALREADY_ENTITLED:
+      "Your account already has access to this course. Keep the card for someone else.",
     ACTIVATION_SECRETS_PURGED: "This batch's secrets were destroyed; it can't be reprinted.",
     INVALID_STATE: "This action isn't possible in the current state.",
     INTERNAL_ERROR: "Server error. Please try again.",

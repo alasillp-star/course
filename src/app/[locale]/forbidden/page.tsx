@@ -14,9 +14,9 @@ export default async function ForbiddenPage() {
   return (
     <main id="main" className="grid min-h-dvh place-items-center px-4">
       <div className="max-w-md text-center">
-        <ShieldOffIcon className="mx-auto size-12 text-muted-foreground" />
+        <ShieldOffIcon className="text-muted-foreground mx-auto size-12" />
         <h1 className="mt-4 text-2xl font-bold">{dict.forbidden.title}</h1>
-        <p className="mt-2 text-muted-foreground">{dict.forbidden.body}</p>
+        <p className="text-muted-foreground mt-2">{dict.forbidden.body}</p>
         <Button asChild className="mt-6">
           <Link href={`/${locale}/app`}>{dict.forbidden.home}</Link>
         </Button>

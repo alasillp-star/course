@@ -128,7 +128,11 @@ export async function createBatch(
         batchId: id,
         actorUserId: actor.userId,
         meta,
-        metadata: { quantity: input.quantity, requiresPin: input.requiresPin, requiresSale: input.requiresSale },
+        metadata: {
+          quantity: input.quantity,
+          requiresPin: input.requiresPin,
+          requiresSale: input.requiresSale,
+        },
       },
     ]);
     await recordAudit(tx, {
@@ -195,7 +199,10 @@ const batchColumns = {
   createdByEmail: users.email,
 };
 
-export async function getBatchSummary(executor: Executor, batchId: string): Promise<BatchSummary | null> {
+export async function getBatchSummary(
+  executor: Executor,
+  batchId: string,
+): Promise<BatchSummary | null> {
   const [batch] = await executor
     .select(batchColumns)
     .from(activationBatches)
@@ -226,7 +233,14 @@ export async function listBatches(actor: Actor, options: { limit?: number; offse
   );
   return rows.map((row) => ({
     ...row,
-    counts: counts.get(row.id) ?? { available: 0, sold: 0, activated: 0, revoked: 0, locked: 0, total: 0 },
+    counts: counts.get(row.id) ?? {
+      available: 0,
+      sold: 0,
+      activated: 0,
+      revoked: 0,
+      locked: 0,
+      total: 0,
+    },
   }));
 }
 
@@ -255,7 +269,13 @@ export type CodeListItem = {
 export async function listBatchCodes(
   actor: Actor,
   batchId: string,
-  options: { status?: ActivationCodeStatus; locked?: boolean; search?: string; limit?: number; offset?: number },
+  options: {
+    status?: ActivationCodeStatus;
+    locked?: boolean;
+    search?: string;
+    limit?: number;
+    offset?: number;
+  },
 ): Promise<{ items: CodeListItem[]; total: number }> {
   assertCan(actor, "activation.codes.read");
   const db = getDb();
@@ -393,7 +413,11 @@ export async function loadPrintableCards(
  * Finalises a batch after printing: permanently deletes every printable
  * secret. Afterwards lost cards can only be revoked and replaced.
  */
-export async function purgeBatchSecrets(actor: Actor, batchId: string, meta: RequestMeta): Promise<void> {
+export async function purgeBatchSecrets(
+  actor: Actor,
+  batchId: string,
+  meta: RequestMeta,
+): Promise<void> {
   assertCan(actor, "activation.batches.finalize");
   const db = getDb();
   await db.transaction(async (tx) => {
@@ -414,7 +438,13 @@ export async function purgeBatchSecrets(actor: Actor, batchId: string, meta: Req
       .set({ secretsPurgedAt: new Date() })
       .where(eq(activationBatches.id, batchId));
     await recordActivationEvents(tx, [
-      { type: "batch_secrets_purged", batchId, actorUserId: actor.userId, meta, metadata: { cards: purged.length } },
+      {
+        type: "batch_secrets_purged",
+        batchId,
+        actorUserId: actor.userId,
+        meta,
+        metadata: { cards: purged.length },
+      },
     ]);
     await recordAudit(tx, {
       action: "activation.batch_secrets_purged",

@@ -43,11 +43,7 @@ export function safeEqual(a: string, b: string): boolean {
  * HKDF, so a digest computed for one purpose is useless for another.
  */
 export type HmacPurpose =
-  | "otp-code"
-  | "mfa-recovery-code"
-  | "activation-code"
-  | "activation-pin"
-  | "rate-limit-key";
+  "otp-code" | "mfa-recovery-code" | "activation-code" | "activation-pin" | "rate-limit-key";
 
 const keyCache = new Map<HmacPurpose, Buffer>();
 

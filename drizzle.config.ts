@@ -11,6 +11,8 @@ export default defineConfig({
   strict: true,
   verbose: true,
   dbCredentials: {
-    url: process.env.DATABASE_URL ?? "postgres://academy:academy_dev_password@127.0.0.1:5432/academy_dev",
+    url:
+      process.env.DATABASE_URL ??
+      "postgres://academy:academy_dev_password@127.0.0.1:5432/academy_dev",
   },
 });

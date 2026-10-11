@@ -16,7 +16,10 @@ import type { RequestMeta } from "@/server/http/request-meta";
 import type { UserStatus } from "@/shared/enums";
 import { recordAudit } from "../audit/audit.service";
 import { assertCan, can, type Actor } from "../access/actor";
-import { activeEntitlementCondition, listUserEntitlements } from "../entitlements/entitlements.service";
+import {
+  activeEntitlementCondition,
+  listUserEntitlements,
+} from "../entitlements/entitlements.service";
 import { listActiveSessions, revokeAllSessions } from "./session.service";
 
 export type StudentListFilters = {
@@ -44,7 +47,9 @@ export async function listStudents(actor: Actor, filters: StudentListFilters) {
   if (filters.status) conditions.push(eq(users.status, filters.status));
   if (filters.search) {
     const term = `%${filters.search.trim().toLowerCase().replace(/[%_]/g, "")}%`;
-    conditions.push(sql`(${users.email} like ${term} or lower(coalesce(${profiles.displayName}, '')) like ${term})`);
+    conditions.push(
+      sql`(${users.email} like ${term} or lower(coalesce(${profiles.displayName}, '')) like ${term})`,
+    );
   }
   const hasAccess = sql`exists (select 1 from ${courseEntitlements} where ${courseEntitlements.userId} = ${users.id} and ${activeEntitlementCondition()})`;
   if (filters.access === "with") conditions.push(hasAccess);
@@ -62,7 +67,9 @@ export async function listStudents(actor: Actor, filters: StudentListFilters) {
         createdAt: users.createdAt,
         lastSeenAt: users.lastSeenAt,
         hasAccess: sql<boolean>`${hasAccess}`,
-        progress: sql<number | null>`(select max(${courseProgress.percentComplete}) from ${courseProgress} where ${courseProgress.userId} = ${users.id})`,
+        progress: sql<
+          number | null
+        >`(select max(${courseProgress.percentComplete}) from ${courseProgress} where ${courseProgress.userId} = ${users.id})`,
       })
       .from(users)
       .leftJoin(profiles, eq(profiles.userId, users.id))
@@ -70,7 +77,11 @@ export async function listStudents(actor: Actor, filters: StudentListFilters) {
       .orderBy(desc(users.createdAt))
       .limit(limit)
       .offset(filters.offset ?? 0),
-    db.select({ total: count() }).from(users).leftJoin(profiles, eq(profiles.userId, users.id)).where(where),
+    db
+      .select({ total: count() })
+      .from(users)
+      .leftJoin(profiles, eq(profiles.userId, users.id))
+      .where(where),
   ]);
   return { items, total: Number(total) };
 }
@@ -106,7 +117,11 @@ export async function getStudentDetail(actor: Actor, userId: string) {
     can(actor, "users.sessions.manage") ? listActiveSessions(db, userId) : Promise.resolve(null),
     can(actor, "activation.codes.read")
       ? db
-          .select({ id: activationCodes.id, serial: activationCodes.serial, activatedAt: activationCodes.activatedAt })
+          .select({
+            id: activationCodes.id,
+            serial: activationCodes.serial,
+            activatedAt: activationCodes.activatedAt,
+          })
           .from(activationCodes)
           .where(eq(activationCodes.activatedByUserId, userId))
       : Promise.resolve(null),
@@ -136,13 +151,21 @@ export async function getStudentDetail(actor: Actor, userId: string) {
     phone: sensitive ? user.phone : user.phone ? "•••" : null,
     roles: roleRows.map((row) => row.key),
     entitlements,
-    sessions: sessions?.map((session) => ({ ...session, ipAddress: sensitive ? session.ipAddress : null })) ?? null,
+    sessions:
+      sessions?.map((session) => ({
+        ...session,
+        ipAddress: sensitive ? session.ipAddress : null,
+      })) ?? null,
     cards,
     progress,
   };
 }
 
-export async function suspendUser(actor: Actor, params: { userId: string; reason: string }, meta: RequestMeta) {
+export async function suspendUser(
+  actor: Actor,
+  params: { userId: string; reason: string },
+  meta: RequestMeta,
+) {
   assertCan(actor, "users.suspend");
   if (params.userId === actor.userId) throw new AppError("FORBIDDEN", "Cannot suspend yourself");
   const db = getDb();
@@ -159,7 +182,12 @@ export async function suspendUser(actor: Actor, params: { userId: string; reason
 
     await tx
       .update(users)
-      .set({ status: "suspended", suspendedAt: new Date(), suspendedReason: params.reason, suspendedBy: actor.userId })
+      .set({
+        status: "suspended",
+        suspendedAt: new Date(),
+        suspendedReason: params.reason,
+        suspendedBy: actor.userId,
+      })
       .where(eq(users.id, params.userId));
     await revokeAllSessions(tx, { userId: params.userId, reason: "account_suspended" });
     await recordAudit(tx, {
@@ -191,7 +219,11 @@ export async function reactivateUser(actor: Actor, userId: string, meta: Request
   });
 }
 
-export async function revokeUserSessions(actor: Actor, userId: string, meta: RequestMeta): Promise<number> {
+export async function revokeUserSessions(
+  actor: Actor,
+  userId: string,
+  meta: RequestMeta,
+): Promise<number> {
   assertCan(actor, "users.sessions.manage");
   const db = getDb();
   const revoked = await revokeAllSessions(db, { userId, reason: "revoked_by_staff" });
@@ -218,10 +250,17 @@ export async function findUserIdByEmail(actor: Actor, email: string): Promise<st
  * The account is created WITHOUT a verified e-mail and can only be used after
  * its owner signs in with an e-mailed OTP (and then enrols MFA).
  */
-export async function ensureStaffAccount(actor: Actor, email: string, meta: RequestMeta): Promise<string> {
+export async function ensureStaffAccount(
+  actor: Actor,
+  email: string,
+  meta: RequestMeta,
+): Promise<string> {
   assertCan(actor, "staff.manage");
   const db = getDb();
-  const [existing] = await db.select({ id: users.id, status: users.status }).from(users).where(eq(users.email, email));
+  const [existing] = await db
+    .select({ id: users.id, status: users.status })
+    .from(users)
+    .where(eq(users.email, email));
   if (existing) {
     if (existing.status === "deleted") throw new AppError("NOT_FOUND");
     return existing.id;
@@ -249,4 +288,3 @@ export async function ensureStaffAccount(actor: Actor, email: string, meta: Requ
     return created.id;
   });
 }
-

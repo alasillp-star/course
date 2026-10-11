@@ -115,7 +115,7 @@ export function ApiActionDialog({
           ) : null}
           {error ? (
             <Alert variant="destructive">
-              <AlertDescription className="col-start-1 text-foreground">{error}</AlertDescription>
+              <AlertDescription className="text-foreground col-start-1">{error}</AlertDescription>
             </Alert>
           ) : null}
           <DialogFooter>
@@ -124,7 +124,11 @@ export function ApiActionDialog({
                 {common.cancel}
               </Button>
             </DialogClose>
-            <Button type="submit" variant={variant === "destructive" ? "destructive" : "default"} loading={pending}>
+            <Button
+              type="submit"
+              variant={variant === "destructive" ? "destructive" : "default"}
+              loading={pending}
+            >
               {common.confirm}
             </Button>
           </DialogFooter>

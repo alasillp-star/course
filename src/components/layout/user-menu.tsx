@@ -23,7 +23,7 @@ export function initialsFrom(nameOrEmail: string): string {
 export function Avatar({ label, className }: { label: string; className?: string }) {
   return (
     <span
-      className={`grid size-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-gold-strong to-gold text-[13px] font-bold text-gold-foreground ring-2 ring-background ${className ?? ""}`}
+      className={`from-gold-strong to-gold text-gold-foreground ring-background grid size-9 shrink-0 place-items-center rounded-full bg-gradient-to-br text-[13px] font-bold ring-2 ${className ?? ""}`}
       aria-hidden="true"
     >
       {initialsFrom(label)}
@@ -50,7 +50,10 @@ export function UserMenu({
   }
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="rounded-full outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40" aria-label={email}>
+      <DropdownMenuTrigger
+        className="focus-visible:ring-ring/40 rounded-full outline-none focus-visible:ring-[3px]"
+        aria-label={email}
+      >
         <Avatar label={email} />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-60">

@@ -37,6 +37,7 @@ jobs:
       - name: Create E2E database
         run: PGPASSWORD=academy_dev_password psql -h localhost -U academy -d academy_test -c "CREATE DATABASE academy_e2e;"
       - run: npm run lint
+      - run: npm run format:check
       - run: npm run typecheck
       - run: npm run test:unit
       - run: npm run test:integration

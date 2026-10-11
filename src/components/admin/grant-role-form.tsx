@@ -50,10 +50,21 @@ export function GrantRoleForm({
       }}
     >
       <Field label={t.email} htmlFor="staff-email">
-        <Input id="staff-email" type="email" dir="ltr" required value={email} onChange={(event) => setEmail(event.target.value)} />
+        <Input
+          id="staff-email"
+          type="email"
+          dir="ltr"
+          required
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+        />
       </Field>
       <Field label={t.role} htmlFor="staff-role">
-        <NativeSelect id="staff-role" value={roleKey} onChange={(event) => setRoleKey(event.target.value)}>
+        <NativeSelect
+          id="staff-role"
+          value={roleKey}
+          onChange={(event) => setRoleKey(event.target.value)}
+        >
           {roles.map((role) => (
             <option key={role.key} value={role.key}>
               {role.label}
@@ -66,7 +77,7 @@ export function GrantRoleForm({
       </Button>
       {error ? (
         <Alert variant="destructive" className="sm:col-span-3">
-          <AlertDescription className="col-start-1 text-foreground">{error}</AlertDescription>
+          <AlertDescription className="text-foreground col-start-1">{error}</AlertDescription>
         </Alert>
       ) : null}
     </form>

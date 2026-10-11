@@ -11,7 +11,9 @@ async function main() {
   console.log("✓ access catalogue synchronised");
   console.log(`✓ main course ready (${result.courseId})`);
   if (result.superAdminCreated) {
-    console.log(`✓ super admin created for ${result.superAdminCreated} — sign in with an e-mailed code, then enrol MFA`);
+    console.log(
+      `✓ super admin created for ${result.superAdminCreated} — sign in with an e-mailed code, then enrol MFA`,
+    );
   } else if (result.superAdmins === 0) {
     console.warn("! no Super Admin exists: set BOOTSTRAP_SUPER_ADMIN_EMAIL and run again");
   }

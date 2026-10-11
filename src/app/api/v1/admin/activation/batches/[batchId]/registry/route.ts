@@ -10,7 +10,17 @@ export const GET = withApi<{ batchId: string }>(
     const actor = await requireApiActor({ adminArea: true, permission: "activation.codes.read" });
     const { batch, rows } = await loadBatchRegistry(actor, parseIdParam((await params).batchId));
     const csv = toCsv(
-      ["serial", "status", "locked", "created_at", "sold_at", "activated_at", "activated_by", "revoked_at", "revoke_reason"],
+      [
+        "serial",
+        "status",
+        "locked",
+        "created_at",
+        "sold_at",
+        "activated_at",
+        "activated_by",
+        "revoked_at",
+        "revoke_reason",
+      ],
       rows.map((row) => [
         row.serial,
         row.status,

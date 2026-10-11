@@ -7,7 +7,13 @@ import type { RequestMeta } from "@/server/http/request-meta";
 import { SYSTEM_ROLES, type SystemRole } from "@/shared/enums";
 import { recordAudit } from "../audit/audit.service";
 import { assertCan, can, type Actor } from "./actor";
-import { isPermission, PERMISSIONS, ROLE_LABELS, ROLE_PERMISSIONS, type Permission } from "./catalog";
+import {
+  isPermission,
+  PERMISSIONS,
+  ROLE_LABELS,
+  ROLE_PERMISSIONS,
+  type Permission,
+} from "./catalog";
 
 export type UserAccess = { roles: string[]; permissions: Set<Permission> };
 
@@ -193,8 +199,16 @@ export async function listStaff(executor: Executor, actor: Actor) {
     .from(userRoles)
     .innerJoin(roles, eq(roles.id, userRoles.roleId))
     .innerJoin(users, eq(users.id, userRoles.userId))
-    .where(inArray(roles.key, SYSTEM_ROLES.filter((role) => role !== "student")));
-  const byUser = new Map<string, { userId: string; email: string; status: string; roles: string[] }>();
+    .where(
+      inArray(
+        roles.key,
+        SYSTEM_ROLES.filter((role) => role !== "student"),
+      ),
+    );
+  const byUser = new Map<
+    string,
+    { userId: string; email: string; status: string; roles: string[] }
+  >();
   for (const row of rows) {
     const entry = byUser.get(row.userId) ?? {
       userId: row.userId,

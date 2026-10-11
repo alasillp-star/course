@@ -51,44 +51,47 @@ export async function getOverviewMetrics(actor: Actor): Promise<OverviewMetrics>
     .innerJoin(roles, eq(roles.id, userRoles.roleId))
     .where(eq(roles.key, "student"));
 
-  const [studentRow, codeRows, activated7dRow, learningRow, communityRow, accessRow] = await Promise.all([
-    db
-      .select({
-        total: count(),
-        active30d: sql<number>`count(*) filter (where ${users.lastSeenAt} >= ${since30Iso}::timestamptz)::int`,
-        new7d: sql<number>`count(*) filter (where ${users.createdAt} >= ${since7Iso}::timestamptz)::int`,
-      })
-      .from(users)
-      .where(and(sql`${users.id} in ${studentIds}`, eq(users.status, "active"))),
-    db
-      .select({
-        status: activationCodes.status,
-        total: count(),
-        locked: sql<number>`count(*) filter (where ${activationCodes.lockedAt} is not null)::int`,
-      })
-      .from(activationCodes)
-      .groupBy(activationCodes.status),
-    db
-      .select({ total: count() })
-      .from(activationCodes)
-      .where(and(isNotNull(activationCodes.activatedAt), gte(activationCodes.activatedAt, since7))),
-    db
-      .select({
-        average: sql<number | null>`round(avg(${courseProgress.percentComplete}))::int`,
-        completed: sql<number>`count(*) filter (where ${courseProgress.completedAt} is not null)::int`,
-      })
-      .from(courseProgress),
-    db
-      .select({
-        posts: sql<number>`(select count(*)::int from ${communityPosts} where ${communityPosts.createdAt} >= ${since30Iso}::timestamptz)`,
-        comments: sql<number>`(select count(*)::int from ${postComments} where ${postComments.createdAt} >= ${since30Iso}::timestamptz)`,
-      })
-      .from(sql`(select 1) as one`),
-    db
-      .select({ total: sql<number>`count(distinct ${courseEntitlements.userId})::int` })
-      .from(courseEntitlements)
-      .where(activeEntitlementCondition()),
-  ]);
+  const [studentRow, codeRows, activated7dRow, learningRow, communityRow, accessRow] =
+    await Promise.all([
+      db
+        .select({
+          total: count(),
+          active30d: sql<number>`count(*) filter (where ${users.lastSeenAt} >= ${since30Iso}::timestamptz)::int`,
+          new7d: sql<number>`count(*) filter (where ${users.createdAt} >= ${since7Iso}::timestamptz)::int`,
+        })
+        .from(users)
+        .where(and(sql`${users.id} in ${studentIds}`, eq(users.status, "active"))),
+      db
+        .select({
+          status: activationCodes.status,
+          total: count(),
+          locked: sql<number>`count(*) filter (where ${activationCodes.lockedAt} is not null)::int`,
+        })
+        .from(activationCodes)
+        .groupBy(activationCodes.status),
+      db
+        .select({ total: count() })
+        .from(activationCodes)
+        .where(
+          and(isNotNull(activationCodes.activatedAt), gte(activationCodes.activatedAt, since7)),
+        ),
+      db
+        .select({
+          average: sql<number | null>`round(avg(${courseProgress.percentComplete}))::int`,
+          completed: sql<number>`count(*) filter (where ${courseProgress.completedAt} is not null)::int`,
+        })
+        .from(courseProgress),
+      db
+        .select({
+          posts: sql<number>`(select count(*)::int from ${communityPosts} where ${communityPosts.createdAt} >= ${since30Iso}::timestamptz)`,
+          comments: sql<number>`(select count(*)::int from ${postComments} where ${postComments.createdAt} >= ${since30Iso}::timestamptz)`,
+        })
+        .from(sql`(select 1) as one`),
+      db
+        .select({ total: sql<number>`count(distinct ${courseEntitlements.userId})::int` })
+        .from(courseEntitlements)
+        .where(activeEntitlementCondition()),
+    ]);
 
   const byStatus = { available: 0, sold: 0, activated: 0, revoked: 0 } as Record<string, number>;
   let locked = 0;
@@ -108,7 +111,11 @@ export async function getOverviewMetrics(actor: Actor): Promise<OverviewMetrics>
       })
       .from(orders)
       .where(eq(orders.status, "paid"));
-    sales = { paidOrders: Number(row?.paidOrders ?? 0), revenueMinor: Number(row?.revenue ?? 0), currency: "DZD" };
+    sales = {
+      paidOrders: Number(row?.paidOrders ?? 0),
+      revenueMinor: Number(row?.revenue ?? 0),
+      currency: "DZD",
+    };
   }
 
   return {

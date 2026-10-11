@@ -32,7 +32,8 @@ export function assertSameOrigin(request: Request): void {
     }
     const trustProxy = process.env.TRUST_PROXY_HEADERS !== "false";
     const allowed = new Set<string>([new URL(getEnv().APP_URL).host]);
-    const host = (trustProxy && request.headers.get("x-forwarded-host")) || request.headers.get("host");
+    const host =
+      (trustProxy && request.headers.get("x-forwarded-host")) || request.headers.get("host");
     if (host) allowed.add(host);
     if (!allowed.has(originHost)) throw new AppError("CSRF_REJECTED");
     return;
@@ -65,7 +66,10 @@ export function errorResponse(error: unknown, meta: RequestMeta): Response {
       {
         error: {
           code: "VALIDATION_ERROR",
-          issues: error.issues.map((issue) => ({ path: issue.path.join("."), message: issue.message })),
+          issues: error.issues.map((issue) => ({
+            path: issue.path.join("."),
+            message: issue.message,
+          })),
         },
       },
       { status: 400 },
@@ -108,7 +112,10 @@ export function withApi<P = Record<string, never>>(
 }
 
 /** Parses and validates a JSON body with a size limit. */
-export async function parseJsonBody<S extends z.ZodType>(request: Request, schema: S): Promise<z.infer<S>> {
+export async function parseJsonBody<S extends z.ZodType>(
+  request: Request,
+  schema: S,
+): Promise<z.infer<S>> {
   const contentType = request.headers.get("content-type") ?? "";
   if (!contentType.toLowerCase().includes("application/json")) {
     throw new AppError("INVALID_REQUEST", "Expected application/json");
@@ -127,6 +134,9 @@ export async function parseJsonBody<S extends z.ZodType>(request: Request, schem
 }
 
 /** Validates URL search params against a schema (strings in, typed values out). */
-export function parseSearchParams<S extends z.ZodType>(request: NextRequest, schema: S): z.infer<S> {
+export function parseSearchParams<S extends z.ZodType>(
+  request: NextRequest,
+  schema: S,
+): z.infer<S> {
   return schema.parse(Object.fromEntries(request.nextUrl.searchParams.entries()));
 }

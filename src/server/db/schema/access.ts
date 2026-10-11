@@ -1,12 +1,4 @@
-import {
-  boolean,
-  index,
-  pgTable,
-  primaryKey,
-  text,
-  uniqueIndex,
-  uuid,
-} from "drizzle-orm/pg-core";
+import { boolean, index, pgTable, primaryKey, text, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import { createdAt, pk, tstz, updatedAt } from "./_columns";
 import { users } from "./identity";
 
@@ -66,8 +58,5 @@ export const userRoles = pgTable(
     grantedBy: uuid().references(() => users.id, { onDelete: "set null" }),
     grantedAt: tstz().notNull().defaultNow(),
   },
-  (t) => [
-    primaryKey({ columns: [t.userId, t.roleId] }),
-    index("user_roles_role_idx").on(t.roleId),
-  ],
+  (t) => [primaryKey({ columns: [t.userId, t.roleId] }), index("user_roles_role_idx").on(t.roleId)],
 );

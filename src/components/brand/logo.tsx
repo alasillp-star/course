@@ -16,16 +16,34 @@ export function LogoMark({ className }: { className?: string }) {
   );
 }
 
-export function Logo({ href, className, inverted }: { href: string; className?: string; inverted?: boolean }) {
+export function Logo({
+  href,
+  className,
+  inverted,
+}: {
+  href: string;
+  className?: string;
+  inverted?: boolean;
+}) {
   return (
-    <Link href={href} className={cn("group inline-flex items-center gap-2.5", className)} aria-label={ACADEMY.shortName}>
+    <Link
+      href={href}
+      className={cn("group inline-flex items-center gap-2.5", className)}
+      aria-label={ACADEMY.shortName}
+    >
       <LogoMark className="transition-transform duration-300 group-hover:rotate-[8deg]" />
       <span
         dir="ltr"
-        className={cn("text-[15px] font-semibold tracking-tight", inverted ? "text-white" : "text-foreground")}
+        className={cn(
+          "text-[15px] font-semibold tracking-tight",
+          inverted ? "text-white" : "text-foreground",
+        )}
       >
         {ACADEMY.shortName.split(" ")[0]}
-        <span className="text-gold-strong dark:text-gold"> {ACADEMY.shortName.split(" ").slice(1).join(" ")}</span>
+        <span className="text-gold-strong dark:text-gold">
+          {" "}
+          {ACADEMY.shortName.split(" ").slice(1).join(" ")}
+        </span>
       </span>
     </Link>
   );

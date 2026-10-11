@@ -9,7 +9,9 @@ for (const [locale, dir] of [
     await expect(page.locator("html")).toHaveAttribute("dir", dir);
     await expect(page.locator("html")).toHaveAttribute("lang", locale);
     await expect(page.locator("h1")).toBeVisible();
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - window.innerWidth,
+    );
     expect(overflow).toBeLessThanOrEqual(1);
   });
 }

@@ -15,13 +15,15 @@ export function StatCard({
   className?: string;
 }) {
   return (
-    <div className={cn("rounded-2xl border border-border bg-card p-5 shadow-soft", className)}>
+    <div className={cn("border-border bg-card shadow-soft rounded-2xl border p-5", className)}>
       <div className="flex items-start justify-between gap-3">
-        <p className="text-[13px] font-medium text-muted-foreground">{label}</p>
-        {icon ? <span className="rounded-lg bg-muted p-2 text-foreground/80 [&_svg]:size-4">{icon}</span> : null}
+        <p className="text-muted-foreground text-[13px] font-medium">{label}</p>
+        {icon ? (
+          <span className="bg-muted text-foreground/80 rounded-lg p-2 [&_svg]:size-4">{icon}</span>
+        ) : null}
       </div>
-      <p className="mt-2 text-2xl font-semibold tracking-tight tabular sm:text-[28px]">{value}</p>
-      {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
+      <p className="tabular mt-2 text-2xl font-semibold tracking-tight sm:text-[28px]">{value}</p>
+      {hint ? <p className="text-muted-foreground mt-1 text-xs">{hint}</p> : null}
     </div>
   );
 }
@@ -40,10 +42,21 @@ export function EmptyState({
   className?: string;
 }) {
   return (
-    <div className={cn("flex flex-col items-center justify-center rounded-2xl border border-dashed border-border px-6 py-10 text-center", className)}>
-      {icon ? <div className="mb-3 rounded-2xl bg-muted p-3 text-muted-foreground [&_svg]:size-5">{icon}</div> : null}
+    <div
+      className={cn(
+        "border-border flex flex-col items-center justify-center rounded-2xl border border-dashed px-6 py-10 text-center",
+        className,
+      )}
+    >
+      {icon ? (
+        <div className="bg-muted text-muted-foreground mb-3 rounded-2xl p-3 [&_svg]:size-5">
+          {icon}
+        </div>
+      ) : null}
       <p className="font-semibold">{title}</p>
-      {description ? <p className="mt-1 max-w-sm text-sm text-muted-foreground">{description}</p> : null}
+      {description ? (
+        <p className="text-muted-foreground mt-1 max-w-sm text-sm">{description}</p>
+      ) : null}
       {action ? <div className="mt-4">{action}</div> : null}
     </div>
   );

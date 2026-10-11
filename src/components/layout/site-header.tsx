@@ -34,8 +34,17 @@ export async function SiteHeader() {
           ))}
         </nav>
         <div className="ms-auto flex items-center gap-1.5">
-          <LocaleSwitcher locale={locale} label={dict.common.language} variant="glass" className="hidden sm:inline-flex" />
-          <ThemeToggle labels={dict.common.theme} variant="glass" className="hidden sm:inline-flex" />
+          <LocaleSwitcher
+            locale={locale}
+            label={dict.common.language}
+            variant="glass"
+            className="hidden sm:inline-flex"
+          />
+          <ThemeToggle
+            labels={dict.common.theme}
+            variant="glass"
+            className="hidden sm:inline-flex"
+          />
           {home ? (
             <Button asChild variant="gold" size="sm" className="ms-1">
               <Link href={home}>{actor?.isStaff ? dict.common.admin : dict.common.dashboard}</Link>
@@ -52,7 +61,12 @@ export async function SiteHeader() {
           )}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="glass" size="icon" className="md:hidden" aria-label={dict.common.menu}>
+              <Button
+                variant="glass"
+                size="icon"
+                className="md:hidden"
+                aria-label={dict.common.menu}
+              >
                 <MenuIcon />
               </Button>
             </SheetTrigger>
@@ -61,12 +75,19 @@ export async function SiteHeader() {
               <Logo href={`/${locale}`} />
               <nav className="mt-4 grid gap-1">
                 {nav.map((item) => (
-                  <a key={item.href} href={item.href} className="rounded-lg px-3 py-3 text-[15px] font-medium hover:bg-muted">
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    className="hover:bg-muted rounded-lg px-3 py-3 text-[15px] font-medium"
+                  >
                     {item.label}
                   </a>
                 ))}
                 {!home ? (
-                  <Link href={`/${locale}/login`} className="rounded-lg px-3 py-3 text-[15px] font-medium hover:bg-muted">
+                  <Link
+                    href={`/${locale}/login`}
+                    className="hover:bg-muted rounded-lg px-3 py-3 text-[15px] font-medium"
+                  >
                     {dict.common.signIn}
                   </Link>
                 ) : null}

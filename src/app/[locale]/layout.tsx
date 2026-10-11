@@ -28,7 +28,12 @@ export async function generateMetadata(): Promise<Metadata> {
       canonical: `/${locale}`,
       languages: Object.fromEntries(ENABLED_LOCALES.map((code) => [code, `/${code}`])),
     },
-    openGraph: { title: dict.meta.title, description: dict.meta.description, locale, type: "website" },
+    openGraph: {
+      title: dict.meta.title,
+      description: dict.meta.description,
+      locale,
+      type: "website",
+    },
     formatDetection: { telephone: false, email: false, address: false },
   };
 }
@@ -60,7 +65,7 @@ export default async function RootLayout({ children }: LayoutProps<"/[locale]">)
       <body className="min-h-dvh font-sans">
         <a
           href="#main"
-          className="sr-only z-[100] rounded-lg bg-primary px-4 py-2 text-primary-foreground focus:not-sr-only focus:fixed focus:start-3 focus:top-3"
+          className="bg-primary text-primary-foreground sr-only z-[100] rounded-lg px-4 py-2 focus:not-sr-only focus:fixed focus:start-3 focus:top-3"
         >
           {dict.common.skipToContent}
         </a>

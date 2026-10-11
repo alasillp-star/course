@@ -6,7 +6,11 @@ import {
   revokeCard,
   unlockCard,
 } from "@/modules/activation/admin-codes.service";
-import { createBatch, loadPrintableCards, purgeBatchSecrets } from "@/modules/activation/batches.service";
+import {
+  createBatch,
+  loadPrintableCards,
+  purgeBatchSecrets,
+} from "@/modules/activation/batches.service";
 import { MAX_FAILED_PIN_ATTEMPTS } from "@/modules/activation/codes";
 import {
   checkActivationCode,
@@ -42,7 +46,9 @@ let mail: MemoryTransport;
 let courseId: string;
 let admin: Actor;
 
-async function newBatch(options: { quantity?: number; requiresPin?: boolean; requiresSale?: boolean } = {}) {
+async function newBatch(
+  options: { quantity?: number; requiresPin?: boolean; requiresSale?: boolean } = {},
+) {
   const batch = await createBatch(
     admin,
     {
@@ -71,8 +77,18 @@ async function soldCard(options: { requiresPin?: boolean } = {}) {
 
 /** Full happy-path redemption for `email`; returns the activation result. */
 async function redeem(card: { code: string; pin: string | null }, email: string) {
-  const started = await startActivation({ code: card.code, pin: card.pin, email, locale: "fr", meta: testMeta() });
-  return completeActivation({ challengeId: started.challengeId, otp: mail.otpFor(email), meta: testMeta() });
+  const started = await startActivation({
+    code: card.code,
+    pin: card.pin,
+    email,
+    locale: "fr",
+    meta: testMeta(),
+  });
+  return completeActivation({
+    challengeId: started.challengeId,
+    otp: mail.otpFor(email),
+    meta: testMeta(),
+  });
 }
 
 beforeEach(async () => {
@@ -94,7 +110,10 @@ describe("batch generation", () => {
     expect(cards).toHaveLength(25);
     expect(new Set(cards.map((card) => card.code)).size).toBe(25);
 
-    const rows = await getDb().select().from(activationCodes).where(eq(activationCodes.batchId, batch.id));
+    const rows = await getDb()
+      .select()
+      .from(activationCodes)
+      .where(eq(activationCodes.batchId, batch.id));
     for (const row of rows) {
       const card = cards.find((candidate) => candidate.serial === row.serial)!;
       expect(row.codeHash).not.toContain(card.code);
@@ -108,7 +127,13 @@ describe("batch generation", () => {
   it("generates 10,000 cards in one batch", async () => {
     const batch = await createBatch(
       admin,
-      { name: "Large print run", courseId, quantity: 10_000, requiresPin: true, requiresSale: true },
+      {
+        name: "Large print run",
+        courseId,
+        quantity: 10_000,
+        requiresPin: true,
+        requiresSale: true,
+      },
       testMeta(),
     );
     expect(batch.counts.total).toBe(10_000);
@@ -126,8 +151,13 @@ describe("batch generation", () => {
       loadPrintableCards(admin, { batchId: batch.id, from: 1, to: 3, format: "pdf" }, testMeta()),
       "ACTIVATION_SECRETS_PURGED",
     );
-    const rows = await getDb().select().from(activationCodes).where(eq(activationCodes.batchId, batch.id));
-    expect(rows.every((row) => row.codeCiphertext === null && row.pinCiphertext === null)).toBe(true);
+    const rows = await getDb()
+      .select()
+      .from(activationCodes)
+      .where(eq(activationCodes.batchId, batch.id));
+    expect(rows.every((row) => row.codeCiphertext === null && row.pinCiphertext === null)).toBe(
+      true,
+    );
   });
 });
 
@@ -148,11 +178,17 @@ describe("redemption", () => {
     expect(user?.emailVerifiedAt).toBeInstanceOf(Date);
     expect(await hasCourseAccess(db, user!.id, courseId)).toBe(true);
 
-    const [entitlement] = await db.select().from(courseEntitlements).where(eq(courseEntitlements.userId, user!.id));
+    const [entitlement] = await db
+      .select()
+      .from(courseEntitlements)
+      .where(eq(courseEntitlements.userId, user!.id));
     expect(entitlement?.expiresAt).toBeNull();
     expect(entitlement?.source).toBe("activation_code");
 
-    const [code] = await db.select().from(activationCodes).where(eq(activationCodes.serial, card.serial));
+    const [code] = await db
+      .select()
+      .from(activationCodes)
+      .where(eq(activationCodes.serial, card.serial));
     expect(code?.status).toBe("activated");
     expect(code?.activatedByUserId).toBe(user!.id);
     expect(code?.codeCiphertext).toBeNull();
@@ -161,9 +197,15 @@ describe("redemption", () => {
     const session = await validateSessionToken(db, result.token);
     expect(session?.user.id).toBe(user!.id);
 
-    const events = await db.select().from(activationEvents).where(eq(activationEvents.codeId, code!.id));
+    const events = await db
+      .select()
+      .from(activationEvents)
+      .where(eq(activationEvents.codeId, code!.id));
     expect(events.map((event) => event.type)).toContain("code_activated");
-    const audits = await db.select().from(auditLogs).where(eq(auditLogs.action, "activation.code_redeemed"));
+    const audits = await db
+      .select()
+      .from(auditLogs)
+      .where(eq(auditLogs.action, "activation.code_redeemed"));
     expect(audits).toHaveLength(1);
     // Card secrets never reach the audit trail or event metadata.
     expect(JSON.stringify(audits)).not.toContain(card.code);
@@ -183,9 +225,18 @@ describe("redemption", () => {
   it("rejects a card that was already used", async () => {
     const { card } = await soldCard();
     await redeem(card, "first@example.com");
-    await expectAppError(checkActivationCode({ code: card.code, meta: testMeta() }), "ACTIVATION_CODE_ALREADY_USED");
     await expectAppError(
-      startActivation({ code: card.code, pin: card.pin, email: "second@example.com", locale: "ar", meta: testMeta() }),
+      checkActivationCode({ code: card.code, meta: testMeta() }),
+      "ACTIVATION_CODE_ALREADY_USED",
+    );
+    await expectAppError(
+      startActivation({
+        code: card.code,
+        pin: card.pin,
+        email: "second@example.com",
+        locale: "ar",
+        meta: testMeta(),
+      }),
       "ACTIVATION_CODE_ALREADY_USED",
     );
   });
@@ -195,7 +246,13 @@ describe("redemption", () => {
     const emails = Array.from({ length: 6 }, (_, i) => `racer${i}@example.com`);
     const challenges = [];
     for (const email of emails) {
-      const started = await startActivation({ code: card.code, pin: card.pin, email, locale: "ar", meta: testMeta() });
+      const started = await startActivation({
+        code: card.code,
+        pin: card.pin,
+        email,
+        locale: "ar",
+        meta: testMeta(),
+      });
       challenges.push({ challengeId: started.challengeId, otp: mail.otpFor(email) });
     }
 
@@ -203,14 +260,23 @@ describe("redemption", () => {
       challenges.map((challenge) => completeActivation({ ...challenge, meta: testMeta() })),
     );
     const fulfilled = results.filter((result) => result.status === "fulfilled");
-    const rejected = results.filter((result) => result.status === "rejected") as PromiseRejectedResult[];
+    const rejected = results.filter(
+      (result) => result.status === "rejected",
+    ) as PromiseRejectedResult[];
     expect(fulfilled).toHaveLength(1);
     expect(rejected).toHaveLength(emails.length - 1);
-    for (const failure of rejected) expect(failure.reason.code).toBe("ACTIVATION_CODE_ALREADY_USED");
+    for (const failure of rejected)
+      expect(failure.reason.code).toBe("ACTIVATION_CODE_ALREADY_USED");
 
     const db = getDb();
-    const [code] = await db.select().from(activationCodes).where(eq(activationCodes.serial, card.serial));
-    const grants = await db.select().from(courseEntitlements).where(eq(courseEntitlements.activationCodeId, code!.id));
+    const [code] = await db
+      .select()
+      .from(activationCodes)
+      .where(eq(activationCodes.serial, card.serial));
+    const grants = await db
+      .select()
+      .from(courseEntitlements)
+      .where(eq(courseEntitlements.activationCodeId, code!.id));
     expect(grants).toHaveLength(1);
     // Losers did not get accounts created as a side effect.
     const accounts = await db.select().from(users);
@@ -221,13 +287,28 @@ describe("redemption", () => {
     const { batch, cards } = await newBatch({ quantity: 2 });
     await markCardsSold(admin, { serials: cards.map((card) => card.serial) }, testMeta());
     const email = "double@example.com";
-    const first = await startActivation({ code: cards[0]!.code, pin: cards[0]!.pin, email, locale: "ar", meta: testMeta() });
+    const first = await startActivation({
+      code: cards[0]!.code,
+      pin: cards[0]!.pin,
+      email,
+      locale: "ar",
+      meta: testMeta(),
+    });
     const otpA = mail.otpFor(email);
-    const second = await startActivation({ code: cards[1]!.code, pin: cards[1]!.pin, email, locale: "ar", meta: testMeta() });
+    const second = await startActivation({
+      code: cards[1]!.code,
+      pin: cards[1]!.pin,
+      email,
+      locale: "ar",
+      meta: testMeta(),
+    });
     const otpB = mail.otpFor(email);
 
     // Issuing the second challenge invalidated the first (only the latest code works).
-    await expectAppError(completeActivation({ challengeId: first.challengeId, otp: otpA, meta: testMeta() }), "OTP_INVALID");
+    await expectAppError(
+      completeActivation({ challengeId: first.challengeId, otp: otpA, meta: testMeta() }),
+      "OTP_INVALID",
+    );
     await completeActivation({ challengeId: second.challengeId, otp: otpB, meta: testMeta() });
 
     const db = getDb();
@@ -246,20 +327,31 @@ describe("redemption", () => {
     const [code] = await getDb()
       .select()
       .from(activationCodes)
-      .where(and(eq(activationCodes.batchId, batch.id), eq(activationCodes.serial, cards[1]!.serial)));
+      .where(
+        and(eq(activationCodes.batchId, batch.id), eq(activationCodes.serial, cards[1]!.serial)),
+      );
     expect(code?.status).toBe("sold");
   });
 
   it("rejects revoked cards", async () => {
     const { card } = await soldCard();
-    const [row] = await getDb().select().from(activationCodes).where(eq(activationCodes.serial, card.serial));
+    const [row] = await getDb()
+      .select()
+      .from(activationCodes)
+      .where(eq(activationCodes.serial, card.serial));
     await revokeCard(admin, { codeId: row!.id, reason: "reported stolen" }, testMeta());
-    await expectAppError(checkActivationCode({ code: card.code, meta: testMeta() }), "ACTIVATION_CODE_REVOKED");
+    await expectAppError(
+      checkActivationCode({ code: card.code, meta: testMeta() }),
+      "ACTIVATION_CODE_REVOKED",
+    );
   });
 
   it("rejects unsold cards when the batch requires a point-of-sale activation", async () => {
     const { cards } = await newBatch({ quantity: 1, requiresSale: true });
-    await expectAppError(checkActivationCode({ code: cards[0]!.code, meta: testMeta() }), "ACTIVATION_CODE_NOT_SOLD");
+    await expectAppError(
+      checkActivationCode({ code: cards[0]!.code, meta: testMeta() }),
+      "ACTIVATION_CODE_NOT_SOLD",
+    );
   });
 
   it("allows unsold cards when the batch does not require a sale", async () => {
@@ -271,17 +363,32 @@ describe("redemption", () => {
   it("requires the scratch-off PIN and locks the card after repeated failures", async () => {
     const { card } = await soldCard();
     const base = { code: card.code, email: "pin@example.com", locale: "ar" as const };
-    await expectAppError(startActivation({ ...base, pin: null, meta: testMeta() }), "ACTIVATION_PIN_REQUIRED");
+    await expectAppError(
+      startActivation({ ...base, pin: null, meta: testMeta() }),
+      "ACTIVATION_PIN_REQUIRED",
+    );
 
     const wrongPin = card.pin === "00000000" ? "11111111" : "00000000";
     for (let attempt = 1; attempt < MAX_FAILED_PIN_ATTEMPTS; attempt += 1) {
-      await expectAppError(startActivation({ ...base, pin: wrongPin, meta: testMeta() }), "ACTIVATION_PIN_INVALID");
+      await expectAppError(
+        startActivation({ ...base, pin: wrongPin, meta: testMeta() }),
+        "ACTIVATION_PIN_INVALID",
+      );
     }
-    await expectAppError(startActivation({ ...base, pin: wrongPin, meta: testMeta() }), "ACTIVATION_CODE_LOCKED");
+    await expectAppError(
+      startActivation({ ...base, pin: wrongPin, meta: testMeta() }),
+      "ACTIVATION_CODE_LOCKED",
+    );
     // Even the right PIN is refused while locked.
-    await expectAppError(startActivation({ ...base, pin: card.pin, meta: testMeta() }), "ACTIVATION_CODE_LOCKED");
+    await expectAppError(
+      startActivation({ ...base, pin: card.pin, meta: testMeta() }),
+      "ACTIVATION_CODE_LOCKED",
+    );
 
-    const [row] = await getDb().select().from(activationCodes).where(eq(activationCodes.serial, card.serial));
+    const [row] = await getDb()
+      .select()
+      .from(activationCodes)
+      .where(eq(activationCodes.serial, card.serial));
     expect(row?.lockedAt).toBeInstanceOf(Date);
     await unlockCard(admin, row!.id, testMeta());
     const started = await startActivation({ ...base, pin: card.pin, meta: testMeta() });
@@ -290,20 +397,36 @@ describe("redemption", () => {
 
   it("accepts codes typed with separators, lowercase and look-alike letters", async () => {
     const { card } = await soldCard();
-    const typed = card.code.toLowerCase().replace(/(.{4})(?!$)/g, "$1-").replace(/0/g, "o").replace(/1/g, "l");
+    const typed = card.code
+      .toLowerCase()
+      .replace(/(.{4})(?!$)/g, "$1-")
+      .replace(/0/g, "o")
+      .replace(/1/g, "l");
     const check = await checkActivationCode({ code: typed, meta: testMeta() });
     expect(check.requiresPin).toBe(true);
   });
 
   it("rejects malformed and unknown codes without revealing anything", async () => {
-    await expectAppError(checkActivationCode({ code: "not-a-code", meta: testMeta() }), "ACTIVATION_CODE_INVALID");
-    await expectAppError(checkActivationCode({ code: "ZZZZ-ZZZZ-ZZZZ-ZZZZ", meta: testMeta() }), "ACTIVATION_CODE_INVALID");
+    await expectAppError(
+      checkActivationCode({ code: "not-a-code", meta: testMeta() }),
+      "ACTIVATION_CODE_INVALID",
+    );
+    await expectAppError(
+      checkActivationCode({ code: "ZZZZ-ZZZZ-ZZZZ-ZZZZ", meta: testMeta() }),
+      "ACTIVATION_CODE_INVALID",
+    );
   });
 
   it("rolls back everything when a failure happens mid-activation", async () => {
     const { card } = await soldCard();
     const email = "crash@example.com";
-    const started = await startActivation({ code: card.code, pin: card.pin, email, locale: "ar", meta: testMeta() });
+    const started = await startActivation({
+      code: card.code,
+      pin: card.pin,
+      email,
+      locale: "ar",
+      meta: testMeta(),
+    });
     const otp = mail.otpFor(email);
 
     await expect(
@@ -318,24 +441,44 @@ describe("redemption", () => {
     ).rejects.toThrow("simulated crash");
 
     const db = getDb();
-    const [code] = await db.select().from(activationCodes).where(eq(activationCodes.serial, card.serial));
+    const [code] = await db
+      .select()
+      .from(activationCodes)
+      .where(eq(activationCodes.serial, card.serial));
     expect(code?.status).toBe("sold");
     expect(code?.codeCiphertext).not.toBeNull();
     expect(await db.select().from(users).where(eq(users.email, email))).toHaveLength(0);
     expect(await db.select().from(courseEntitlements)).toHaveLength(0);
-    const [challenge] = await db.select().from(authOtpChallenges).where(eq(authOtpChallenges.id, started.challengeId));
+    const [challenge] = await db
+      .select()
+      .from(authOtpChallenges)
+      .where(eq(authOtpChallenges.id, started.challengeId));
     expect(challenge?.consumedAt).toBeNull();
     // The same OTP still works afterwards: the failed attempt left no partial state.
-    const result = await completeActivation({ challengeId: started.challengeId, otp, meta: testMeta() });
+    const result = await completeActivation({
+      challengeId: started.challengeId,
+      otp,
+      meta: testMeta(),
+    });
     expect(result.accountCreated).toBe(true);
   });
 
   it("issues a replacement that works while the original stops working", async () => {
     const { card } = await soldCard();
-    const [row] = await getDb().select().from(activationCodes).where(eq(activationCodes.serial, card.serial));
-    const replacement = await replaceCard(admin, { codeId: row!.id, reason: "damaged" }, testMeta());
+    const [row] = await getDb()
+      .select()
+      .from(activationCodes)
+      .where(eq(activationCodes.serial, card.serial));
+    const replacement = await replaceCard(
+      admin,
+      { codeId: row!.id, reason: "damaged" },
+      testMeta(),
+    );
     expect(replacement.serial).toMatch(/-10001$/);
-    await expectAppError(checkActivationCode({ code: card.code, meta: testMeta() }), "ACTIVATION_CODE_REVOKED");
+    await expectAppError(
+      checkActivationCode({ code: card.code, meta: testMeta() }),
+      "ACTIVATION_CODE_REVOKED",
+    );
     const result = await redeem(replacement, "replacement@example.com");
     expect(result.accountCreated).toBe(true);
   });
@@ -354,7 +497,10 @@ describe("returning students", () => {
     const session = await validateSessionToken(db, login.token);
     expect(session).not.toBeNull();
     expect(await hasCourseAccess(db, login.userId, courseId)).toBe(true);
-    const sessions = await db.select().from(authSessions).where(eq(authSessions.userId, login.userId));
+    const sessions = await db
+      .select()
+      .from(authSessions)
+      .where(eq(authSessions.userId, login.userId));
     expect(sessions).toHaveLength(2);
   });
 

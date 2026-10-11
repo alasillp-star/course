@@ -8,7 +8,10 @@ export function Label({ className, ...props }: React.ComponentProps<typeof Label
   return (
     <LabelPrimitive.Root
       data-slot="label"
-      className={cn("flex items-center gap-2 text-sm font-medium leading-none select-none peer-disabled:opacity-50", className)}
+      className={cn(
+        "flex items-center gap-2 text-sm leading-none font-medium select-none peer-disabled:opacity-50",
+        className,
+      )}
       {...props}
     />
   );
@@ -34,11 +37,11 @@ export function Field({
       <Label htmlFor={htmlFor}>{label}</Label>
       {children}
       {error ? (
-        <p className="text-[13px] font-medium text-destructive" role="alert">
+        <p className="text-destructive text-[13px] font-medium" role="alert">
           {error}
         </p>
       ) : hint ? (
-        <p className="text-[13px] text-muted-foreground">{hint}</p>
+        <p className="text-muted-foreground text-[13px]">{hint}</p>
       ) : null}
     </div>
   );

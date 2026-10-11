@@ -56,17 +56,20 @@ export function CreateBatchDialog({
     setPending(true);
     setError(null);
     try {
-      const batch = await api<{ id: string; quantity: number }>("/api/v1/admin/activation/batches", {
-        body: {
-          name,
-          courseId,
-          quantity,
-          requiresPin,
-          requiresSale,
-          redeemBy: redeemBy ? new Date(`${redeemBy}T23:59:59`).toISOString() : null,
-          notes: notes || null,
+      const batch = await api<{ id: string; quantity: number }>(
+        "/api/v1/admin/activation/batches",
+        {
+          body: {
+            name,
+            courseId,
+            quantity,
+            requiresPin,
+            requiresSale,
+            redeemBy: redeemBy ? new Date(`${redeemBy}T23:59:59`).toISOString() : null,
+            notes: notes || null,
+          },
         },
-      });
+      );
       toast.success(format(t.created, { count: batch.quantity }));
       setOpen(false);
       router.push(`/${locale}/admin/activation/${batch.id}`);
@@ -98,11 +101,24 @@ export function CreateBatchDialog({
           }}
         >
           <Field label={t.name} htmlFor="batch-name">
-            <Input id="batch-name" required minLength={2} maxLength={120} placeholder={t.namePlaceholder} value={name} onChange={(event) => setName(event.target.value)} />
+            <Input
+              id="batch-name"
+              required
+              minLength={2}
+              maxLength={120}
+              placeholder={t.namePlaceholder}
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+            />
           </Field>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label={t.course} htmlFor="batch-course">
-              <NativeSelect id="batch-course" value={courseId} onChange={(event) => setCourseId(event.target.value)} required>
+              <NativeSelect
+                id="batch-course"
+                value={courseId}
+                onChange={(event) => setCourseId(event.target.value)}
+                required
+              >
                 {courses.map((course) => (
                   <option key={course.id} value={course.id}>
                     {course.title}
@@ -124,31 +140,51 @@ export function CreateBatchDialog({
               />
             </Field>
           </div>
-          <label className="flex items-start justify-between gap-4 rounded-xl border border-border p-3">
+          <label className="border-border flex items-start justify-between gap-4 rounded-xl border p-3">
             <span>
               <span className="block text-sm font-medium">{t.requiresPin}</span>
-              <span className="block text-xs text-muted-foreground">{t.requiresPinHint}</span>
+              <span className="text-muted-foreground block text-xs">{t.requiresPinHint}</span>
             </span>
-            <Switch checked={requiresPin} onCheckedChange={setRequiresPin} aria-label={t.requiresPin} />
+            <Switch
+              checked={requiresPin}
+              onCheckedChange={setRequiresPin}
+              aria-label={t.requiresPin}
+            />
           </label>
-          <label className="flex items-start justify-between gap-4 rounded-xl border border-border p-3">
+          <label className="border-border flex items-start justify-between gap-4 rounded-xl border p-3">
             <span>
               <span className="block text-sm font-medium">{t.requiresSale}</span>
-              <span className="block text-xs text-muted-foreground">{t.requiresSaleHint}</span>
+              <span className="text-muted-foreground block text-xs">{t.requiresSaleHint}</span>
             </span>
-            <Switch checked={requiresSale} onCheckedChange={setRequiresSale} aria-label={t.requiresSale} />
+            <Switch
+              checked={requiresSale}
+              onCheckedChange={setRequiresSale}
+              aria-label={t.requiresSale}
+            />
           </label>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label={t.redeemBy} htmlFor="batch-redeem-by">
-              <Input id="batch-redeem-by" type="date" value={redeemBy} onChange={(event) => setRedeemBy(event.target.value)} dir="ltr" />
+              <Input
+                id="batch-redeem-by"
+                type="date"
+                value={redeemBy}
+                onChange={(event) => setRedeemBy(event.target.value)}
+                dir="ltr"
+              />
             </Field>
             <Field label={t.notes} htmlFor="batch-notes">
-              <Textarea id="batch-notes" className="min-h-11" maxLength={1000} value={notes} onChange={(event) => setNotes(event.target.value)} />
+              <Textarea
+                id="batch-notes"
+                className="min-h-11"
+                maxLength={1000}
+                value={notes}
+                onChange={(event) => setNotes(event.target.value)}
+              />
             </Field>
           </div>
           {error ? (
             <Alert variant="destructive">
-              <AlertDescription className="col-start-1 text-foreground">{error}</AlertDescription>
+              <AlertDescription className="text-foreground col-start-1">{error}</AlertDescription>
             </Alert>
           ) : null}
           <Button type="submit" size="lg" loading={pending} disabled={!courseId}>

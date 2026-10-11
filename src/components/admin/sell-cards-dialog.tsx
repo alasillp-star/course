@@ -50,11 +50,14 @@ export function SellCardsDialog({
     setError(null);
     setSkipped([]);
     try {
-      const list = serials.split(/[\s,;]+/).map((value) => value.trim()).filter(Boolean);
-      const result = await api<{ sold: string[]; skipped: Array<{ serial: string; reason: string }> }>(
-        "/api/v1/admin/activation/codes/sell",
-        { body: { serials: list } },
-      );
+      const list = serials
+        .split(/[\s,;]+/)
+        .map((value) => value.trim())
+        .filter(Boolean);
+      const result = await api<{
+        sold: string[];
+        skipped: Array<{ serial: string; reason: string }>;
+      }>("/api/v1/admin/activation/codes/sell", { body: { serials: list } });
       toast.success(format(t.result, { count: result.sold.length }));
       setSkipped(result.skipped);
       if (result.skipped.length === 0) {
@@ -102,7 +105,7 @@ export function SellCardsDialog({
           </Field>
           {skipped.length > 0 ? (
             <Alert variant="warning">
-              <AlertDescription className="col-start-1 text-foreground">
+              <AlertDescription className="text-foreground col-start-1">
                 <p>{format(t.skipped, { count: skipped.length })}</p>
                 <ul className="mt-1 font-mono text-xs" dir="ltr">
                   {skipped.slice(0, 20).map((item) => (
@@ -116,7 +119,7 @@ export function SellCardsDialog({
           ) : null}
           {error ? (
             <Alert variant="destructive">
-              <AlertDescription className="col-start-1 text-foreground">{error}</AlertDescription>
+              <AlertDescription className="text-foreground col-start-1">{error}</AlertDescription>
             </Alert>
           ) : null}
           <Button type="submit" size="lg" loading={pending}>

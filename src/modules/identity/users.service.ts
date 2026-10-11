@@ -9,12 +9,18 @@ import { assignRoleUnchecked } from "../access/rbac.service";
 
 export type UserRecord = typeof users.$inferSelect;
 
-export async function findUserByEmail(executor: Executor, email: string): Promise<UserRecord | undefined> {
+export async function findUserByEmail(
+  executor: Executor,
+  email: string,
+): Promise<UserRecord | undefined> {
   const [user] = await executor.select().from(users).where(eq(users.email, email));
   return user;
 }
 
-export async function findUserById(executor: Executor, userId: string): Promise<UserRecord | undefined> {
+export async function findUserById(
+  executor: Executor,
+  userId: string,
+): Promise<UserRecord | undefined> {
   const [user] = await executor.select().from(users).where(eq(users.id, userId));
   return user;
 }

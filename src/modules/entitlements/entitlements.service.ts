@@ -22,7 +22,11 @@ export function activeEntitlementCondition() {
  * The single authorisation check for paid course content (lessons, videos,
  * resources, community). Independent of roles and of how the user signed in.
  */
-export async function hasCourseAccess(executor: Executor, userId: string, courseId: string): Promise<boolean> {
+export async function hasCourseAccess(
+  executor: Executor,
+  userId: string,
+  courseId: string,
+): Promise<boolean> {
   const [row] = await executor
     .select({ id: courseEntitlements.id })
     .from(courseEntitlements)
@@ -94,7 +98,8 @@ export async function grantFromActivationCode(
     if (!entitlement) throw new Error("Failed to create entitlement");
     return entitlement;
   } catch (error) {
-    if (isUniqueViolation(error, "course_entitlements_active_key")) throw new AppError("ALREADY_ENTITLED");
+    if (isUniqueViolation(error, "course_entitlements_active_key"))
+      throw new AppError("ALREADY_ENTITLED");
     if (isUniqueViolation(error, "course_entitlements_activation_code_key")) {
       throw new AppError("ACTIVATION_CODE_ALREADY_USED");
     }
@@ -129,11 +134,16 @@ export async function grantManually(
       targetType: "user",
       targetId: params.userId,
       meta,
-      metadata: { entitlementId: entitlement.id, courseId: params.courseId, source: "manual_grant" },
+      metadata: {
+        entitlementId: entitlement.id,
+        courseId: params.courseId,
+        source: "manual_grant",
+      },
     });
     return entitlement;
   } catch (error) {
-    if (isUniqueViolation(error, "course_entitlements_active_key")) throw new AppError("ALREADY_ENTITLED");
+    if (isUniqueViolation(error, "course_entitlements_active_key"))
+      throw new AppError("ALREADY_ENTITLED");
     throw error;
   }
 }
@@ -147,8 +157,15 @@ export async function revokeEntitlement(
   assertCan(actor, "entitlements.revoke");
   const [revoked] = await executor
     .update(courseEntitlements)
-    .set({ status: "revoked", revokedAt: new Date(), revokedBy: actor.userId, revokeReason: params.reason })
-    .where(and(eq(courseEntitlements.id, params.entitlementId), eq(courseEntitlements.status, "active")))
+    .set({
+      status: "revoked",
+      revokedAt: new Date(),
+      revokedBy: actor.userId,
+      revokeReason: params.reason,
+    })
+    .where(
+      and(eq(courseEntitlements.id, params.entitlementId), eq(courseEntitlements.status, "active")),
+    )
     .returning({ userId: courseEntitlements.userId, courseId: courseEntitlements.courseId });
   if (!revoked) throw new AppError("NOT_FOUND");
   await recordAudit(executor, {
@@ -157,6 +174,10 @@ export async function revokeEntitlement(
     targetType: "user",
     targetId: revoked.userId,
     meta,
-    metadata: { entitlementId: params.entitlementId, courseId: revoked.courseId, reason: params.reason },
+    metadata: {
+      entitlementId: params.entitlementId,
+      courseId: revoked.courseId,
+      reason: params.reason,
+    },
   });
 }

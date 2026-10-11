@@ -141,10 +141,7 @@ export const activationCodes = pgTable(
       "activation_codes_revoked_check",
       sql`(${t.status} = 'revoked') = (${t.revokedAt} is not null)`,
     ),
-    rule(
-      "activation_codes_sold_check",
-      sql`${t.status} <> 'sold' or ${t.soldAt} is not null`,
-    ),
+    rule("activation_codes_sold_check", sql`${t.status} <> 'sold' or ${t.soldAt} is not null`),
     rule(
       "activation_codes_consumed_secrets_check",
       sql`${t.status} not in ('activated', 'revoked') or (${t.codeCiphertext} is null and ${t.pinCiphertext} is null)`,

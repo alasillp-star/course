@@ -20,10 +20,13 @@ export function Progress({
       aria-valuemax={100}
       aria-valuenow={clamped}
       aria-label={label}
-      className={cn("relative h-2 w-full overflow-hidden rounded-full bg-muted", className)}
+      className={cn("bg-muted relative h-2 w-full overflow-hidden rounded-full", className)}
     >
       <div
-        className={cn("h-full rounded-full bg-gradient-to-r from-gold-strong to-gold transition-[width] duration-700 rtl:bg-gradient-to-l", indicatorClassName)}
+        className={cn(
+          "from-gold-strong to-gold h-full rounded-full bg-gradient-to-r transition-[width] duration-700 rtl:bg-gradient-to-l",
+          indicatorClassName,
+        )}
         style={{ width: `${clamped}%` }}
       />
     </div>

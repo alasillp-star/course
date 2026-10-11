@@ -14,7 +14,9 @@ import { SYSTEM_ROLES } from "@/shared/enums";
  * The account is created (unverified) if needed; the action is audited.
  */
 async function main() {
-  const { values } = parseArgs({ options: { email: { type: "string" }, role: { type: "string" } } });
+  const { values } = parseArgs({
+    options: { email: { type: "string" }, role: { type: "string" } },
+  });
   const email = values.email?.trim().toLowerCase();
   const role = values.role;
   if (!email || !role || !(SYSTEM_ROLES as readonly string[]).includes(role)) {

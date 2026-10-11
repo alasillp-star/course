@@ -15,7 +15,9 @@ async function main() {
   if (!url) throw new Error("DATABASE_URL is not set");
   const client = postgres(url, { max: 1, onnotice: () => {} });
   try {
-    await client.unsafe("drop schema if exists public cascade; drop schema if exists drizzle cascade; create schema public;");
+    await client.unsafe(
+      "drop schema if exists public cascade; drop schema if exists drizzle cascade; create schema public;",
+    );
     await migrate(drizzle(client), { migrationsFolder: "drizzle" });
     console.log("✓ database reset and migrated");
   } finally {

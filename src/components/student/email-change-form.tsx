@@ -12,7 +12,13 @@ import type { Dictionary } from "@/i18n/dictionaries/ar";
 import { api } from "@/lib/api-client";
 import { errorMessage } from "@/lib/error-message";
 
-export function EmailChangeForm({ t, errors }: { t: Dictionary["student"]["settings"]; errors: Dictionary["errors"] }) {
+export function EmailChangeForm({
+  t,
+  errors,
+}: {
+  t: Dictionary["student"]["settings"];
+  errors: Dictionary["errors"];
+}) {
   const router = useRouter();
   const [newEmail, setNewEmail] = useState("");
   const [challengeId, setChallengeId] = useState<string | null>(null);
@@ -24,7 +30,9 @@ export function EmailChangeForm({ t, errors }: { t: Dictionary["student"]["setti
     setPending(true);
     setError(null);
     try {
-      const result = await api<{ challengeId: string }>("/api/v1/me/email/start", { body: { newEmail } });
+      const result = await api<{ challengeId: string }>("/api/v1/me/email/start", {
+        body: { newEmail },
+      });
       setChallengeId(result.challengeId);
     } catch (caught) {
       setError(errorMessage(caught, errors));
@@ -85,8 +93,14 @@ export function EmailChangeForm({ t, errors }: { t: Dictionary["student"]["setti
             void confirm(code);
           }}
         >
-          <p className="text-sm text-muted-foreground">{t.codeSent}</p>
-          <OtpField label={t.newEmail} value={code} onChange={setCode} onComplete={(value) => void confirm(value)} disabled={pending} />
+          <p className="text-muted-foreground text-sm">{t.codeSent}</p>
+          <OtpField
+            label={t.newEmail}
+            value={code}
+            onChange={setCode}
+            onComplete={(value) => void confirm(value)}
+            disabled={pending}
+          />
           <Button type="submit" loading={pending} disabled={code.length !== 6}>
             {t.changeEmail}
           </Button>
@@ -94,7 +108,7 @@ export function EmailChangeForm({ t, errors }: { t: Dictionary["student"]["setti
       )}
       {error ? (
         <Alert variant="destructive">
-          <AlertDescription className="col-start-1 text-foreground">{error}</AlertDescription>
+          <AlertDescription className="text-foreground col-start-1">{error}</AlertDescription>
         </Alert>
       ) : null}
     </div>

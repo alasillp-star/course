@@ -21,14 +21,17 @@ export default async function RecoverPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{t.title}</h1>
-      <p className="mt-2 text-muted-foreground">{t.subtitle}</p>
+      <p className="text-muted-foreground mt-2">{t.subtitle}</p>
       <div className="mt-8 grid gap-3">
         {items.map((item) => (
-          <div key={item.title} className="flex gap-4 rounded-2xl border border-border bg-card p-5 shadow-soft">
-            <item.icon className="mt-0.5 size-5 shrink-0 text-gold-strong dark:text-gold" />
+          <div
+            key={item.title}
+            className="border-border bg-card shadow-soft flex gap-4 rounded-2xl border p-5"
+          >
+            <item.icon className="text-gold-strong dark:text-gold mt-0.5 size-5 shrink-0" />
             <div>
               <p className="font-semibold">{item.title}</p>
-              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
+              <p className="text-muted-foreground mt-1 text-sm leading-relaxed">{item.body}</p>
             </div>
           </div>
         ))}

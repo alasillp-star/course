@@ -47,7 +47,9 @@ export async function hasConfirmedMfa(executor: Executor, userId: string): Promi
 }
 
 /** Starts TOTP enrolment: returns the secret once (for the QR code / manual entry). */
-export async function beginTotpEnrollment(actor: Actor): Promise<{ secret: string; otpauthUri: string }> {
+export async function beginTotpEnrollment(
+  actor: Actor,
+): Promise<{ secret: string; otpauthUri: string }> {
   const db = getDb();
   if (await hasConfirmedMfa(db, actor.userId)) throw new AppError("MFA_ALREADY_ENROLLED");
 
@@ -135,7 +137,10 @@ export async function verifyMfa(actor: Actor, code: string, meta: RequestMeta): 
       .where(
         and(
           eq(authRecoveryCodes.userId, actor.userId),
-          eq(authRecoveryCodes.codeHash, keyedHash("mfa-recovery-code", normalizeRecoveryCode(trimmed))),
+          eq(
+            authRecoveryCodes.codeHash,
+            keyedHash("mfa-recovery-code", normalizeRecoveryCode(trimmed)),
+          ),
           isNull(authRecoveryCodes.usedAt),
         ),
       )

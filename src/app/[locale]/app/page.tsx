@@ -45,16 +45,16 @@ export default async function StudentDashboardPage({ searchParams }: PageProps<"
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
           {isWelcome ? t.welcomeFirst : format(t.welcome, { name })}
         </h1>
-        <p className="mt-1 text-muted-foreground">{t.subtitle}</p>
+        <p className="text-muted-foreground mt-1">{t.subtitle}</p>
       </section>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <div className="grid min-w-0 gap-6">
           {data.course && data.hasAccess ? (
-            <section className="surface-hero relative overflow-hidden rounded-3xl p-6 text-white shadow-lifted sm:p-8">
+            <section className="surface-hero shadow-lifted relative overflow-hidden rounded-3xl p-6 text-white sm:p-8">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="outline" className="border-white/20 bg-white/10 text-white">
-                  <span className="size-1.5 rounded-full bg-success" />
+                  <span className="bg-success size-1.5 rounded-full" />
                   {t.accessActive}
                 </Badge>
                 <Badge variant="outline" className="border-gold/40 bg-gold/15 text-gold">
@@ -62,11 +62,13 @@ export default async function StudentDashboardPage({ searchParams }: PageProps<"
                   {t.lifetime}
                 </Badge>
               </div>
-              <h2 className="mt-4 text-xl leading-snug font-bold sm:text-2xl">{pickLocalized(data.course.title, locale)}</h2>
+              <h2 className="mt-4 text-xl leading-snug font-bold sm:text-2xl">
+                {pickLocalized(data.course.title, locale)}
+              </h2>
               <div className="mt-6 grid gap-2">
                 <div className="flex items-center justify-between text-sm text-white/75">
                   <span>{t.progress}</span>
-                  <span className="font-semibold text-white tabular">{data.percent}%</span>
+                  <span className="tabular font-semibold text-white">{data.percent}%</span>
                 </div>
                 <Progress value={data.percent} className="bg-white/15" label={t.progress} />
                 <p className="text-xs text-white/60">
@@ -82,10 +84,10 @@ export default async function StudentDashboardPage({ searchParams }: PageProps<"
               </div>
             </section>
           ) : (
-            <section className="rounded-3xl border border-dashed border-border bg-card p-8 text-center">
-              <QrCodeIcon className="mx-auto size-10 text-gold-strong dark:text-gold" />
+            <section className="border-border bg-card rounded-3xl border border-dashed p-8 text-center">
+              <QrCodeIcon className="text-gold-strong dark:text-gold mx-auto size-10" />
               <h2 className="mt-4 text-xl font-bold">{t.noAccessTitle}</h2>
-              <p className="mx-auto mt-2 max-w-md text-muted-foreground">{t.noAccessBody}</p>
+              <p className="text-muted-foreground mx-auto mt-2 max-w-md">{t.noAccessBody}</p>
               <Button asChild variant="gold" size="lg" className="mt-6">
                 <Link href={`/${locale}/activate`}>{dict.common.activateCard}</Link>
               </Button>
@@ -99,28 +101,40 @@ export default async function StudentDashboardPage({ searchParams }: PageProps<"
                   <BookOpenIcon className="size-4" />
                   {t.courseContent}
                 </CardTitle>
-                <span className="text-xs text-muted-foreground">
-                  {format(t.modules, { count: data.outline.length })} · {format(t.lessons, { count: data.totalLessons })}
+                <span className="text-muted-foreground text-xs">
+                  {format(t.modules, { count: data.outline.length })} ·{" "}
+                  {format(t.lessons, { count: data.totalLessons })}
                 </span>
               </CardHeader>
               <CardContent className="grid gap-2">
                 {data.outline.map((module, index) => (
-                  <details key={module.id} className="group rounded-xl border border-border bg-background/60" open={index === 0}>
+                  <details
+                    key={module.id}
+                    className="group border-border bg-background/60 rounded-xl border"
+                    open={index === 0}
+                  >
                     <summary className="flex cursor-pointer list-none items-center gap-3 p-4 [&::-webkit-details-marker]:hidden">
-                      <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-sm font-semibold tabular">
+                      <span className="bg-muted tabular grid size-8 shrink-0 place-items-center rounded-lg text-sm font-semibold">
                         {index + 1}
                       </span>
-                      <span className="min-w-0 flex-1 font-medium">{pickLocalized(module.title, locale)}</span>
-                      <span className="text-xs text-muted-foreground tabular">
+                      <span className="min-w-0 flex-1 font-medium">
+                        {pickLocalized(module.title, locale)}
+                      </span>
+                      <span className="text-muted-foreground tabular text-xs">
                         {module.completedLessons}/{module.lessons.length}
                       </span>
                     </summary>
                     <ul className="grid gap-1 px-4 pb-4">
                       {module.lessons.map((lesson) => (
-                        <li key={lesson.id} className="flex items-center gap-3 rounded-lg px-2 py-2 text-sm text-muted-foreground">
+                        <li
+                          key={lesson.id}
+                          className="text-muted-foreground flex items-center gap-3 rounded-lg px-2 py-2 text-sm"
+                        >
                           <PlayIcon className="size-3.5 shrink-0" />
-                          <span className="min-w-0 flex-1 truncate text-foreground/90">{pickLocalized(lesson.title, locale)}</span>
-                          <span className="text-xs tabular">{minutes(lesson.durationSeconds)}</span>
+                          <span className="text-foreground/90 min-w-0 flex-1 truncate">
+                            {pickLocalized(lesson.title, locale)}
+                          </span>
+                          <span className="tabular text-xs">{minutes(lesson.durationSeconds)}</span>
                         </li>
                       ))}
                     </ul>
@@ -144,7 +158,7 @@ export default async function StudentDashboardPage({ searchParams }: PageProps<"
                 ) : (
                   <ul className="grid gap-2 text-sm">
                     {data.assignments.map((assignment) => (
-                      <li key={assignment.id} className="rounded-lg bg-muted/60 px-3 py-2">
+                      <li key={assignment.id} className="bg-muted/60 rounded-lg px-3 py-2">
                         {pickLocalized(assignment.title, locale)}
                       </li>
                     ))}
@@ -165,9 +179,11 @@ export default async function StudentDashboardPage({ searchParams }: PageProps<"
                 ) : (
                   <ul className="grid gap-2 text-sm">
                     {data.communityPosts.map((post) => (
-                      <li key={post.id} className="rounded-lg bg-muted/60 px-3 py-2">
+                      <li key={post.id} className="bg-muted/60 rounded-lg px-3 py-2">
                         <p className="line-clamp-1 font-medium">{post.title ?? post.body}</p>
-                        <p className="text-xs text-muted-foreground">{formatRelative(post.createdAt, locale)}</p>
+                        <p className="text-muted-foreground text-xs">
+                          {formatRelative(post.createdAt, locale)}
+                        </p>
                       </li>
                     ))}
                   </ul>
@@ -184,17 +200,21 @@ export default async function StudentDashboardPage({ searchParams }: PageProps<"
                 <BellIcon className="size-4" />
                 {t.notifications}
               </CardTitle>
-              {data.unreadNotifications > 0 ? <Badge variant="gold">{data.unreadNotifications}</Badge> : null}
+              {data.unreadNotifications > 0 ? (
+                <Badge variant="gold">{data.unreadNotifications}</Badge>
+              ) : null}
             </CardHeader>
             <CardContent>
               {data.notifications.length === 0 ? (
-                <p className="text-sm text-muted-foreground">{t.noNotifications}</p>
+                <p className="text-muted-foreground text-sm">{t.noNotifications}</p>
               ) : (
                 <ul className="grid gap-2 text-sm">
                   {data.notifications.map((notification) => (
-                    <li key={notification.id} className="rounded-lg bg-muted/60 px-3 py-2">
+                    <li key={notification.id} className="bg-muted/60 rounded-lg px-3 py-2">
                       <p className="font-medium">{notification.type}</p>
-                      <p className="text-xs text-muted-foreground">{formatRelative(notification.createdAt, locale)}</p>
+                      <p className="text-muted-foreground text-xs">
+                        {formatRelative(notification.createdAt, locale)}
+                      </p>
                     </li>
                   ))}
                 </ul>
@@ -210,13 +230,15 @@ export default async function StudentDashboardPage({ searchParams }: PageProps<"
             </CardHeader>
             <CardContent>
               {data.upcoming.length === 0 ? (
-                <p className="text-sm text-muted-foreground">{t.noLive}</p>
+                <p className="text-muted-foreground text-sm">{t.noLive}</p>
               ) : (
                 <ul className="grid gap-2 text-sm">
                   {data.upcoming.map((session) => (
-                    <li key={session.id} className="rounded-lg bg-muted/60 px-3 py-2">
+                    <li key={session.id} className="bg-muted/60 rounded-lg px-3 py-2">
                       <p className="font-medium">{session.title}</p>
-                      <p className="text-xs text-muted-foreground">{formatDateTime(session.startsAt, locale)}</p>
+                      <p className="text-muted-foreground text-xs">
+                        {formatDateTime(session.startsAt, locale)}
+                      </p>
                     </li>
                   ))}
                 </ul>
@@ -231,8 +253,14 @@ export default async function StudentDashboardPage({ searchParams }: PageProps<"
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">
-                {data.notesCount > 0 ? <span className="text-2xl font-semibold text-foreground tabular">{data.notesCount}</span> : t.noNotes}
+              <p className="text-muted-foreground text-sm">
+                {data.notesCount > 0 ? (
+                  <span className="text-foreground tabular text-2xl font-semibold">
+                    {data.notesCount}
+                  </span>
+                ) : (
+                  t.noNotes
+                )}
               </p>
             </CardContent>
           </Card>
@@ -245,13 +273,15 @@ export default async function StudentDashboardPage({ searchParams }: PageProps<"
             </CardHeader>
             <CardContent>
               {data.certificates.length === 0 ? (
-                <p className="text-sm text-muted-foreground">{t.noCertificates}</p>
+                <p className="text-muted-foreground text-sm">{t.noCertificates}</p>
               ) : (
                 <ul className="grid gap-2 text-sm">
                   {data.certificates.map((certificate) => (
-                    <li key={certificate.id} className="rounded-lg bg-muted/60 px-3 py-2">
-                      <p className="font-medium">{pickLocalized(certificate.courseTitle, locale)}</p>
-                      <p className="font-mono text-xs text-muted-foreground" dir="ltr">
+                    <li key={certificate.id} className="bg-muted/60 rounded-lg px-3 py-2">
+                      <p className="font-medium">
+                        {pickLocalized(certificate.courseTitle, locale)}
+                      </p>
+                      <p className="text-muted-foreground font-mono text-xs" dir="ltr">
                         {certificate.number}
                       </p>
                     </li>

@@ -19,9 +19,14 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: dict.admin.batches.title };
 }
 
-export default async function CardDetailPage({ params }: PageProps<"/[locale]/admin/activation/cards/[codeId]">) {
+export default async function CardDetailPage({
+  params,
+}: PageProps<"/[locale]/admin/activation/cards/[codeId]">) {
   const { locale, dict } = await getI18n();
-  const actor = await requirePageActor(locale, { adminArea: true, permission: "activation.codes.read" });
+  const actor = await requirePageActor(locale, {
+    adminArea: true,
+    permission: "activation.codes.read",
+  });
   const { codeId } = await params;
   if (!isUuid(codeId)) notFound();
   const card = await getCardDetails(actor, codeId).catch(() => null);
@@ -31,11 +36,29 @@ export default async function CardDetailPage({ params }: PageProps<"/[locale]/ad
   const unused = card.status === "available" || card.status === "sold";
 
   const facts: Array<[string, React.ReactNode]> = [
-    [t.batch, <Link key="b" href={`/${locale}/admin/activation/${card.batchId}`} className="font-medium hover:underline">{card.batchName}</Link>],
+    [
+      t.batch,
+      <Link
+        key="b"
+        href={`/${locale}/admin/activation/${card.batchId}`}
+        className="font-medium hover:underline"
+      >
+        {card.batchName}
+      </Link>,
+    ],
     [t.course, pickLocalized(card.courseTitle, locale)],
     [dict.admin.batch.columns.sold, formatDateTime(card.soldAt, locale)],
     [dict.admin.batch.columns.activated, formatDateTime(card.activatedAt, locale)],
-    [t.activatedBy, card.activatedByEmail ? <span key="e" dir="ltr">{card.activatedByEmail}</span> : "—"],
+    [
+      t.activatedBy,
+      card.activatedByEmail ? (
+        <span key="e" dir="ltr">
+          {card.activatedByEmail}
+        </span>
+      ) : (
+        "—"
+      ),
+    ],
     [t.failedPin, card.failedPinAttempts],
   ];
 
@@ -43,13 +66,26 @@ export default async function CardDetailPage({ params }: PageProps<"/[locale]/ad
     <div className="grid gap-6">
       <PageHeader
         back={
-          <Link href={`/${locale}/admin/activation/${card.batchId}`} className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground">
+          <Link
+            href={`/${locale}/admin/activation/${card.batchId}`}
+            className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
+          >
             <ArrowRightIcon className="size-4 ltr:rotate-180" />
             {card.batchName}
           </Link>
         }
-        title={<span dir="ltr" className="font-mono">{format(t.title, { serial: card.serial })}</span>}
-        description={<CodeStatusBadge status={card.status} locked={!!card.lockedAt} labels={dict.statuses.code} />}
+        title={
+          <span dir="ltr" className="font-mono">
+            {format(t.title, { serial: card.serial })}
+          </span>
+        }
+        description={
+          <CodeStatusBadge
+            status={card.status}
+            locked={!!card.lockedAt}
+            labels={dict.statuses.code}
+          />
+        }
       />
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="grid content-start gap-6">
@@ -57,28 +93,36 @@ export default async function CardDetailPage({ params }: PageProps<"/[locale]/ad
             <CardContent className="grid gap-4 pt-5 sm:grid-cols-2 sm:pt-6">
               {facts.map(([label, value]) => (
                 <div key={label}>
-                  <p className="text-xs text-muted-foreground">{label}</p>
+                  <p className="text-muted-foreground text-xs">{label}</p>
                   <p className="mt-0.5 text-sm">{value}</p>
                 </div>
               ))}
               {card.revokeReason ? (
                 <div className="sm:col-span-2">
-                  <p className="text-xs text-muted-foreground">{t.reason}</p>
+                  <p className="text-muted-foreground text-xs">{t.reason}</p>
                   <p className="mt-0.5 text-sm">{card.revokeReason}</p>
                 </div>
               ) : null}
               {card.replacement ? (
                 <div>
-                  <p className="text-xs text-muted-foreground">{t.replacement}</p>
-                  <Link href={`/${locale}/admin/activation/cards/${card.replacement.id}`} className="font-mono text-sm hover:underline" dir="ltr">
+                  <p className="text-muted-foreground text-xs">{t.replacement}</p>
+                  <Link
+                    href={`/${locale}/admin/activation/cards/${card.replacement.id}`}
+                    className="font-mono text-sm hover:underline"
+                    dir="ltr"
+                  >
                     {card.replacement.serial}
                   </Link>
                 </div>
               ) : null}
               {card.replaces ? (
                 <div>
-                  <p className="text-xs text-muted-foreground">{t.replaces}</p>
-                  <Link href={`/${locale}/admin/activation/cards/${card.replaces.id}`} className="font-mono text-sm hover:underline" dir="ltr">
+                  <p className="text-muted-foreground text-xs">{t.replaces}</p>
+                  <Link
+                    href={`/${locale}/admin/activation/cards/${card.replaces.id}`}
+                    className="font-mono text-sm hover:underline"
+                    dir="ltr"
+                  >
                     {card.replaces.serial}
                   </Link>
                 </div>
@@ -90,21 +134,25 @@ export default async function CardDetailPage({ params }: PageProps<"/[locale]/ad
               <CardTitle>{t.timeline}</CardTitle>
             </CardHeader>
             <CardContent>
-              <ol className="relative grid gap-4 border-s border-border ps-5">
+              <ol className="border-border relative grid gap-4 border-s ps-5">
                 {card.events.map((event) => (
                   <li key={event.id} className="relative">
-                    <span className="absolute -start-[25px] top-1.5 size-2.5 rounded-full bg-gold ring-4 ring-card" />
-                    <p className="text-sm font-medium">{t.events[event.type as keyof typeof t.events] ?? event.type}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <span className="bg-gold ring-card absolute -start-[25px] top-1.5 size-2.5 rounded-full ring-4" />
+                    <p className="text-sm font-medium">
+                      {t.events[event.type as keyof typeof t.events] ?? event.type}
+                    </p>
+                    <p className="text-muted-foreground text-xs">
                       {formatDateTime(event.occurredAt, locale)}
                       {event.actorEmail ? <span dir="ltr"> · {event.actorEmail}</span> : null}
                     </p>
                   </li>
                 ))}
                 <li className="relative">
-                  <span className="absolute -start-[25px] top-1.5 size-2.5 rounded-full bg-muted-foreground/40 ring-4 ring-card" />
+                  <span className="bg-muted-foreground/40 ring-card absolute -start-[25px] top-1.5 size-2.5 rounded-full ring-4" />
                   <p className="text-sm font-medium">{t.generated}</p>
-                  <p className="text-xs text-muted-foreground">{formatDateTime(card.createdAt, locale)}</p>
+                  <p className="text-muted-foreground text-xs">
+                    {formatDateTime(card.createdAt, locale)}
+                  </p>
                 </li>
               </ol>
             </CardContent>
@@ -127,12 +175,26 @@ export default async function CardDetailPage({ params }: PageProps<"/[locale]/ad
               />
             ) : null}
             {card.status === "sold" && can(actor, "activation.codes.sell") ? (
-              <ApiActionDialog label={t.unsell} title={t.unsell} endpoint={`${api}/unsell`} common={dict.common} errors={dict.errors} />
+              <ApiActionDialog
+                label={t.unsell}
+                title={t.unsell}
+                endpoint={`${api}/unsell`}
+                common={dict.common}
+                errors={dict.errors}
+              />
             ) : null}
             {card.lockedAt && can(actor, "activation.codes.unlock") ? (
-              <ApiActionDialog label={t.unlock} title={t.unlock} endpoint={`${api}/unlock`} common={dict.common} errors={dict.errors} />
+              <ApiActionDialog
+                label={t.unlock}
+                title={t.unlock}
+                endpoint={`${api}/unlock`}
+                common={dict.common}
+                errors={dict.errors}
+              />
             ) : null}
-            {unused && can(actor, "activation.codes.revoke") && can(actor, "activation.codes.export") ? (
+            {unused &&
+            can(actor, "activation.codes.revoke") &&
+            can(actor, "activation.codes.export") ? (
               <ReplaceCardDialog codeId={card.id} t={t} common={dict.common} errors={dict.errors} />
             ) : null}
             {unused && can(actor, "activation.codes.revoke") ? (

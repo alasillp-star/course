@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { base32Decode, base32Encode, buildOtpauthUri, hotp, totp, verifyTotp } from "@/modules/identity/totp";
+import {
+  base32Decode,
+  base32Encode,
+  buildOtpauthUri,
+  hotp,
+  totp,
+  verifyTotp,
+} from "@/modules/identity/totp";
 
 // RFC 6238 Appendix B (SHA-1, 8 digits, secret "12345678901234567890").
 const RFC_SECRET = base32Encode(Buffer.from("12345678901234567890", "ascii"));

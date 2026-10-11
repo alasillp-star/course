@@ -1,12 +1,5 @@
 import { sql, type SQL } from "drizzle-orm";
-import {
-  check,
-  customType,
-  jsonb,
-  timestamp,
-  uuid,
-  type AnyPgColumn,
-} from "drizzle-orm/pg-core";
+import { check, customType, jsonb, timestamp, uuid, type AnyPgColumn } from "drizzle-orm/pg-core";
 import type { Locale } from "../../../i18n/config";
 import { uuidv7 } from "../uuid";
 

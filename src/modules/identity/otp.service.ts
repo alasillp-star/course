@@ -104,7 +104,12 @@ export async function checkOtpCode(
       .select()
       .from(authOtpChallenges)
       .where(eq(authOtpChallenges.id, params.challengeId));
-    if (!existing || existing.purpose !== params.purpose || existing.consumedAt || existing.invalidatedAt) {
+    if (
+      !existing ||
+      existing.purpose !== params.purpose ||
+      existing.consumedAt ||
+      existing.invalidatedAt
+    ) {
       throw new AppError("OTP_INVALID");
     }
     if (existing.expiresAt.getTime() <= Date.now()) throw new AppError("OTP_EXPIRED");
@@ -112,7 +117,10 @@ export async function checkOtpCode(
   }
 
   const normalized = params.code.replace(/\s+/g, "");
-  if (!/^\d{6}$/.test(normalized) || !verifyKeyedHash("otp-code", `${challenge.id}:${normalized}`, challenge.codeHash)) {
+  if (
+    !/^\d{6}$/.test(normalized) ||
+    !verifyKeyedHash("otp-code", `${challenge.id}:${normalized}`, challenge.codeHash)
+  ) {
     const attemptsRemaining = Math.max(0, challenge.maxAttempts - challenge.attempts);
     throw new AppError(attemptsRemaining > 0 ? "OTP_INVALID" : "OTP_TOO_MANY_ATTEMPTS", undefined, {
       attemptsRemaining,
@@ -122,7 +130,10 @@ export async function checkOtpCode(
 }
 
 /** E-mail a challenge was issued to (used to apply per-address verify limits). */
-export async function getChallengeEmail(executor: Executor, challengeId: string): Promise<string | null> {
+export async function getChallengeEmail(
+  executor: Executor,
+  challengeId: string,
+): Promise<string | null> {
   const [row] = await executor
     .select({ email: authOtpChallenges.email })
     .from(authOtpChallenges)

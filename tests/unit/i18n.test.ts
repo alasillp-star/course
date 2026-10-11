@@ -6,9 +6,15 @@ import { fr } from "@/i18n/dictionaries/fr";
 import { format, pickLocalized } from "@/i18n/format";
 
 function shape(value: unknown, prefix = ""): string[] {
-  if (Array.isArray(value)) return [`${prefix}[${value.length}]`, ...value.flatMap((item, i) => shape(item, `${prefix}[${i}]`))];
+  if (Array.isArray(value))
+    return [
+      `${prefix}[${value.length}]`,
+      ...value.flatMap((item, i) => shape(item, `${prefix}[${i}]`)),
+    ];
   if (value && typeof value === "object") {
-    return Object.entries(value).flatMap(([key, inner]) => shape(inner, prefix ? `${prefix}.${key}` : key));
+    return Object.entries(value).flatMap(([key, inner]) =>
+      shape(inner, prefix ? `${prefix}.${key}` : key),
+    );
   }
   return [prefix];
 }
@@ -22,8 +28,16 @@ describe("i18n", () => {
   it("uses the same placeholders in every translation", () => {
     const placeholders = (dict: unknown) =>
       shape(dict).map((path) => {
-        const value = path.split(/\.|\[(\d+)\]/).filter(Boolean).reduce<unknown>((node, key) => (node as Record<string, unknown>)[key], dict);
-        return typeof value === "string" ? `${path}:${[...value.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort().join(",")}` : path;
+        const value = path
+          .split(/\.|\[(\d+)\]/)
+          .filter(Boolean)
+          .reduce<unknown>((node, key) => (node as Record<string, unknown>)[key], dict);
+        return typeof value === "string"
+          ? `${path}:${[...value.matchAll(/\{(\w+)\}/g)]
+              .map((m) => m[1])
+              .sort()
+              .join(",")}`
+          : path;
       });
     expect(placeholders(fr)).toEqual(placeholders(ar));
     expect(placeholders(en)).toEqual(placeholders(ar));

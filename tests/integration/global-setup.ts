@@ -15,7 +15,9 @@ export default async function setup() {
   }
   const client = postgres(url, { max: 1, onnotice: () => {} });
   try {
-    await client.unsafe("drop schema if exists public cascade; drop schema if exists drizzle cascade; create schema public;");
+    await client.unsafe(
+      "drop schema if exists public cascade; drop schema if exists drizzle cascade; create schema public;",
+    );
     await migrate(drizzle(client), { migrationsFolder: "drizzle" });
   } finally {
     await client.end({ timeout: 5 });

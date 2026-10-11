@@ -93,7 +93,10 @@ async function main() {
   const db = getDb();
   const { courseId } = await bootstrapPlatform(db, {});
 
-  const existingModules = await db.select({ id: courseModules.id }).from(courseModules).where(eq(courseModules.courseId, courseId));
+  const existingModules = await db
+    .select({ id: courseModules.id })
+    .from(courseModules)
+    .where(eq(courseModules.courseId, courseId));
   if (existingModules.length === 0) {
     for (const [index, module] of DEMO_MODULES.entries()) {
       const [created] = await db
@@ -125,14 +128,20 @@ async function main() {
   for (const [email, role] of DEMO_STAFF) {
     let [user] = await db.select({ id: users.id }).from(users).where(eq(users.email, email));
     if (!user) {
-      [user] = await db.insert(users).values({ email, emailVerifiedAt: new Date() }).returning({ id: users.id });
+      [user] = await db
+        .insert(users)
+        .values({ email, emailVerifiedAt: new Date() })
+        .returning({ id: users.id });
       await db.insert(profiles).values({ userId: user!.id, displayName: role.replace("_", " ") });
     }
     await assignRoleUnchecked(db, { userId: user!.id, roleKey: role });
   }
   console.log(`✓ demo staff: ${DEMO_STAFF.map(([email]) => email).join(", ")}`);
 
-  const [owner] = await db.select({ id: users.id }).from(users).where(eq(users.email, DEMO_STAFF[0]![0]));
+  const [owner] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.email, DEMO_STAFF[0]![0]));
   const systemActor: Actor = {
     userId: owner!.id,
     email: DEMO_STAFF[0]![0],
@@ -147,16 +156,32 @@ async function main() {
   };
   const batch = await createBatch(
     systemActor,
-    { name: "Demo batch (development)", courseId, quantity: 20, requiresPin: true, requiresSale: true },
+    {
+      name: "Demo batch (development)",
+      courseId,
+      quantity: 20,
+      requiresPin: true,
+      requiresSale: true,
+    },
     SYSTEM_REQUEST_META,
   );
-  const { cards } = await loadPrintableCards(systemActor, { batchId: batch.id, from: 1, to: 20, format: "csv" }, SYSTEM_REQUEST_META);
-  await markCardsSold(systemActor, { serials: cards.slice(0, 10).map((card) => card.serial) }, SYSTEM_REQUEST_META);
+  const { cards } = await loadPrintableCards(
+    systemActor,
+    { batchId: batch.id, from: 1, to: 20, format: "csv" },
+    SYSTEM_REQUEST_META,
+  );
+  await markCardsSold(
+    systemActor,
+    { serials: cards.slice(0, 10).map((card) => card.serial) },
+    SYSTEM_REQUEST_META,
+  );
 
   console.log(`✓ demo batch ${batch.serialPrefix}: 20 cards, the first 10 marked as sold`);
   console.log("\n  Sold demo cards (development only):");
   for (const card of cards.slice(0, 3)) {
-    console.log(`   ${card.serial}  code ${formatCardCode(card.code)}  PIN ${formatCardPin(card.pin!)}`);
+    console.log(
+      `   ${card.serial}  code ${formatCardCode(card.code)}  PIN ${formatCardPin(card.pin!)}`,
+    );
     console.log(`   ${card.url}`);
   }
   console.log("\n  Sign-in codes are written to the dev mailbox (.data/mailbox).");

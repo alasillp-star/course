@@ -226,9 +226,7 @@ export const videoTranscripts = pgTable(
       .notNull()
       .default([]),
     fullText: text().notNull().default(""),
-    searchVector: tsvector().generatedAlwaysAs(
-      sql`to_tsvector('simple', coalesce(full_text, ''))`,
-    ),
+    searchVector: tsvector().generatedAlwaysAs(sql`to_tsvector('simple', coalesce(full_text, ''))`),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },

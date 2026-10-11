@@ -34,10 +34,27 @@ describe("admin overview metrics", () => {
       { name: "Metrics", courseId, quantity: 4, requiresPin: false, requiresSale: true },
       testMeta(),
     );
-    const { cards } = await loadPrintableCards(admin, { batchId: batch.id, from: 1, to: 4, format: "csv" }, testMeta());
-    await markCardsSold(admin, { serials: cards.slice(0, 2).map((card) => card.serial) }, testMeta());
-    const started = await startActivation({ code: cards[0]!.code, email: "metric@example.com", locale: "ar", meta: testMeta() });
-    await completeActivation({ challengeId: started.challengeId, otp: mail.otpFor("metric@example.com"), meta: testMeta() });
+    const { cards } = await loadPrintableCards(
+      admin,
+      { batchId: batch.id, from: 1, to: 4, format: "csv" },
+      testMeta(),
+    );
+    await markCardsSold(
+      admin,
+      { serials: cards.slice(0, 2).map((card) => card.serial) },
+      testMeta(),
+    );
+    const started = await startActivation({
+      code: cards[0]!.code,
+      email: "metric@example.com",
+      locale: "ar",
+      meta: testMeta(),
+    });
+    await completeActivation({
+      challengeId: started.challengeId,
+      otp: mail.otpFor("metric@example.com"),
+      meta: testMeta(),
+    });
 
     const metrics = await getOverviewMetrics(admin);
     expect(metrics.students.total).toBe(1);
@@ -45,7 +62,13 @@ describe("admin overview metrics", () => {
     expect(metrics.students.new7d).toBe(1);
     // Signing in (here: through activation) counts as activity.
     expect(metrics.students.active30d).toBe(1);
-    expect(metrics.activation).toMatchObject({ issued: 4, available: 2, sold: 1, activated: 1, revoked: 0 });
+    expect(metrics.activation).toMatchObject({
+      issued: 4,
+      available: 2,
+      sold: 1,
+      activated: 1,
+      revoked: 0,
+    });
     expect(metrics.activation.activationRate).toBeCloseTo(0.5);
     expect(metrics.activation.activated7d).toBe(1);
     expect(metrics.community).toEqual({ posts30d: 0, comments30d: 0 });

@@ -5,7 +5,9 @@ import { AppError } from "./errors";
 export const localeSchema = z
   .string()
   .optional()
-  .transform((value): Locale => (ENABLED_LOCALES.includes(value as Locale) ? (value as Locale) : "ar"));
+  .transform((value): Locale =>
+    ENABLED_LOCALES.includes(value as Locale) ? (value as Locale) : "ar",
+  );
 
 export const uuidSchema = z.uuid();
 

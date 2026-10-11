@@ -8,7 +8,8 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow-soft hover:brightness-110 active:brightness-95",
+        default:
+          "bg-primary text-primary-foreground shadow-soft hover:brightness-110 active:brightness-95",
         gold: "bg-gold text-gold-foreground shadow-soft hover:bg-gold-strong active:brightness-95",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         outline: "border border-border bg-card hover:bg-muted text-foreground",
@@ -34,7 +35,16 @@ export const buttonVariants = cva(
 export type ButtonProps = React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & { asChild?: boolean; loading?: boolean };
 
-export function Button({ className, variant, size, asChild = false, loading, children, disabled, ...props }: ButtonProps) {
+export function Button({
+  className,
+  variant,
+  size,
+  asChild = false,
+  loading,
+  children,
+  disabled,
+  ...props
+}: ButtonProps) {
   const Comp = asChild ? Slot.Root : "button";
   return (
     <Comp
@@ -58,7 +68,12 @@ export function Button({ className, variant, size, asChild = false, loading, chi
 
 export function Spinner({ className }: { className?: string }) {
   return (
-    <svg className={cn("size-4 animate-spin", className)} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg
+      className={cn("size-4 animate-spin", className)}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
       <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.25" strokeWidth="3" />
       <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
     </svg>

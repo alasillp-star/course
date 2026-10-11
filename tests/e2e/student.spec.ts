@@ -7,7 +7,10 @@ const studentEmail = `returning.${Date.now()}@example.com`;
 
 test.describe("returning students (mobile)", () => {
   test.beforeAll(async ({ playwright, baseURL }) => {
-    const api = await playwright.request.newContext({ baseURL, extraHTTPHeaders: { Origin: baseURL! } });
+    const api = await playwright.request.newContext({
+      baseURL,
+      extraHTTPHeaders: { Origin: baseURL! },
+    });
     await apiActivate(api, loadData().cards[3]!, studentEmail);
     await api.dispose();
   });
@@ -22,7 +25,9 @@ test.describe("returning students (mobile)", () => {
     await page.getByLabel("البريد الإلكتروني").fill(studentEmail);
     const since = Date.now();
     await page.getByRole("button", { name: /أرسل رمز الدخول/ }).click();
-    await page.locator('input[autocomplete="one-time-code"]').fill(await readOtp(studentEmail, since, "otp.login"));
+    await page
+      .locator('input[autocomplete="one-time-code"]')
+      .fill(await readOtp(studentEmail, since, "otp.login"));
     await expect(page).toHaveURL(/\/ar\/app$/);
     await expect(page.getByText("وصول نشط")).toBeVisible();
 

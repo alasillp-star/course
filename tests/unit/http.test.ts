@@ -17,7 +17,10 @@ describe("redirect safety", () => {
 
 describe("CSRF origin check", () => {
   const request = (headers: Record<string, string>) =>
-    new Request("http://localhost:3000/api/v1/x", { method: "POST", headers: { host: "localhost:3000", ...headers } });
+    new Request("http://localhost:3000/api/v1/x", {
+      method: "POST",
+      headers: { host: "localhost:3000", ...headers },
+    });
 
   it("accepts same-origin requests", () => {
     expect(() => assertSameOrigin(request({ origin: "http://localhost:3000" }))).not.toThrow();
@@ -25,7 +28,9 @@ describe("CSRF origin check", () => {
   });
 
   it("rejects cross-site and signal-less requests", () => {
-    expect(() => assertSameOrigin(request({ origin: "https://evil.example" }))).toThrow("CSRF_REJECTED");
+    expect(() => assertSameOrigin(request({ origin: "https://evil.example" }))).toThrow(
+      "CSRF_REJECTED",
+    );
     expect(() => assertSameOrigin(request({ origin: "null" }))).toThrow("CSRF_REJECTED");
     expect(() => assertSameOrigin(request({}))).toThrow("CSRF_REJECTED");
   });
@@ -46,9 +51,21 @@ describe("e-mail handling", () => {
 
 describe("device labels", () => {
   it("recognises common browsers and platforms", () => {
-    expect(describeUserAgent("Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/141.0 Mobile Safari/537.36")).toBe("Chrome · Android");
-    expect(describeUserAgent("Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1")).toBe("Safari · iPhone");
-    expect(describeUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/141.0 Safari/537.36 Edg/141.0")).toBe("Edge · Windows");
+    expect(
+      describeUserAgent(
+        "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/141.0 Mobile Safari/537.36",
+      ),
+    ).toBe("Chrome · Android");
+    expect(
+      describeUserAgent(
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1",
+      ),
+    ).toBe("Safari · iPhone");
+    expect(
+      describeUserAgent(
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/141.0 Safari/537.36 Edg/141.0",
+      ),
+    ).toBe("Edge · Windows");
     expect(describeUserAgent(null)).toBe("Unknown device");
   });
 });

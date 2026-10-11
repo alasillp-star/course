@@ -19,7 +19,8 @@ export async function queryAuditLog(actor: Actor, filters: AuditFilters) {
   assertCan(actor, "audit.read");
   const db = getDb();
   const conditions: SQL[] = [];
-  if (filters.action) conditions.push(like(auditLogs.action, `${filters.action.replace(/[%_]/g, "")}%`));
+  if (filters.action)
+    conditions.push(like(auditLogs.action, `${filters.action.replace(/[%_]/g, "")}%`));
   if (filters.actorEmail) conditions.push(eq(users.email, filters.actorEmail.trim().toLowerCase()));
   if (filters.targetType) conditions.push(eq(auditLogs.targetType, filters.targetType));
   if (filters.targetId) conditions.push(eq(auditLogs.targetId, filters.targetId));
@@ -48,7 +49,11 @@ export async function queryAuditLog(actor: Actor, filters: AuditFilters) {
       .orderBy(desc(auditLogs.occurredAt))
       .limit(limit)
       .offset(filters.offset ?? 0),
-    db.select({ total: count() }).from(auditLogs).leftJoin(users, eq(users.id, auditLogs.actorUserId)).where(where),
+    db
+      .select({ total: count() })
+      .from(auditLogs)
+      .leftJoin(users, eq(users.id, auditLogs.actorUserId))
+      .where(where),
   ]);
   return { items, total: Number(total) };
 }

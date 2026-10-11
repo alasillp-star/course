@@ -8,7 +8,8 @@ const has = (role: keyof typeof ROLE_PERMISSIONS, prefix: string) =>
 describe("role permission matrix", () => {
   it("only references permissions from the catalogue", () => {
     for (const role of SYSTEM_ROLES) {
-      for (const permission of ROLE_PERMISSIONS[role]) expect(Object.hasOwn(PERMISSIONS, permission)).toBe(true);
+      for (const permission of ROLE_PERMISSIONS[role])
+        expect(Object.hasOwn(PERMISSIONS, permission)).toBe(true);
     }
   });
 
@@ -19,7 +20,16 @@ describe("role permission matrix", () => {
   });
 
   it("keeps support agents away from sales, finance and staff management", () => {
-    for (const prefix of ["orders.", "payments.", "refunds.", "finance.", "staff.", "roles.", "invoices.", "discounts."]) {
+    for (const prefix of [
+      "orders.",
+      "payments.",
+      "refunds.",
+      "finance.",
+      "staff.",
+      "roles.",
+      "invoices.",
+      "discounts.",
+    ]) {
       expect(has("support_agent", prefix)).toBe(false);
     }
     expect(ROLE_PERMISSIONS.support_agent).not.toContain("activation.codes.sell");
@@ -27,7 +37,13 @@ describe("role permission matrix", () => {
   });
 
   it("keeps sales agents away from student PII, secrets and administration", () => {
-    for (const permission of ["users.read", "users.read_sensitive", "activation.codes.export", "staff.manage", "finance.reports.read"] as const) {
+    for (const permission of [
+      "users.read",
+      "users.read_sensitive",
+      "activation.codes.export",
+      "staff.manage",
+      "finance.reports.read",
+    ] as const) {
       expect(ROLE_PERMISSIONS.sales_agent).not.toContain(permission);
     }
   });
@@ -44,7 +60,9 @@ describe("role permission matrix", () => {
   });
 
   it("restricts card secret exports to the two admin roles", () => {
-    const holders = SYSTEM_ROLES.filter((role) => ROLE_PERMISSIONS[role].includes("activation.codes.export"));
+    const holders = SYSTEM_ROLES.filter((role) =>
+      ROLE_PERMISSIONS[role].includes("activation.codes.export"),
+    );
     expect(holders.sort()).toEqual(["admin", "super_admin"]);
   });
 });

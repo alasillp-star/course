@@ -42,11 +42,19 @@ afterAll(async () => {
 describe("e-mail OTP sign-in", () => {
   it("signs in an existing account and records the login", async () => {
     const userId = await createUser("student@example.com");
-    const { challengeId } = await requestLoginCode({ email: "student@example.com", locale: "fr", meta: testMeta() });
+    const { challengeId } = await requestLoginCode({
+      email: "student@example.com",
+      locale: "fr",
+      meta: testMeta(),
+    });
     const message = mail.lastTo("student@example.com");
     expect(message?.template).toBe("otp.login");
 
-    const login = await completeLogin({ challengeId, code: mail.otpFor("student@example.com"), meta: testMeta() });
+    const login = await completeLogin({
+      challengeId,
+      code: mail.otpFor("student@example.com"),
+      meta: testMeta(),
+    });
     expect(login.userId).toBe(userId);
     const [user] = await getDb().select().from(users).where(eq(users.id, userId));
     expect(user?.lastLoginAt).toBeInstanceOf(Date);
@@ -54,39 +62,72 @@ describe("e-mail OTP sign-in", () => {
 
   it("stores only a digest of the code", async () => {
     await createUser("digest@example.com");
-    const { challengeId } = await requestLoginCode({ email: "digest@example.com", locale: "ar", meta: testMeta() });
+    const { challengeId } = await requestLoginCode({
+      email: "digest@example.com",
+      locale: "ar",
+      meta: testMeta(),
+    });
     const code = mail.otpFor("digest@example.com");
-    const [challenge] = await getDb().select().from(authOtpChallenges).where(eq(authOtpChallenges.id, challengeId));
+    const [challenge] = await getDb()
+      .select()
+      .from(authOtpChallenges)
+      .where(eq(authOtpChallenges.id, challengeId));
     expect(challenge?.codeHash).toMatch(/^[0-9a-f]{64}$/);
     expect(challenge?.codeHash).not.toContain(code);
   });
 
   it("does not reveal whether an e-mail has an account", async () => {
-    const response = await requestLoginCode({ email: "nobody@example.com", locale: "ar", meta: testMeta() });
+    const response = await requestLoginCode({
+      email: "nobody@example.com",
+      locale: "ar",
+      meta: testMeta(),
+    });
     expect(response.challengeId).toBeTruthy();
     expect(mail.lastTo("nobody@example.com")?.template).toBe("login.no_account");
     expect(mail.lastTo("nobody@example.com")?.text).not.toMatch(/\b\d{6}\b/);
     // No code was e-mailed, and guessing cannot create an account.
-    await expectAppError(completeLogin({ challengeId: response.challengeId, code: "123456", meta: testMeta() }), "OTP_INVALID");
-    expect(await getDb().select().from(users).where(eq(users.email, "nobody@example.com"))).toHaveLength(0);
+    await expectAppError(
+      completeLogin({ challengeId: response.challengeId, code: "123456", meta: testMeta() }),
+      "OTP_INVALID",
+    );
+    expect(
+      await getDb().select().from(users).where(eq(users.email, "nobody@example.com")),
+    ).toHaveLength(0);
   });
 
   it("limits verification attempts per code", async () => {
     await createUser("brute@example.com");
-    const { challengeId } = await requestLoginCode({ email: "brute@example.com", locale: "ar", meta: testMeta() });
+    const { challengeId } = await requestLoginCode({
+      email: "brute@example.com",
+      locale: "ar",
+      meta: testMeta(),
+    });
     const right = mail.otpFor("brute@example.com");
     const wrong = right === "000000" ? "111111" : "000000";
     for (let i = 1; i < OTP_MAX_ATTEMPTS; i += 1) {
-      await expectAppError(completeLogin({ challengeId, code: wrong, meta: testMeta() }), "OTP_INVALID");
+      await expectAppError(
+        completeLogin({ challengeId, code: wrong, meta: testMeta() }),
+        "OTP_INVALID",
+      );
     }
-    await expectAppError(completeLogin({ challengeId, code: wrong, meta: testMeta() }), "OTP_TOO_MANY_ATTEMPTS");
+    await expectAppError(
+      completeLogin({ challengeId, code: wrong, meta: testMeta() }),
+      "OTP_TOO_MANY_ATTEMPTS",
+    );
     // Even the correct code is refused once attempts are exhausted.
-    await expectAppError(completeLogin({ challengeId, code: right, meta: testMeta() }), "OTP_TOO_MANY_ATTEMPTS");
+    await expectAppError(
+      completeLogin({ challengeId, code: right, meta: testMeta() }),
+      "OTP_TOO_MANY_ATTEMPTS",
+    );
   });
 
   it("rejects expired codes", async () => {
     await createUser("late@example.com");
-    const { challengeId } = await requestLoginCode({ email: "late@example.com", locale: "ar", meta: testMeta() });
+    const { challengeId } = await requestLoginCode({
+      email: "late@example.com",
+      locale: "ar",
+      meta: testMeta(),
+    });
     await getDb()
       .update(authOtpChallenges)
       .set({ expiresAt: new Date(Date.now() - 1000) })
@@ -99,7 +140,11 @@ describe("e-mail OTP sign-in", () => {
 
   it("codes are single use", async () => {
     await createUser("once@example.com");
-    const { challengeId } = await requestLoginCode({ email: "once@example.com", locale: "ar", meta: testMeta() });
+    const { challengeId } = await requestLoginCode({
+      email: "once@example.com",
+      locale: "ar",
+      meta: testMeta(),
+    });
     const code = mail.otpFor("once@example.com");
     await completeLogin({ challengeId, code, meta: testMeta() });
     await expectAppError(completeLogin({ challengeId, code, meta: testMeta() }), "OTP_INVALID");
@@ -107,10 +152,17 @@ describe("e-mail OTP sign-in", () => {
 
   it("a newer code invalidates the previous one", async () => {
     await createUser("twice@example.com");
-    const first = await requestLoginCode({ email: "twice@example.com", locale: "ar", meta: testMeta() });
+    const first = await requestLoginCode({
+      email: "twice@example.com",
+      locale: "ar",
+      meta: testMeta(),
+    });
     const firstCode = mail.otpFor("twice@example.com");
     await requestLoginCode({ email: "twice@example.com", locale: "ar", meta: testMeta() });
-    await expectAppError(completeLogin({ challengeId: first.challengeId, code: firstCode, meta: testMeta() }), "OTP_INVALID");
+    await expectAppError(
+      completeLogin({ challengeId: first.challengeId, code: firstCode, meta: testMeta() }),
+      "OTP_INVALID",
+    );
   });
 
   it("rate-limits code requests per e-mail", async () => {
@@ -118,7 +170,10 @@ describe("e-mail OTP sign-in", () => {
     for (let i = 0; i < 5; i += 1) {
       await requestLoginCode({ email: "spam@example.com", locale: "ar", meta: testMeta() });
     }
-    await expectAppError(requestLoginCode({ email: "spam@example.com", locale: "ar", meta: testMeta() }), "RATE_LIMITED");
+    await expectAppError(
+      requestLoginCode({ email: "spam@example.com", locale: "ar", meta: testMeta() }),
+      "RATE_LIMITED",
+    );
   });
 
   it("refuses suspended accounts", async () => {
@@ -127,7 +182,11 @@ describe("e-mail OTP sign-in", () => {
       .update(users)
       .set({ status: "suspended", suspendedAt: new Date(), suspendedReason: "test" })
       .where(eq(users.id, userId));
-    const { challengeId } = await requestLoginCode({ email: "suspended@example.com", locale: "ar", meta: testMeta() });
+    const { challengeId } = await requestLoginCode({
+      email: "suspended@example.com",
+      locale: "ar",
+      meta: testMeta(),
+    });
     await expectAppError(
       completeLogin({ challengeId, code: mail.otpFor("suspended@example.com"), meta: testMeta() }),
       "ACCOUNT_SUSPENDED",
@@ -147,7 +206,9 @@ describe("sessions and devices", () => {
     expect(await revokeSession(db, { userId, sessionId: b.session.id, reason: "user" })).toBe(true);
     expect(await validateSessionToken(db, b.token)).toBeNull();
 
-    expect(await revokeAllSessions(db, { userId, reason: "logout_all", exceptSessionId: a.session.id })).toBe(1);
+    expect(
+      await revokeAllSessions(db, { userId, reason: "logout_all", exceptSessionId: a.session.id }),
+    ).toBe(1);
     expect(await validateSessionToken(db, c.token)).toBeNull();
     expect(await validateSessionToken(db, a.token)).not.toBeNull();
   });
@@ -156,7 +217,9 @@ describe("sessions and devices", () => {
     const owner = await createUser("owner@example.com");
     const attacker = await createUser("attacker@example.com");
     const { session, token } = await createSession(getDb(), { userId: owner, meta: testMeta() });
-    expect(await revokeSession(getDb(), { userId: attacker, sessionId: session.id, reason: "x" })).toBe(false);
+    expect(
+      await revokeSession(getDb(), { userId: attacker, sessionId: session.id, reason: "x" }),
+    ).toBe(false);
     expect(await validateSessionToken(getDb(), token)).not.toBeNull();
   });
 

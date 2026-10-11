@@ -2,7 +2,13 @@ import "server-only";
 import { and, asc, eq, isNull, lte, or, sql } from "drizzle-orm";
 import { ACADEMY } from "@/config/academy";
 import { getDb } from "@/server/db/client";
-import { courseModules, courses, lessons, lessonProgress, courseProgress } from "@/server/db/schema";
+import {
+  courseModules,
+  courses,
+  lessons,
+  lessonProgress,
+  courseProgress,
+} from "@/server/db/schema";
 import type { LocalizedText } from "@/server/db/schema";
 
 export type CourseSummary = {
@@ -29,12 +35,19 @@ export async function getMainCourse(): Promise<CourseSummary | null> {
     .from(courses)
     .where(and(published, eq(courses.slug, ACADEMY.mainCourseSlug)));
   if (bySlug) return bySlug;
-  const [first] = await db.select(columns).from(courses).where(published).orderBy(asc(courses.createdAt)).limit(1);
+  const [first] = await db
+    .select(columns)
+    .from(courses)
+    .where(published)
+    .orderBy(asc(courses.createdAt))
+    .limit(1);
   return first ?? null;
 }
 
-const visibleNow = (status: typeof courseModules.status | typeof lessons.status, publishAt: typeof courseModules.publishAt | typeof lessons.publishAt) =>
-  and(eq(status, "published"), or(isNull(publishAt), lte(publishAt, sql`now()`)));
+const visibleNow = (
+  status: typeof courseModules.status | typeof lessons.status,
+  publishAt: typeof courseModules.publishAt | typeof lessons.publishAt,
+) => and(eq(status, "published"), or(isNull(publishAt), lte(publishAt, sql`now()`)));
 
 export type OutlineModule = {
   id: string;
@@ -81,7 +94,13 @@ export async function getCourseOutline(courseId: string): Promise<OutlineModule[
         position: lessons.position,
       })
       .from(lessons)
-      .where(and(eq(lessons.courseId, courseId), isNull(lessons.deletedAt), visibleNow(lessons.status, lessons.publishAt)))
+      .where(
+        and(
+          eq(lessons.courseId, courseId),
+          isNull(lessons.deletedAt),
+          visibleNow(lessons.status, lessons.publishAt),
+        ),
+      )
       .orderBy(asc(lessons.position)),
   ]);
   return moduleRows.map((module) => ({
@@ -103,16 +122,25 @@ export async function getLearnerProgress(userId: string, courseId: string) {
   const db = getDb();
   const [completedRows, cached] = await Promise.all([
     db
-      .select({ lessonId: lessonProgress.lessonId, status: lessonProgress.status, lastActivityAt: lessonProgress.lastActivityAt })
+      .select({
+        lessonId: lessonProgress.lessonId,
+        status: lessonProgress.status,
+        lastActivityAt: lessonProgress.lastActivityAt,
+      })
       .from(lessonProgress)
       .where(and(eq(lessonProgress.userId, userId), eq(lessonProgress.courseId, courseId))),
     db
-      .select({ lastLessonId: courseProgress.lastLessonId, lastActivityAt: courseProgress.lastActivityAt })
+      .select({
+        lastLessonId: courseProgress.lastLessonId,
+        lastActivityAt: courseProgress.lastActivityAt,
+      })
       .from(courseProgress)
       .where(and(eq(courseProgress.userId, userId), eq(courseProgress.courseId, courseId))),
   ]);
   return {
-    completedLessonIds: new Set(completedRows.filter((row) => row.status === "completed").map((row) => row.lessonId)),
+    completedLessonIds: new Set(
+      completedRows.filter((row) => row.status === "completed").map((row) => row.lessonId),
+    ),
     lastLessonId: cached[0]?.lastLessonId ?? null,
     lastActivityAt: cached[0]?.lastActivityAt ?? null,
   };

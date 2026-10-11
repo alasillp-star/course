@@ -20,7 +20,10 @@ export function TableBody({ className, ...props }: React.ComponentProps<"tbody">
 export function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
   return (
     <tr
-      className={cn("border-b border-border transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted", className)}
+      className={cn(
+        "border-border hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors",
+        className,
+      )}
       {...props}
     />
   );
@@ -30,7 +33,7 @@ export function TableHead({ className, ...props }: React.ComponentProps<"th">) {
   return (
     <th
       className={cn(
-        "h-10 whitespace-nowrap px-3 text-start align-middle text-xs font-semibold uppercase tracking-wide text-muted-foreground",
+        "text-muted-foreground h-10 px-3 text-start align-middle text-xs font-semibold tracking-wide whitespace-nowrap uppercase",
         className,
       )}
       {...props}
@@ -39,5 +42,5 @@ export function TableHead({ className, ...props }: React.ComponentProps<"th">) {
 }
 
 export function TableCell({ className, ...props }: React.ComponentProps<"td">) {
-  return <td className={cn("whitespace-nowrap px-3 py-3 align-middle", className)} {...props} />;
+  return <td className={cn("px-3 py-3 align-middle whitespace-nowrap", className)} {...props} />;
 }

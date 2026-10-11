@@ -85,7 +85,10 @@ export async function requireApiActor(options: RequireOptions = {}): Promise<Act
 }
 
 /** For pages/layouts: redirects to sign-in / MFA, or to the forbidden page. */
-export async function requirePageActor(locale: Locale, options: RequireOptions & { next?: string } = {}): Promise<Actor> {
+export async function requirePageActor(
+  locale: Locale,
+  options: RequireOptions & { next?: string } = {},
+): Promise<Actor> {
   const actor = await getCurrentActor();
   if (!actor) {
     const next = options.next ? `?next=${encodeURIComponent(options.next)}` : "";
@@ -103,12 +106,18 @@ export async function requirePageActor(locale: Locale, options: RequireOptions &
 
 export const RECENT_AUTH_MINUTES = 30;
 
-export function isRecentlyAuthenticated(actor: Pick<Actor, "authenticatedAt">, maxAgeMinutes = RECENT_AUTH_MINUTES): boolean {
+export function isRecentlyAuthenticated(
+  actor: Pick<Actor, "authenticatedAt">,
+  maxAgeMinutes = RECENT_AUTH_MINUTES,
+): boolean {
   return Date.now() - actor.authenticatedAt.getTime() <= maxAgeMinutes * 60_000;
 }
 
 /** Sensitive self-service changes require a recent e-mail proof in this session. */
-export function assertRecentAuthentication(actor: Actor, maxAgeMinutes = RECENT_AUTH_MINUTES): void {
+export function assertRecentAuthentication(
+  actor: Actor,
+  maxAgeMinutes = RECENT_AUTH_MINUTES,
+): void {
   if (!isRecentlyAuthenticated(actor, maxAgeMinutes)) {
     throw new AppError("REAUTHENTICATION_REQUIRED");
   }

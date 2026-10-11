@@ -11,7 +11,11 @@ export const DELETE = withApi<{ sessionId: string }>(async (_request, { params, 
   const actor = await requireApiActor();
   const sessionId = parseIdParam((await params).sessionId);
   const db = getDb();
-  const revoked = await revokeSession(db, { userId: actor.userId, sessionId, reason: "user_revoked" });
+  const revoked = await revokeSession(db, {
+    userId: actor.userId,
+    sessionId,
+    reason: "user_revoked",
+  });
   if (!revoked) throw new AppError("NOT_FOUND");
   await recordAudit(db, {
     action: "auth.session_revoked",

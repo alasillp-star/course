@@ -1,10 +1,19 @@
 import { eq, sql } from "drizzle-orm";
 import type { Actor } from "@/modules/access/actor";
-import { assignRoleUnchecked, isStaffRoleSet, loadUserAccess, syncAccessCatalog } from "@/modules/access/rbac.service";
+import {
+  assignRoleUnchecked,
+  isStaffRoleSet,
+  loadUserAccess,
+  syncAccessCatalog,
+} from "@/modules/access/rbac.service";
 import { createSession } from "@/modules/identity/session.service";
 import { getDb } from "@/server/db/client";
 import { courses, profiles, users } from "@/server/db/schema";
-import { setEmailTransport, type EmailTransport, type OutgoingEmail } from "@/server/email/transports";
+import {
+  setEmailTransport,
+  type EmailTransport,
+  type OutgoingEmail,
+} from "@/server/email/transports";
 import type { RequestMeta } from "@/server/http/request-meta";
 import type { SystemRole } from "@/shared/enums";
 
@@ -41,7 +50,11 @@ let ipCounter = 1;
 /** Fresh request metadata with a distinct TEST-NET IP (keeps IP rate limits independent). */
 export function testMeta(): RequestMeta {
   ipCounter = (ipCounter % 250) + 1;
-  return { ip: `198.51.100.${ipCounter}`, userAgent: "Mozilla/5.0 (vitest) Chrome/140.0", requestId: `test-${ipCounter}` };
+  return {
+    ip: `198.51.100.${ipCounter}`,
+    userAgent: "Mozilla/5.0 (vitest) Chrome/140.0",
+    requestId: `test-${ipCounter}`,
+  };
 }
 
 export async function resetDatabase(): Promise<void> {
@@ -62,7 +75,10 @@ export async function createCourse(slug = "main-course"): Promise<string> {
   return course!.id;
 }
 
-export async function createUser(email: string, roles: SystemRole[] = ["student"]): Promise<string> {
+export async function createUser(
+  email: string,
+  roles: SystemRole[] = ["student"],
+): Promise<string> {
   const db = getDb();
   const [user] = await db
     .insert(users)
@@ -74,12 +90,19 @@ export async function createUser(email: string, roles: SystemRole[] = ["student"
 }
 
 /** Builds the Actor the request layer would produce (with a real session). */
-export async function actorFor(userId: string, options: { mfaVerified?: boolean } = {}): Promise<Actor> {
+export async function actorFor(
+  userId: string,
+  options: { mfaVerified?: boolean } = {},
+): Promise<Actor> {
   const db = getDb();
   const [user] = await db.select().from(users).where(eq(users.id, userId));
   if (!user) throw new Error("user not found");
   const access = await loadUserAccess(db, userId);
-  const { session } = await createSession(db, { userId, meta: testMeta(), mfaVerified: options.mfaVerified ?? true });
+  const { session } = await createSession(db, {
+    userId,
+    meta: testMeta(),
+    mfaVerified: options.mfaVerified ?? true,
+  });
   const isStaff = isStaffRoleSet(access.roles);
   return {
     userId,

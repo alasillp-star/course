@@ -11,7 +11,11 @@ const Body = z.object({ reason: reasonSchema });
 export const POST = withApi<{ codeId: string }>(async (request, { params, meta }) => {
   const actor = await requireApiActor({ adminArea: true, permission: "activation.codes.revoke" });
   const { reason } = await parseJsonBody(request, Body);
-  const card = await replaceCard(actor, { codeId: parseIdParam((await params).codeId), reason }, meta);
+  const card = await replaceCard(
+    actor,
+    { codeId: parseIdParam((await params).codeId), reason },
+    meta,
+  );
   return ok({
     codeId: card.codeId,
     serial: card.serial,

@@ -29,18 +29,30 @@ export function Pagination({
   const hasPrevious = offset > 0;
   const hasNext = offset + limit < total;
   return (
-    <div className="flex items-center justify-between gap-3 px-1 py-3 text-sm text-muted-foreground">
+    <div className="text-muted-foreground flex items-center justify-between gap-3 px-1 py-3 text-sm">
       <span className="tabular">
         {offset + 1}–{Math.min(offset + limit, total)} {labels.of} {total}
       </span>
       <div className="flex gap-2">
-        <Button asChild variant="outline" size="sm" aria-disabled={!hasPrevious} className={!hasPrevious ? "pointer-events-none opacity-50" : undefined}>
+        <Button
+          asChild
+          variant="outline"
+          size="sm"
+          aria-disabled={!hasPrevious}
+          className={!hasPrevious ? "pointer-events-none opacity-50" : undefined}
+        >
           <Link href={href(Math.max(0, offset - limit))}>
             <ChevronRightIcon className="ltr:rotate-180" />
             {labels.previous}
           </Link>
         </Button>
-        <Button asChild variant="outline" size="sm" aria-disabled={!hasNext} className={!hasNext ? "pointer-events-none opacity-50" : undefined}>
+        <Button
+          asChild
+          variant="outline"
+          size="sm"
+          aria-disabled={!hasNext}
+          className={!hasNext ? "pointer-events-none opacity-50" : undefined}
+        >
           <Link href={href(offset + limit)}>
             {labels.next}
             <ChevronLeftIcon className="ltr:rotate-180" />

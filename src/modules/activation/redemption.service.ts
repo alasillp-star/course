@@ -41,7 +41,8 @@ type BatchRow = typeof activationBatches.$inferSelect;
  */
 function assertRedeemable(code: CodeRow, batch: BatchRow): void {
   if (code.status === "activated") throw new AppError("ACTIVATION_CODE_ALREADY_USED");
-  if (code.status === "revoked" || batch.status !== "active") throw new AppError("ACTIVATION_CODE_REVOKED");
+  if (code.status === "revoked" || batch.status !== "active")
+    throw new AppError("ACTIVATION_CODE_REVOKED");
   if (code.lockedAt) throw new AppError("ACTIVATION_CODE_LOCKED");
   if (batch.redeemBy && batch.redeemBy.getTime() <= Date.now()) {
     throw new AppError("ACTIVATION_CODE_EXPIRED");
@@ -105,7 +106,8 @@ export async function startActivation(params: {
 
     const pin = params.pin ? normalizeCardPin(params.pin) : null;
     if (!pin) return { ok: false as const, error: new AppError("ACTIVATION_PIN_REQUIRED") };
-    if (code.pinHash && verifyCardPin(code.id, pin, code.pinHash)) return { ok: true as const, code, batch };
+    if (code.pinHash && verifyCardPin(code.id, pin, code.pinHash))
+      return { ok: true as const, code, batch };
 
     const failed = code.failedPinAttempts + 1;
     const locked = failed >= MAX_FAILED_PIN_ATTEMPTS;
@@ -114,7 +116,13 @@ export async function startActivation(params: {
       .set({ failedPinAttempts: failed, lockedAt: locked ? new Date() : null })
       .where(eq(activationCodes.id, code.id));
     await recordActivationEvents(tx, [
-      { type: "pin_failed", batchId: batch.id, codeId: code.id, meta: params.meta, metadata: { failed } },
+      {
+        type: "pin_failed",
+        batchId: batch.id,
+        codeId: code.id,
+        meta: params.meta,
+        metadata: { failed },
+      },
       ...(locked
         ? [{ type: "code_locked" as const, batchId: batch.id, codeId: code.id, meta: params.meta }]
         : []),
@@ -151,7 +159,11 @@ export async function startActivation(params: {
       expiresInMinutes: OTP_TTL_MINUTES,
     }),
   });
-  return { challengeId: challenge.id, expiresAt: challenge.expiresAt, emailMasked: maskEmail(params.email) };
+  return {
+    challengeId: challenge.id,
+    expiresAt: challenge.expiresAt,
+    emailMasked: maskEmail(params.email),
+  };
 }
 
 export type ActivationResult = {
@@ -267,7 +279,12 @@ export async function completeActivation(
   }
 }
 
-async function recordRejection(executor: Executor, codeId: string, reason: string, meta: RequestMeta) {
+async function recordRejection(
+  executor: Executor,
+  codeId: string,
+  reason: string,
+  meta: RequestMeta,
+) {
   const [code] = await executor
     .select({ batchId: activationCodes.batchId })
     .from(activationCodes)

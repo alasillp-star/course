@@ -7,7 +7,14 @@ import { SellCardsDialog } from "@/components/admin/sell-cards-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/stat-card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { formatDate, formatNumber, pickLocalized } from "@/i18n/format";
 import { getI18n } from "@/i18n/server";
 import { can } from "@/modules/access/actor";
@@ -19,12 +26,20 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: dict.admin.batches.title };
 }
 
-export default async function ActivationBatchesPage({ searchParams }: PageProps<"/[locale]/admin/activation">) {
+export default async function ActivationBatchesPage({
+  searchParams,
+}: PageProps<"/[locale]/admin/activation">) {
   const { locale, dict } = await getI18n();
-  const actor = await requirePageActor(locale, { adminArea: true, permission: "activation.batches.read" });
+  const actor = await requirePageActor(locale, {
+    adminArea: true,
+    permission: "activation.batches.read",
+  });
   const params = await searchParams;
   const t = dict.admin.batches;
-  const [batches, courses] = await Promise.all([listBatches(actor, { limit: 100 }), listCourseOptions()]);
+  const [batches, courses] = await Promise.all([
+    listBatches(actor, { limit: 100 }),
+    listCourseOptions(),
+  ]);
   const n = (value: number) => formatNumber(value, locale);
 
   return (
@@ -35,12 +50,21 @@ export default async function ActivationBatchesPage({ searchParams }: PageProps<
         actions={
           <>
             {can(actor, "activation.codes.sell") ? (
-              <SellCardsDialog t={t.sell} triggerLabel={t.sellCards} common={dict.common} errors={dict.errors} defaultOpen={params.sell === "1"} />
+              <SellCardsDialog
+                t={t.sell}
+                triggerLabel={t.sellCards}
+                common={dict.common}
+                errors={dict.errors}
+                defaultOpen={params.sell === "1"}
+              />
             ) : null}
             {can(actor, "activation.batches.create") ? (
               <CreateBatchDialog
                 locale={locale}
-                courses={courses.map((course) => ({ id: course.id, title: pickLocalized(course.title, locale) || course.slug }))}
+                courses={courses.map((course) => ({
+                  id: course.id,
+                  title: pickLocalized(course.title, locale) || course.slug,
+                }))}
                 t={t.form}
                 triggerLabel={t.newBatch}
                 common={dict.common}
@@ -72,22 +96,33 @@ export default async function ActivationBatchesPage({ searchParams }: PageProps<
               {batches.map((batch) => (
                 <TableRow key={batch.id}>
                   <TableCell>
-                    <Link href={`/${locale}/admin/activation/${batch.id}`} className="font-semibold hover:underline">
+                    <Link
+                      href={`/${locale}/admin/activation/${batch.id}`}
+                      className="font-semibold hover:underline"
+                    >
                       {batch.name}
                     </Link>
-                    <p className="font-mono text-xs text-muted-foreground" dir="ltr">
+                    <p className="text-muted-foreground font-mono text-xs" dir="ltr">
                       {batch.serialPrefix}
                     </p>
                   </TableCell>
                   <TableCell className="tabular">{n(batch.counts.total)}</TableCell>
                   <TableCell className="tabular">{n(batch.counts.available)}</TableCell>
                   <TableCell className="tabular">{n(batch.counts.sold)}</TableCell>
-                  <TableCell className="font-semibold text-success tabular">{n(batch.counts.activated)}</TableCell>
+                  <TableCell className="text-success tabular font-semibold">
+                    {n(batch.counts.activated)}
+                  </TableCell>
                   <TableCell className="tabular">{n(batch.counts.revoked)}</TableCell>
                   <TableCell>
-                    {batch.secretsPurgedAt ? <Badge variant="muted">{t.secretsPurged}</Badge> : <Badge variant="warning">{t.secretsActive}</Badge>}
+                    {batch.secretsPurgedAt ? (
+                      <Badge variant="muted">{t.secretsPurged}</Badge>
+                    ) : (
+                      <Badge variant="warning">{t.secretsActive}</Badge>
+                    )}
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{formatDate(batch.createdAt, locale)}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {formatDate(batch.createdAt, locale)}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

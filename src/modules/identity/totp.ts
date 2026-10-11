@@ -66,7 +66,11 @@ export function timeStep(nowMs: number = Date.now()): number {
   return Math.floor(nowMs / 1000 / TOTP_PERIOD_SECONDS);
 }
 
-export function totp(secretBase32: string, nowMs: number = Date.now(), digits = TOTP_DIGITS): string {
+export function totp(
+  secretBase32: string,
+  nowMs: number = Date.now(),
+  digits = TOTP_DIGITS,
+): string {
   return hotp(base32Decode(secretBase32), timeStep(nowMs), digits);
 }
 
@@ -90,13 +94,18 @@ export function verifyTotp(
     const expected = hotp(secret, step);
     // Both strings are 6 ASCII digits; comparison time does not depend on secret material.
     let diff = 0;
-    for (let i = 0; i < expected.length; i += 1) diff |= expected.charCodeAt(i) ^ normalized.charCodeAt(i);
+    for (let i = 0; i < expected.length; i += 1)
+      diff |= expected.charCodeAt(i) ^ normalized.charCodeAt(i);
     if (diff === 0) return step;
   }
   return null;
 }
 
-export function buildOtpauthUri(params: { secret: string; accountName: string; issuer: string }): string {
+export function buildOtpauthUri(params: {
+  secret: string;
+  accountName: string;
+  issuer: string;
+}): string {
   const label = encodeURIComponent(`${params.issuer}:${params.accountName}`);
   const query = new URLSearchParams({
     secret: params.secret,

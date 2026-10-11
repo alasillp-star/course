@@ -71,7 +71,8 @@ function findPgError(error: unknown): PgErrorShape | undefined {
   let current: unknown = error;
   for (let depth = 0; depth < 4 && current && typeof current === "object"; depth += 1) {
     const candidate = current as PgErrorShape & { cause?: unknown };
-    if (typeof candidate.code === "string" && /^[0-9A-Z]{5}$/.test(candidate.code)) return candidate;
+    if (typeof candidate.code === "string" && /^[0-9A-Z]{5}$/.test(candidate.code))
+      return candidate;
     current = candidate.cause;
   }
   return undefined;

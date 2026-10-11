@@ -25,7 +25,11 @@ export const POST = withApi(async (request, { meta }) => {
   const body = await parseJsonBody(request, CreateBody);
   const batch = await createBatch(
     actor,
-    { ...body, redeemBy: body.redeemBy ? new Date(body.redeemBy) : null, notes: body.notes ?? null },
+    {
+      ...body,
+      redeemBy: body.redeemBy ? new Date(body.redeemBy) : null,
+      notes: body.notes ?? null,
+    },
     meta,
   );
   return ok(batch, { status: 201 });

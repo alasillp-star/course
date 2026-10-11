@@ -9,6 +9,10 @@ export const POST = withApi(async () => {
   const actor = await requireApiActor();
   if (!actor.isStaff) throw new AppError("FORBIDDEN");
   const { secret, otpauthUri } = await beginTotpEnrollment(actor);
-  const qrDataUrl = await QRCode.toDataURL(otpauthUri, { errorCorrectionLevel: "M", margin: 1, width: 240 });
+  const qrDataUrl = await QRCode.toDataURL(otpauthUri, {
+    errorCorrectionLevel: "M",
+    margin: 1,
+    width: 240,
+  });
   return ok({ secret, otpauthUri, qrDataUrl });
 });

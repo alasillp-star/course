@@ -3,7 +3,8 @@ import type { Dictionary } from "./ar";
 export const fr: Dictionary = {
   meta: {
     title: "Académie Oryx Strategy",
-    description: "Une plateforme de formation complète : un accès à vie, une communauté d'apprenants et un suivi de votre progression.",
+    description:
+      "Une plateforme de formation complète : un accès à vie, une communauté d'apprenants et un suivi de votre progression.",
   },
   common: {
     continue: "Continuer",
@@ -56,11 +57,21 @@ export const fr: Dictionary = {
     card: { label: "Carte d'activation", scan: "Scannez pour activer", serial: "N° de carte" },
     how: {
       title: "Trois étapes et vous commencez",
-      subtitle: "Votre carte imprimée sert uniquement à la première connexion ; ensuite, votre e-mail suffit.",
+      subtitle:
+        "Votre carte imprimée sert uniquement à la première connexion ; ensuite, votre e-mail suffit.",
       steps: [
-        { title: "Achetez la carte d'activation", body: "Chaque carte porte un QR code unique et un code secret caché sous une zone à gratter." },
-        { title: "Scannez et confirmez votre e-mail", body: "Le QR code ouvre directement la page d'activation. Nous vous envoyons un code pour confirmer votre adresse." },
-        { title: "Apprenez sans limite de temps", body: "Votre accès à vie est activé immédiatement ; vous vous connecterez ensuite avec votre e-mail." },
+        {
+          title: "Achetez la carte d'activation",
+          body: "Chaque carte porte un QR code unique et un code secret caché sous une zone à gratter.",
+        },
+        {
+          title: "Scannez et confirmez votre e-mail",
+          body: "Le QR code ouvre directement la page d'activation. Nous vous envoyons un code pour confirmer votre adresse.",
+        },
+        {
+          title: "Apprenez sans limite de temps",
+          body: "Votre accès à vie est activé immédiatement ; vous vous connecterez ensuite avec votre e-mail.",
+        },
       ],
     },
     curriculum: {
@@ -73,10 +84,22 @@ export const fr: Dictionary = {
     features: {
       title: "Tout pour réussir, au même endroit",
       items: [
-        { title: "Leçons vidéo structurées", body: "Des modules et des leçons courtes avec ressources, reprise automatique là où vous vous êtes arrêté." },
-        { title: "Communauté privée", body: "Posez vos questions et partagez vos résultats avec tous les inscrits." },
-        { title: "Suivi de progression", body: "Un taux d'avancement par leçon, par module et pour toute la formation." },
-        { title: "Certificat vérifiable", body: "Un certificat numérique avec numéro de vérification et QR code." },
+        {
+          title: "Leçons vidéo structurées",
+          body: "Des modules et des leçons courtes avec ressources, reprise automatique là où vous vous êtes arrêté.",
+        },
+        {
+          title: "Communauté privée",
+          body: "Posez vos questions et partagez vos résultats avec tous les inscrits.",
+        },
+        {
+          title: "Suivi de progression",
+          body: "Un taux d'avancement par leçon, par module et pour toute la formation.",
+        },
+        {
+          title: "Certificat vérifiable",
+          body: "Un certificat numérique avec numéro de vérification et QR code.",
+        },
       ],
     },
     faq: {
@@ -108,7 +131,8 @@ export const fr: Dictionary = {
   },
   auth: {
     sideTitle: "Bon retour parmi nous",
-    sideBody: "Connectez-vous avec votre e-mail uniquement — sans mot de passe. Un code temporaire vous est envoyé à chaque fois.",
+    sideBody:
+      "Connectez-vous avec votre e-mail uniquement — sans mot de passe. Un code temporaire vous est envoyé à chaque fois.",
     login: {
       title: "Connexion",
       subtitle: "Saisissez votre e-mail : nous vous enverrons un code de connexion à 6 chiffres.",
@@ -116,7 +140,8 @@ export const fr: Dictionary = {
       emailPlaceholder: "nom@exemple.com",
       submit: "Recevoir mon code",
       codeTitle: "Saisissez le code",
-      codeSent: "Si {email} est associé à un compte, nous y avons envoyé un code valable 10 minutes.",
+      codeSent:
+        "Si {email} est associé à un compte, nous y avons envoyé un code valable 10 minutes.",
       codeLabel: "Code de vérification",
       verify: "Valider et me connecter",
       resend: "Renvoyer le code",
@@ -134,7 +159,8 @@ export const fr: Dictionary = {
     steps: { card: "Carte", email: "E-mail", verify: "Confirmation" },
     checking: "Vérification de la carte…",
     manualTitle: "Saisissez le code de la carte",
-    manualBody: "Si vous ne pouvez pas scanner le QR code, saisissez le code imprimé sur la carte (16 caractères).",
+    manualBody:
+      "Si vous ne pouvez pas scanner le QR code, saisissez le code imprimé sur la carte (16 caractères).",
     codeLabel: "Code de la carte",
     codePlaceholder: "XXXX-XXXX-XXXX-XXXX",
     checkCode: "Vérifier la carte",
@@ -147,10 +173,12 @@ export const fr: Dictionary = {
     sendCode: "Recevoir le code de confirmation",
     otpLabel: "Code de confirmation",
     otpTitle: "Confirmez votre e-mail",
-    otpBody: "Nous avons envoyé un code à 6 chiffres à {email}. Saisissez-le pour terminer l'activation.",
+    otpBody:
+      "Nous avons envoyé un code à 6 chiffres à {email}. Saisissez-le pour terminer l'activation.",
     confirm: "Activer mon accès",
     successTitle: "Activation réussie 🎉",
-    successBody: "Votre accès à vie est actif. Désormais, connectez-vous simplement avec votre e-mail.",
+    successBody:
+      "Votre accès à vie est actif. Désormais, connectez-vous simplement avec votre e-mail.",
     goToDashboard: "Accéder à mon espace",
     useAnotherCard: "Utiliser une autre carte",
     securityNote: "Ne partagez jamais le code de votre carte ni son code secret.",
@@ -221,7 +249,8 @@ export const fr: Dictionary = {
       courseContent: "Contenu de la formation",
       modules: "{count} modules",
       lessons: "{count} leçons",
-      lessonPlayerSoon: "Le lecteur de leçons est en préparation — disponible dans la prochaine phase.",
+      lessonPlayerSoon:
+        "Le lecteur de leçons est en préparation — disponible dans la prochaine phase.",
       upcomingLive: "Prochaines sessions live",
       noLive: "Aucune session programmée pour le moment.",
       assignments: "Devoirs",
@@ -251,7 +280,8 @@ export const fr: Dictionary = {
     },
     security: {
       title: "Sécurité et appareils",
-      subtitle: "Les appareils connectés à votre compte. Un appareil inconnu ? Déconnectez-le immédiatement.",
+      subtitle:
+        "Les appareils connectés à votre compte. Un appareil inconnu ? Déconnectez-le immédiatement.",
       current: "Cet appareil",
       lastActive: "Dernière activité",
       signedIn: "Connecté le",
@@ -295,7 +325,8 @@ export const fr: Dictionary = {
         "Conservez ces codes en lieu sûr. Chacun est utilisable une seule fois si vous perdez votre téléphone. Ils ne seront plus affichés.",
       recoverySaved: "J'ai enregistré les codes — continuer",
       verifyTitle: "Saisissez votre code",
-      verifyBody: "Saisissez le code de votre application d'authentification, ou un code de récupération.",
+      verifyBody:
+        "Saisissez le code de votre application d'authentification, ou un code de récupération.",
       verify: "Vérifier",
     },
     overview: {
@@ -350,7 +381,8 @@ export const fr: Dictionary = {
         requiresPin: "Code secret à gratter",
         requiresPinHint: "Protège la carte contre la photo avant la vente. Recommandé.",
         requiresSale: "Activation uniquement après la vente",
-        requiresSaleHint: "La carte ne fonctionne qu'une fois sa vente enregistrée : un stock volé n'a aucune valeur.",
+        requiresSaleHint:
+          "La carte ne fonctionne qu'une fois sa vente enregistrée : un stock volé n'a aucune valeur.",
         redeemBy: "Date limite d'activation (facultatif)",
         notes: "Notes internes",
         submit: "Générer les cartes",
@@ -417,7 +449,8 @@ export const fr: Dictionary = {
       reason: "Motif",
       reasonPlaceholder: "Ex. : le client a signalé la perte de la carte",
       replacementTitle: "Carte de remplacement",
-      replacementBody: "Imprimez ces informations maintenant et remettez-les au client. Elles ne seront plus affichées.",
+      replacementBody:
+        "Imprimez ces informations maintenant et remettez-les au client. Elles ne seront plus affichées.",
       events: {
         batch_created: "Création du lot",
         batch_exported: "Export",
@@ -435,12 +468,20 @@ export const fr: Dictionary = {
     },
     students: {
       title: "Apprenants",
-      subtitle: "Retrouvez un apprenant, consultez son accès et ses appareils, aidez-le rapidement.",
+      subtitle:
+        "Retrouvez un apprenant, consultez son accès et ses appareils, aidez-le rapidement.",
       search: "Rechercher par e-mail ou nom",
       filterAccess: "Accès",
       withAccess: "Accès actif",
       withoutAccess: "Sans accès",
-      columns: { student: "Apprenant", status: "Statut", access: "Accès", progress: "Progression", joined: "Inscription", lastSeen: "Dernière activité" },
+      columns: {
+        student: "Apprenant",
+        status: "Statut",
+        access: "Accès",
+        progress: "Progression",
+        joined: "Inscription",
+        lastSeen: "Dernière activité",
+      },
       empty: "Aucun apprenant ne correspond.",
       detail: {
         back: "Tous les apprenants",
@@ -466,7 +507,8 @@ export const fr: Dictionary = {
     },
     staff: {
       title: "Équipe et permissions",
-      subtitle: "Chaque rôle dispose de permissions précises, appliquées par le serveur et pas seulement par l'interface.",
+      subtitle:
+        "Chaque rôle dispose de permissions précises, appliquées par le serveur et pas seulement par l'interface.",
       invite: "Ajouter un membre / un rôle",
       inviteBody:
         "Si l'adresse n'a pas de compte, un compte est créé ; il ne fonctionnera qu'après confirmation de l'e-mail par code et activation de la double authentification.",
@@ -489,7 +531,13 @@ export const fr: Dictionary = {
     },
   },
   statuses: {
-    code: { available: "Disponible", sold: "Vendue", activated: "Activée", revoked: "Annulée", locked: "Bloquée" },
+    code: {
+      available: "Disponible",
+      sold: "Vendue",
+      activated: "Activée",
+      revoked: "Annulée",
+      locked: "Bloquée",
+    },
     user: { active: "Actif", suspended: "Suspendu", deleted: "Supprimé" },
     entitlement: { active: "Actif", revoked: "Retiré" },
     source: {
@@ -538,11 +586,13 @@ export const fr: Dictionary = {
     ACTIVATION_CODE_LOCKED: "Carte bloquée après des tentatives erronées. Contactez le support.",
     ACTIVATION_PIN_INVALID: "Code secret incorrect. Essais restants : {attemptsRemaining}.",
     ACTIVATION_PIN_REQUIRED: "Saisissez le code secret situé sous la zone à gratter.",
-    ALREADY_ENTITLED: "Votre compte a déjà accès à cette formation. Gardez la carte pour quelqu'un d'autre.",
+    ALREADY_ENTITLED:
+      "Votre compte a déjà accès à cette formation. Gardez la carte pour quelqu'un d'autre.",
     ACTIVATION_SECRETS_PURGED: "Les secrets de ce lot ont été détruits : réimpression impossible.",
     INVALID_STATE: "Action impossible dans l'état actuel.",
     INTERNAL_ERROR: "Erreur serveur. Réessayez.",
-    SERVICE_UNAVAILABLE: "Service temporairement indisponible (envoi d'e-mail). Réessayez dans un instant.",
+    SERVICE_UNAVAILABLE:
+      "Service temporairement indisponible (envoi d'e-mail). Réessayez dans un instant.",
   },
   forbidden: {
     title: "Accès refusé",

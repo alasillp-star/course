@@ -11,16 +11,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import { CONTENT_STATUSES, QUIZ_QUESTION_TYPES, SUBMISSION_STATUSES } from "../../../shared/enums";
-import {
-  createdAt,
-  deletedAt,
-  enumCheck,
-  localized,
-  pk,
-  rule,
-  tstz,
-  updatedAt,
-} from "./_columns";
+import { createdAt, deletedAt, enumCheck, localized, pk, rule, tstz, updatedAt } from "./_columns";
 import { courseModules, courses, lessons, mediaAssets } from "./catalog";
 import { users } from "./identity";
 

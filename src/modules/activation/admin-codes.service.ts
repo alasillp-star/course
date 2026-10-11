@@ -32,7 +32,8 @@ const MAX_BULK = 2_000;
 function normalizeSerials(serials: string[]): string[] {
   const unique = new Set(serials.map((serial) => serial.trim().toUpperCase()).filter(Boolean));
   if (unique.size === 0) throw new AppError("VALIDATION_ERROR", "no serials", { field: "serials" });
-  if (unique.size > MAX_BULK) throw new AppError("VALIDATION_ERROR", "too many serials", { field: "serials" });
+  if (unique.size > MAX_BULK)
+    throw new AppError("VALIDATION_ERROR", "too many serials", { field: "serials" });
   return [...unique];
 }
 
@@ -51,11 +52,19 @@ export async function markCardsSold(
   const db = getDb();
   return db.transaction(async (tx) => {
     if (params.orderId) {
-      const [order] = await tx.select({ id: orders.id }).from(orders).where(eq(orders.id, params.orderId));
+      const [order] = await tx
+        .select({ id: orders.id })
+        .from(orders)
+        .where(eq(orders.id, params.orderId));
       if (!order) throw new AppError("NOT_FOUND", "Order not found", { field: "orderId" });
     }
     const rows = await tx
-      .select({ id: activationCodes.id, serial: activationCodes.serial, status: activationCodes.status, batchId: activationCodes.batchId })
+      .select({
+        id: activationCodes.id,
+        serial: activationCodes.serial,
+        status: activationCodes.status,
+        batchId: activationCodes.batchId,
+      })
       .from(activationCodes)
       .where(inArray(activationCodes.serial, serials))
       .for("update");
@@ -65,7 +74,8 @@ export async function markCardsSold(
     for (const serial of serials) {
       const row = found.get(serial);
       if (!row) skipped.push({ serial, reason: "NOT_FOUND" });
-      else if (row.status !== "available") skipped.push({ serial, reason: `STATUS_${row.status.toUpperCase()}` });
+      else if (row.status !== "available")
+        skipped.push({ serial, reason: `STATUS_${row.status.toUpperCase()}` });
       else sellable.push(row);
     }
     if (sellable.length > 0) {
@@ -73,7 +83,12 @@ export async function markCardsSold(
       await tx
         .update(activationCodes)
         .set({ status: "sold", soldAt: now, soldBy: actor.userId, orderId: params.orderId ?? null })
-        .where(inArray(activationCodes.id, sellable.map((row) => row.id)));
+        .where(
+          inArray(
+            activationCodes.id,
+            sellable.map((row) => row.id),
+          ),
+        );
       await recordActivationEvents(
         tx,
         sellable.map((row) => ({
@@ -91,7 +106,11 @@ export async function markCardsSold(
         targetType: "activation_code",
         targetId: sellable.length === 1 ? sellable[0]!.id : undefined,
         meta,
-        metadata: { count: sellable.length, serials: sellable.slice(0, 50).map((row) => row.serial), orderId: params.orderId },
+        metadata: {
+          count: sellable.length,
+          serials: sellable.slice(0, 50).map((row) => row.serial),
+          orderId: params.orderId,
+        },
       });
     }
     return { sold: sellable.map((row) => row.serial), skipped };
@@ -99,13 +118,22 @@ export async function markCardsSold(
 }
 
 /** Reverts a mistaken sale (only while the card is unused). */
-export async function markCardUnsold(actor: Actor, codeId: string, meta: RequestMeta): Promise<void> {
+export async function markCardUnsold(
+  actor: Actor,
+  codeId: string,
+  meta: RequestMeta,
+): Promise<void> {
   assertCan(actor, "activation.codes.sell");
   const db = getDb();
   await db.transaction(async (tx) => {
-    const [code] = await tx.select().from(activationCodes).where(eq(activationCodes.id, codeId)).for("update");
+    const [code] = await tx
+      .select()
+      .from(activationCodes)
+      .where(eq(activationCodes.id, codeId))
+      .for("update");
     if (!code) throw new AppError("NOT_FOUND");
-    if (code.status !== "sold") throw new AppError("INVALID_STATE", undefined, { status: code.status });
+    if (code.status !== "sold")
+      throw new AppError("INVALID_STATE", undefined, { status: code.status });
     await tx
       .update(activationCodes)
       .set({ status: "available", soldAt: null, soldBy: null, orderId: null, orderItemId: null })
@@ -225,7 +253,11 @@ export async function replaceCard(
       .where(eq(activationCodes.id, old.id));
 
     // Serialise sequence allocation per batch with the batch row lock.
-    await tx.select({ id: activationBatches.id }).from(activationBatches).where(eq(activationBatches.id, batch.id)).for("update");
+    await tx
+      .select({ id: activationBatches.id })
+      .from(activationBatches)
+      .where(eq(activationBatches.id, batch.id))
+      .for("update");
     const [{ maxSequence } = { maxSequence: 0 }] = await tx
       .select({ maxSequence: max(activationCodes.sequence) })
       .from(activationCodes)
@@ -280,7 +312,11 @@ export async function unlockCard(actor: Actor, codeId: string, meta: RequestMeta
   assertCan(actor, "activation.codes.unlock");
   const db = getDb();
   await db.transaction(async (tx) => {
-    const [code] = await tx.select().from(activationCodes).where(eq(activationCodes.id, codeId)).for("update");
+    const [code] = await tx
+      .select()
+      .from(activationCodes)
+      .where(eq(activationCodes.id, codeId))
+      .for("update");
     if (!code) throw new AppError("NOT_FOUND");
     if (!code.lockedAt) throw new AppError("INVALID_STATE");
     await tx
@@ -382,4 +418,3 @@ export async function findCardBySerial(actor: Actor, serial: string) {
     .limit(1);
   return row ?? null;
 }
-
