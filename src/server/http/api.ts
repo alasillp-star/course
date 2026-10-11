@@ -7,6 +7,8 @@ import { AppError, isAppError } from "./errors";
 import { requestMetaFromHeaders, type RequestMeta } from "./request-meta";
 
 const UNSAFE_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+/** A GitHub Codespaces forwarded port: <codespace-name>-<port>.app.github.dev */
+const CODESPACES_ORIGIN = /^[a-z0-9][a-z0-9-]*-\d{2,5}\.app\.github\.dev$/;
 const MAX_JSON_BODY_BYTES = 32 * 1024;
 
 /** Error details that are safe to return to clients. */
@@ -33,14 +35,10 @@ export function assertSameOrigin(request: Request): void {
     const trustProxy = process.env.TRUST_PROXY_HEADERS !== "false";
     const env = getEnv();
     const allowed = new Set<string>([new URL(env.APP_URL).host]);
-    // Development in GitHub Codespaces: the browser is on this codespace's
-    // forwarded https address while the server sees localhost.
-    const codespace = process.env.CODESPACE_NAME;
-    const domain = process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN;
-    if (env.APP_ENV === "development" && codespace && domain) {
-      const escape = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      if (new RegExp(`^${escape(codespace)}-\\d+\\.${escape(domain)}$`).test(originHost)) return;
-    }
+    // Development in GitHub Codespaces: the browser is on the codespace's
+    // forwarded https address while the server sees localhost. Never in
+    // staging/production, where APP_URL is the only accepted origin.
+    if (env.APP_ENV === "development" && CODESPACES_ORIGIN.test(originHost)) return;
     const host =
       (trustProxy && request.headers.get("x-forwarded-host")) || request.headers.get("host");
     if (host) allowed.add(host);

@@ -31,6 +31,7 @@
     "start:phone": "tsx scripts/start-phone.ts",
     "codespace": "tsx scripts/start-phone.ts --setup",
     "stop": "tsx scripts/stop.ts",
+    "doctor": "tsx scripts/doctor.ts",
     "e2e:prepare": "tsx --conditions=react-server scripts/db/reset.ts && tsx --conditions=react-server scripts/db/seed.ts"
   },
   "dependencies": {

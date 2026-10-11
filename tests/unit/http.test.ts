@@ -28,24 +28,22 @@ describe("CSRF origin check", () => {
     expect(() => assertSameOrigin(request({ "sec-fetch-site": "same-origin" }))).not.toThrow();
   });
 
-  it("accepts this codespace's forwarded address in development only", () => {
+  it("accepts GitHub Codespaces forwarded addresses in development only", () => {
     const previous = { ...process.env };
-    process.env.CODESPACE_NAME = "didactic-carnival-6976";
-    process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN = "app.github.dev";
     process.env.APP_ENV = "development";
     resetEnvCache();
     try {
       expect(() =>
         assertSameOrigin(request({ origin: "https://didactic-carnival-6976-3000.app.github.dev" })),
       ).not.toThrow();
-      expect(() =>
-        assertSameOrigin(request({ origin: "https://other-codespace-3000.app.github.dev" })),
-      ).toThrow("CSRF_REJECTED");
-      expect(() =>
-        assertSameOrigin(
-          request({ origin: "https://didactic-carnival-6976-3000.app.github.dev.evil.example" }),
-        ),
-      ).toThrow("CSRF_REJECTED");
+      for (const origin of [
+        "https://didactic-carnival-6976-3000.app.github.dev.evil.example",
+        "https://app.github.dev",
+        "http://evil-3000.app.github.dev.example",
+        "https://evil.example",
+      ]) {
+        expect(() => assertSameOrigin(request({ origin }))).toThrow("CSRF_REJECTED");
+      }
       process.env.APP_ENV = "production";
       process.env.APP_URL = "https://academy.example";
       process.env.EMAIL_TRANSPORT = "resend";

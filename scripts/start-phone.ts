@@ -5,6 +5,7 @@ import { networkInterfaces } from "node:os";
 import path from "node:path";
 import QRCode from "qrcode";
 import { codespaceUrl } from "./_codespace";
+import { serversOnPort, stopNextServersAndWait } from "./_server-process";
 
 /**
  * Serves a production build of the platform beyond this computer:
@@ -115,6 +116,9 @@ ${
 
 async function main() {
   const cloud = codespaceUrl(PORT);
+  if (!cloud && process.env.CODESPACES === "true") {
+    console.warn("! Codespace detected, but its address is unknown (CODESPACE_NAME is missing).");
+  }
   const ip = cloud ? undefined : lanAddress();
   if (!cloud && !ip) {
     console.error("✗ No network connection found. Connect this computer to Wi-Fi.");
@@ -124,8 +128,16 @@ async function main() {
   const env = { ...process.env, APP_URL: url };
 
   if (await portInUse(PORT)) {
-    await banner(url, !!cloud);
-    return;
+    const running = serversOnPort(PORT).find((server) => /next/i.test(server.command));
+    if (running?.appUrl && running.appUrl !== url) {
+      // A server started another way (npm run dev / try, an older version) with a
+      // different address: sign-in would be refused. Replace it.
+      console.log(`▸ Restarting the platform on ${url} (it was running on ${running.appUrl})`);
+      await stopNextServersAndWait(PORT);
+    } else {
+      await banner(url, !!cloud);
+      return;
+    }
   }
   if (withSetup) npm(["run", "setup"], env);
 
