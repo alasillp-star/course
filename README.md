@@ -2,10 +2,11 @@
 
 <div dir="rtl">
 
-**منصة أكاديمية إلكترونية متكاملة**: بيع الدورة عبر بطاقات QR مطبوعة، تفعيل آمن لمرة واحدة، دخول دائم بالبريد الإلكتروني ورمز OTP، وصول مدى الحياة، لوحة طالب، ولوحة إدارة محمية بالتحقق بخطوتين — بالعربية (RTL) والفرنسية، مع بنية جاهزة للإنجليزية.
+**منصة أكاديمية إلكترونية متكاملة**: بيع الدورة عبر بطاقات QR مطبوعة تُرسل مع الطرد ولا تعمل إلا بعد أن تؤكد شركة التوصيل التسليم، تفعيل آمن لمرة واحدة، دخول دائم بالبريد الإلكتروني ورمز OTP، وصول مدى الحياة، مشغّل فيديو محمي، لوحة طالب، ولوحة إدارة محمية بالتحقق بخطوتين — بالعربية (RTL) والفرنسية، مع بنية جاهزة للإنجليزية.
 
 - **حالة التسليم وما هو مكتمل وغير مكتمل:** [docs/STATUS.md](docs/STATUS.md)
 - **دليل لوحة الإدارة بالعربية:** [docs/ADMIN_GUIDE.ar.md](docs/ADMIN_GUIDE.ar.md)
+- **ربط صفحة البيع وشركة التوصيل:** [docs/INTEGRATIONS.md](docs/INTEGRATIONS.md)
 
 </div>
 
@@ -13,18 +14,20 @@
 
 ## What is in this repository
 
-| Area               | Highlights                                                                                                                                                                                                                         |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **QR activation**  | Batches of up to 10,000 cards · 80-bit codes stored as keyed hashes · scratch-off PIN · point-of-sale activation · print-ready A4 PDF with crop marks · revoke / replace / unlock · atomic, race-safe redemption → lifetime access |
-| **Authentication** | Passwordless e-mail OTP · server-side sessions with device list and remote sign-out · brute-force limits · staff TOTP MFA with recovery codes · verified e-mail change                                                             |
-| **Authorisation**  | 7 roles, 56 permissions, enforced in services and API (not just the UI) · course access via entitlements, separate from authentication                                                                                             |
-| **Security**       | Strict nonce CSP · CSRF origin checks · HttpOnly `__Host-` cookies · RLS lock-down · append-only audit log · secret redaction in logs                                                                                              |
-| **UI**             | Premium design system (navy & champagne, light/dark) · RTL-first · mobile-first · student dashboard · admin console                                                                                                                |
-| **Data**           | PostgreSQL schema for the whole roadmap (66 tables): learning, assessments, community, commerce, live sessions, support                                                                                                            |
-| **Quality**        | 41 unit · 47 integration (real PostgreSQL, incl. concurrency) · 29 end-to-end (production build, mobile + desktop)                                                                                                                 |
+| Area                  | Highlights                                                                                                                                                                                                  |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **QR activation**     | Batches of up to 10,000 QR-only cards · 80-bit codes stored as keyed hashes · sale gate (counter sale or delivery) · print-ready A4 PDF · revoke / replace · atomic, race-safe redemption → lifetime access |
+| **Orders & delivery** | Landing-page order intake (token, idempotent) · pack cards into parcels by serial · carrier webhook / CSV import / audited override · card unlocked **only when the parcel is delivered**                   |
+| **Learning**          | Course editor (drag & drop, drafts, scheduling) · direct video upload to Mux / Cloudflare Stream · signed playback + watermark · server-validated progress, resume, notes, private files (S3)               |
+| **Authentication**    | Passwordless e-mail OTP · server-side sessions with device list and remote sign-out · brute-force limits · staff TOTP MFA with recovery codes · verified e-mail change                                      |
+| **Authorisation**     | 7 roles, 57 permissions, enforced in services and API (not just the UI) · course access via entitlements, separate from authentication                                                                      |
+| **Security**          | Strict nonce CSP · CSRF origin checks · HttpOnly `__Host-` cookies · RLS lock-down · append-only audit log · secret redaction in logs                                                                       |
+| **UI**                | Abdou Academy identity (purple & lime, light/dark) · RTL-first · mobile-first · student dashboard and lesson player · admin console                                                                         |
+| **Data**              | PostgreSQL schema for the whole roadmap (68 tables): learning, assessments, community, commerce, delivery, live sessions, support                                                                           |
+| **Quality**           | 71 unit · 77 integration (real PostgreSQL, incl. concurrency) + 3 S3 · 31 end-to-end (production build, mobile + desktop)                                                                                   |
 
 Documentation: [Architecture](docs/ARCHITECTURE.md) · [Database & ERD](docs/DATABASE.md) · [API](docs/API.md) ·
-[Security](docs/SECURITY.md) · [Deployment](docs/DEPLOYMENT.md) · [Backup & recovery](docs/BACKUP_AND_RECOVERY.md) ·
+[Security](docs/SECURITY.md) · [Integrations](docs/INTEGRATIONS.md) · [Deployment](docs/DEPLOYMENT.md) · [Backup & recovery](docs/BACKUP_AND_RECOVERY.md) · [Brand](docs/BRAND.md) ·
 [Decision records](docs/adr) · [Status & acceptance criteria](docs/STATUS.md)
 
 ## Tech stack
@@ -45,15 +48,17 @@ npm run secrets:generate   # paste the 3 printed values into .env.local
 
 npm run db:migrate        # apply SQL migrations
 npm run db:seed           # permissions, roles, course shell, community spaces, first Super Admin
-npm run db:seed:dev       # optional demo data: curriculum, staff accounts, 20 demo cards (prints 3 codes)
+npm run db:seed:dev       # optional demo data: curriculum, staff accounts, 20 QR-only cards, 3 delivery orders
 npm run dev               # http://localhost:3000
 ```
 
 - E-mails (OTP codes) are written to `.data/mailbox/*.json` in development (`EMAIL_TRANSPORT=dev-outbox`).
   With Docker you can use Mailpit instead: `EMAIL_TRANSPORT=smtp`, `SMTP_URL=smtp://localhost:1025`, UI on :8025.
 - Sign in at `/ar/login` with the bootstrap e-mail, then enrol an authenticator app at `/ar/admin/mfa`.
-- Try an activation: open one of the demo URLs printed by `db:seed:dev` (`http://localhost:3000/a#…`)
-  on your phone or browser and enter the printed PIN.
+- Try an activation: open one of the demo URLs printed by `db:seed:dev` (`http://localhost:3000/a#…`).
+  The card of the "in transit" demo order answers "waiting for delivery confirmation" until its parcel is
+  delivered (Admin → Orders → order → set status by hand, or `POST /api/v1/integrations/delivery` with
+  `DELIVERY_WEBHOOK_TOKEN` from `.env.local`).
 - If pages keep reloading in development (browser console: `HMR hash mismatch`), the Turbopack dev
   cache is stale, usually after the dev server was killed. Stop `npm run dev`, delete `.next/dev`
   and start it again.
@@ -82,12 +87,13 @@ src/
   app/
     [locale]/(public)       home (curriculum from DB)
     [locale]/(auth)         login (OTP), activate (QR), recover
-    [locale]/app            student dashboard, settings, devices
-    [locale]/admin          MFA, overview, activation cards, students, staff, audit
+    [locale]/app            student dashboard, course & lesson player, notes, settings, devices
+    [locale]/admin          MFA, overview, activation cards, orders & delivery, content, students, staff, audit
     api/v1                  JSON API (see docs/API.md)
-  modules/                  business logic: identity, access, activation, entitlements, catalog,
-                            learning, reports, audit, platform
-  server/                   infrastructure: db (schema + client), env, crypto, rate-limit, email, http, logger
+  modules/                  business logic: identity, access, activation, commerce (orders, delivery),
+                            entitlements, catalog, content, learning, reports, audit, platform
+  server/                   infrastructure: db (schema + client), env, crypto, rate-limit, email, http,
+                            storage (S3 / local), video (Mux / Cloudflare Stream / local), logger
   components/               design system (ui/), layout, auth, admin, student, marketing
   i18n/                     locales, dictionaries (ar reference, fr, en), formatting
 drizzle/                    SQL migrations (generated + hand-written hardening)
@@ -99,9 +105,11 @@ legacy/                     the previous single-page course landing page (kept f
 
 ## Branding
 
-- Academy name, support e-mail, card issuer prefix: `src/config/academy.ts`
-- Colours, radius, typography tokens: `src/app/globals.css` (defaults derived from the existing navy & gold page)
-- Logo: `src/components/brand/logo.tsx` (replace the monogram with official artwork)
+Abdou Academy identity — see [docs/BRAND.md](docs/BRAND.md).
+
+- Name, support e-mail, card issuer prefix, time zone: `src/config/academy.ts`
+- Colour tokens (purple `#4B2AF0`, lime `#D6FF46`, ink, lilac, ivory) and typography: `src/app/globals.css`
+- Logo components (official paths): `src/components/brand/logo.tsx`; official files in `public/brand/`
 
 ## License
 

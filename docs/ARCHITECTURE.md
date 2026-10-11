@@ -128,7 +128,7 @@ valid for 12 hours per session (`STAFF_MFA_MAX_AGE_HOURS`). Every admin page and
 
 ## 4. Data model
 
-See [DATABASE.md](./DATABASE.md) for the ERD and table catalogue (66 tables covering identity,
+See [DATABASE.md](./DATABASE.md) for the ERD and table catalogue (68 tables covering identity,
 RBAC, catalogue, learning, assessments, activation, entitlements, commerce, community,
 notifications, live sessions, support, audit and compliance).
 

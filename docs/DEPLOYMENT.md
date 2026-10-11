@@ -2,13 +2,15 @@
 
 Recommended production setup (lowest operational effort):
 
-| Component       | Recommended                                               | Alternatives                                                      |
-| --------------- | --------------------------------------------------------- | ----------------------------------------------------------------- |
-| App             | **Vercel** (Node.js runtime, Fluid compute)               | Any Node 22 host: Docker on Fly.io / Railway / a VPS behind Nginx |
-| Database        | **Supabase Postgres** or **Neon** (PITR enabled)          | AWS RDS, self-hosted PostgreSQL 16+                               |
-| E-mail          | **Postmark**, **Resend** or **Amazon SES**                | Any SMTP provider                                                 |
-| Video (Phase 3) | **Mux** or **Cloudflare Stream**                          | —                                                                 |
-| Files (Phase 3) | Supabase Storage / Cloudflare R2 / S3 (S3-compatible API) | —                                                                 |
+| Component | Recommended                                               | Alternatives                                                      |
+| --------- | --------------------------------------------------------- | ----------------------------------------------------------------- |
+| App       | **Vercel** (Node.js runtime, Fluid compute)               | Any Node 22 host: Docker on Fly.io / Railway / a VPS behind Nginx |
+| Database  | **Supabase Postgres** or **Neon** (PITR enabled)          | AWS RDS, self-hosted PostgreSQL 16+                               |
+| E-mail    | **Postmark**, **Resend** or **Amazon SES**                | Any SMTP provider                                                 |
+| Video     | **Mux** or **Cloudflare Stream** (signed playback)        | —                                                                 |
+| Files     | Supabase Storage / Cloudflare R2 / S3 (S3-compatible API) | Backblaze B2, Wasabi, MinIO                                       |
+| Orders    | Your landing page (e.g. Lovable + Supabase)               | Any system able to POST JSON                                      |
+| Delivery  | Your delivery company's webhook, or its CSV export        | —                                                                 |
 
 ## 1. Prepare the database
 
@@ -30,6 +32,22 @@ Recommended production setup (lowest operational effort):
 Copy `.env.example` → configure in the host's secret store. Production requirements are validated at
 start-up (`instrumentation.ts`): HTTPS `APP_URL`, real e-mail transport, distinct secrets, MFA enforced.
 
+## 3b. Video, files and integrations
+
+- **Mux:** create an access token (Video read + write), a URL signing key (Settings → Signing keys) and a
+  webhook to `https://<domain>/api/v1/webhooks/video/mux`; set the `MUX_*` variables and `VIDEO_PROVIDER=mux`.
+  Optional: a playback restriction limited to your domain (`MUX_PLAYBACK_RESTRICTION_ID`).
+- **Cloudflare Stream:** API token with _Stream: Edit_, a signing key (`POST /accounts/:id/stream/keys`),
+  a webhook to `https://<domain>/api/v1/webhooks/video/cloudflare-stream`; set `CLOUDFLARE_*` and
+  `VIDEO_PROVIDER=cloudflare_stream`. Uploaded videos require signed URLs.
+- **Files:** a **private** bucket, an access key limited to it, CORS allowing `PUT` from `APP_URL`
+  (headers `Content-Type`); set `S3_*` and `STORAGE_PROVIDER=s3`.
+- **Landing page & delivery company:** generate `ORDERS_INTEGRATION_TOKEN` and `DELIVERY_WEBHOOK_TOKEN`
+  (different values), then follow [INTEGRATIONS.md](./INTEGRATIONS.md). Admin → Orders → Integrations shows
+  whether each endpoint is enabled and the last messages received.
+
+`local` video/storage providers are development-only and refused at start-up in staging/production.
+
 ## 4. Deploy (Vercel)
 
 1. Import the repository; framework preset **Next.js**; Node 22.
@@ -43,7 +61,8 @@ start-up (`instrumentation.ts`): HTTPS `APP_URL`, real e-mail transport, distinc
    (`.github/workflows/ci.yml` runs the full test suite; add a protected "deploy" job with production secrets.)
 4. Custom domain + HTTPS (automatic on Vercel). Keep `APP_URL` equal to the public origin — it is printed
    in every QR code, so choose the final domain **before printing cards**.
-5. Daily housekeeping: a Vercel Cron (or GitHub Actions schedule) running `npm run maintenance:cleanup`.
+5. Daily housekeeping: a Vercel Cron (or GitHub Actions schedule) running `npm run maintenance:cleanup`
+   (also purges raw integration messages, which contain customer data, after 30 days).
 
 ## 5. Self-hosting (Docker / VPS)
 
@@ -62,8 +81,10 @@ Put Nginx/Caddy in front with TLS and forward the client IP:
 - [ ] `BOOTSTRAP_SUPER_ADMIN_EMAIL` set → `npm run db:seed` → owner signs in with an e-mailed code and enrols MFA
 - [ ] Owner invites staff from _Team & permissions_ (each must enrol MFA)
 - [ ] Brand name/support e-mail in `src/config/academy.ts`; colours in `src/app/globals.css`
-- [ ] Course title in the admin (Phase 3 course editor) or via the seed defaults
-- [ ] Test batch of 5 cards → print → activate one end-to-end on a phone → revoke the rest
+- [ ] Course content in Admin → Content (modules, lessons, videos, files) — publish when ready
+- [ ] Test batch of 5 QR-only cards → print → test order from the landing page → pack a card → mark the
+      parcel delivered (carrier or override) → activate on a phone → revoke the rest
+- [ ] Landing page and delivery company connected (Admin → Orders → Integrations shows "Enabled" and messages)
 - [ ] Monitoring: uptime check on `/api/health`, log drain (Vercel → Datadog/Axiom/Better Stack), error alerts
 - [ ] Backups verified with a restore drill (see BACKUP_AND_RECOVERY.md)
 

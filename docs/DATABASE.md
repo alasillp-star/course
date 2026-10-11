@@ -1,6 +1,6 @@
 # Database
 
-PostgreSQL 16+ · schema in `src/server/db/schema/*.ts` · SQL migrations in `drizzle/` · 66 tables.
+PostgreSQL 16+ · schema in `src/server/db/schema/*.ts` · SQL migrations in `drizzle/` · 68 tables.
 
 ## Conventions
 
@@ -17,21 +17,24 @@ PostgreSQL 16+ · schema in `src/server/db/schema/*.ts` · SQL migrations in `dr
 
 ## Business invariants enforced by the database
 
-| Invariant                                                              | Mechanism                                                                                 |
-| ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| One account per e-mail (case-insensitive)                              | `users_email_key` unique + `users_email_normalized_check` (`email = lower(btrim(email))`) |
-| A card backs at most one entitlement, ever                             | `course_entitlements_activation_code_key` partial unique index                            |
-| At most one active entitlement per (student, course)                   | `course_entitlements_active_key` partial unique index                                     |
-| An activated card has an owner and a date                              | `activation_codes_activated_check`                                                        |
-| Used/revoked cards keep no printable secret                            | `activation_codes_consumed_secrets_check`                                                 |
-| A card is sold before `sold_at` is set (and vice-versa for revocation) | `activation_codes_sold_check`, `activation_codes_revoked_check`                           |
-| OTP attempts never exceed the maximum                                  | `auth_otp_challenges_attempts_check`                                                      |
-| One active TOTP factor per staff member                                | `auth_mfa_factors_one_active_key`                                                         |
-| One verified answer per question                                       | `post_comments_one_verified_key`                                                          |
-| One reaction per user per target                                       | `post_reactions_user_post_key`, `post_reactions_user_comment_key`                         |
-| Order totals add up                                                    | `orders_amounts_check`, `order_items_total_check`                                         |
-| Webhooks processed once                                                | `payment_webhook_events_provider_event_key`                                               |
-| Audit trail cannot be edited                                           | triggers `audit_logs_append_only`, `activation_events_append_only`                        |
+| Invariant                                                                | Mechanism                                                                                 |
+| ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- |
+| One account per e-mail (case-insensitive)                                | `users_email_key` unique + `users_email_normalized_check` (`email = lower(btrim(email))`) |
+| A card backs at most one entitlement, ever                               | `course_entitlements_activation_code_key` partial unique index                            |
+| At most one active entitlement per (student, course)                     | `course_entitlements_active_key` partial unique index                                     |
+| An activated card has an owner and a date                                | `activation_codes_activated_check`                                                        |
+| Used/revoked cards keep no printable secret                              | `activation_codes_consumed_secrets_check`                                                 |
+| A card is sold before `sold_at` is set (and vice-versa for revocation)   | `activation_codes_sold_check`, `activation_codes_revoked_check`                           |
+| OTP attempts never exceed the maximum                                    | `auth_otp_challenges_attempts_check`                                                      |
+| One active TOTP factor per staff member                                  | `auth_mfa_factors_one_active_key`                                                         |
+| One verified answer per question                                         | `post_comments_one_verified_key`                                                          |
+| One reaction per user per target                                         | `post_reactions_user_post_key`, `post_reactions_user_comment_key`                         |
+| Order totals add up                                                      | `orders_amounts_check`, `order_items_total_check`                                         |
+| Webhooks processed once                                                  | `payment_webhook_events_provider_event_key`, `integration_events_source_external_key`     |
+| One parcel per order; a tracking number belongs to one order per carrier | `shipments_order_key`, `shipments_carrier_tracking_key`                                   |
+| A delivered parcel has a delivery date                                   | `shipments_delivered_check`                                                               |
+| A landing-page order is imported once                                    | `orders_external_key`                                                                     |
+| Audit trail cannot be edited                                             | triggers `audit_logs_append_only`, `activation_events_append_only`                        |
 
 ## ERD
 
@@ -156,6 +159,7 @@ erDiagram
   orders ||--o{ order_items : contains
   order_items |o--o| activation_codes : "card sold"
   orders ||--o{ payments : "paid by"
+  orders ||--o| shipments : "delivered by"
   orders ||--o{ refunds : ""
   payments |o--o{ refunds : ""
   orders ||--o{ invoices : ""
@@ -192,19 +196,19 @@ erDiagram
 
 ## Table catalogue
 
-| Domain         | Tables                                                                                                                                                                                           |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Identity       | `users`, `profiles`, `user_email_changes`, `auth_otp_challenges`, `auth_sessions`, `auth_mfa_factors`, `auth_recovery_codes`, `rate_limit_buckets`, `consents`, `data_requests`                  |
-| Access control | `roles`, `permissions`, `role_permissions`, `user_roles`                                                                                                                                         |
-| Catalogue      | `courses`, `course_modules`, `lessons`, `lesson_resources`, `media_assets`, `video_text_tracks`, `video_transcripts`                                                                             |
-| Learning       | `lesson_progress`, `video_progress`, `course_progress`, `student_notes`                                                                                                                          |
-| Assessments    | `quizzes`, `quiz_questions`, `quiz_question_options`, `quiz_attempts`, `assignments`, `assignment_submissions`, `submission_attachments`, `certificates`                                         |
-| Activation     | `card_templates`, `activation_batches`, `activation_codes`, `activation_events`                                                                                                                  |
-| Entitlements   | `course_entitlements`                                                                                                                                                                            |
-| Commerce       | `customers`, `discount_codes`, `orders`, `order_items`, `payments`, `refunds`, `invoices`, `payment_webhook_events` (+ sequences `order_number_seq`, `invoice_number_seq`)                       |
-| Community      | `community_spaces`, `community_posts`, `post_attachments`, `post_comments`, `post_reactions`, `post_mentions`, `community_tags`, `post_tags`, `post_reports`, `community_bans`                   |
-| Engagement     | `notifications`, `notification_preferences`, `email_deliveries`, `live_sessions`, `session_bookings`, `coach_availability`, `support_tickets` (+ `ticket_number_seq`), `support_ticket_messages` |
-| Platform       | `platform_settings`, `audit_logs`                                                                                                                                                                |
+| Domain         | Tables                                                                                                                                                                                                                                        |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Identity       | `users`, `profiles`, `user_email_changes`, `auth_otp_challenges`, `auth_sessions`, `auth_mfa_factors`, `auth_recovery_codes`, `rate_limit_buckets`, `consents`, `data_requests`                                                               |
+| Access control | `roles`, `permissions`, `role_permissions`, `user_roles`                                                                                                                                                                                      |
+| Catalogue      | `courses`, `course_modules`, `lessons`, `lesson_resources`, `media_assets`, `video_text_tracks`, `video_transcripts`                                                                                                                          |
+| Learning       | `lesson_progress`, `video_progress`, `course_progress`, `student_notes`                                                                                                                                                                       |
+| Assessments    | `quizzes`, `quiz_questions`, `quiz_question_options`, `quiz_attempts`, `assignments`, `assignment_submissions`, `submission_attachments`, `certificates`                                                                                      |
+| Activation     | `card_templates`, `activation_batches`, `activation_codes`, `activation_events`                                                                                                                                                               |
+| Entitlements   | `course_entitlements`                                                                                                                                                                                                                         |
+| Commerce       | `customers`, `discount_codes`, `orders` (+ `external_source/external_id`, `shipping_address`), `order_items`, `payments`, `refunds`, `invoices`, `payment_webhook_events`, `shipments` (+ sequences `order_number_seq`, `invoice_number_seq`) |
+| Community      | `community_spaces`, `community_posts`, `post_attachments`, `post_comments`, `post_reactions`, `post_mentions`, `community_tags`, `post_tags`, `post_reports`, `community_bans`                                                                |
+| Engagement     | `notifications`, `notification_preferences`, `email_deliveries`, `live_sessions`, `session_bookings`, `coach_availability`, `support_tickets` (+ `ticket_number_seq`), `support_ticket_messages`                                              |
+| Platform       | `platform_settings`, `audit_logs`, `integration_events` (raw inbound messages, purged after 30 days)                                                                                                                                          |
 
 ## Migrations workflow
 

@@ -1,6 +1,6 @@
 # ADR-0005 — Activation card secrets
 
-**Status:** accepted
+**Status:** accepted — new print runs are QR-only (no PIN), see ADR-0008; the PIN remains supported for legacy runs
 
 ## Threats
 
@@ -11,7 +11,7 @@ database leak · insider re-printing cards · double redemption · codes leaking
 
 | Element                  | Design                                                                                                                                                                           |
 | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Card code                | 16 Crockford base32 chars (80 random bits), in the QR and printed for manual entry                                                                                               |
+| Card code                | 16 Crockford base32 chars (80 random bits), in the QR only (support can read it out for manual entry while printable copies exist)                                               |
 | Lookup                   | `HMAC-SHA256(ACTIVATION_CODE_PEPPER, code)` — the raw code is never stored in clear                                                                                              |
 | Hidden PIN               | 8 digits under scratch-off foil; `HMAC(pepper, cardId:PIN)`; 10 wrong PINs lock the card                                                                                         |
 | Point-of-sale activation | per batch (default on): a card works only after a seller marks it sold                                                                                                           |

@@ -1,6 +1,6 @@
 # ADR-0006 — Video protection strategy (Phase 3) and its limits
 
-**Status:** accepted (implementation in Phase 3)
+**Status:** accepted — implemented in Phase 3 (Mux / Cloudflare Stream signed playback, per-request entitlement check, drifting watermark, rate-limited playback tokens; DRM not enabled)
 
 Hiding the download button protects nothing. The plan:
 
