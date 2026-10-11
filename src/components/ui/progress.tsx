@@ -1,0 +1,31 @@
+import { cn } from "@/lib/utils";
+
+/** Accessible progress bar (server-renderable). */
+export function Progress({
+  value,
+  className,
+  indicatorClassName,
+  label,
+}: {
+  value: number;
+  className?: string;
+  indicatorClassName?: string;
+  label?: string;
+}) {
+  const clamped = Math.max(0, Math.min(100, Math.round(value)));
+  return (
+    <div
+      role="progressbar"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={clamped}
+      aria-label={label}
+      className={cn("relative h-2 w-full overflow-hidden rounded-full bg-muted", className)}
+    >
+      <div
+        className={cn("h-full rounded-full bg-gradient-to-r from-gold-strong to-gold transition-[width] duration-700 rtl:bg-gradient-to-l", indicatorClassName)}
+        style={{ width: `${clamped}%` }}
+      />
+    </div>
+  );
+}

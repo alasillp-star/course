@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
@@ -21,7 +21,8 @@
     "db:reset": "tsx --conditions=react-server scripts/db/reset.ts",
     "db:studio": "drizzle-kit studio",
     "admin:grant-role": "tsx --conditions=react-server scripts/admin/grant-role.ts",
-    "maintenance:cleanup": "tsx --conditions=react-server scripts/maintenance/cleanup.ts"
+    "maintenance:cleanup": "tsx --conditions=react-server scripts/maintenance/cleanup.ts",
+    "secrets:generate": "tsx scripts/generate-secrets.ts"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",

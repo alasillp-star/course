@@ -340,6 +340,12 @@ export async function getCardDetails(actor: Actor, codeId: string) {
     .select({ id: activationCodes.id, serial: activationCodes.serial })
     .from(activationCodes)
     .where(eq(activationCodes.replacesCodeId, codeId));
+  const [replaces] = row.replacesCodeId
+    ? await db
+        .select({ id: activationCodes.id, serial: activationCodes.serial })
+        .from(activationCodes)
+        .where(eq(activationCodes.id, row.replacesCodeId))
+    : [];
 
   const events = await db
     .select({
@@ -361,6 +367,7 @@ export async function getCardDetails(actor: Actor, codeId: string) {
     ...row,
     activatedByEmail: mask(row.activatedByEmail),
     replacement: replacement ?? null,
+    replaces: replaces ?? null,
     events: events.map((event) => ({ ...event, actorEmail: mask(event.actorEmail) })),
   };
 }

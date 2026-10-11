@@ -84,13 +84,20 @@ export function errorResponse(error: unknown, meta: RequestMeta): Response {
  */
 export function withApi<P = Record<string, never>>(
   handler: (request: NextRequest, context: ApiContext<P>) => Promise<Response>,
-  options: { csrf?: boolean } = {},
+  options: {
+    csrf?: boolean;
+    /** Reject cross-site top-level navigations (sensitive downloads). */
+    sameSiteOnly?: boolean;
+  } = {},
 ) {
   return async (request: NextRequest, routeContext: { params: Promise<P> }): Promise<Response> => {
     const meta = requestMetaFromHeaders(request.headers);
     let response: Response;
     try {
       if (UNSAFE_METHODS.has(request.method) && options.csrf !== false) assertSameOrigin(request);
+      if (options.sameSiteOnly && request.headers.get("sec-fetch-site") === "cross-site") {
+        throw new AppError("CSRF_REJECTED");
+      }
       response = await handler(request, { params: routeContext.params, meta });
     } catch (error) {
       response = errorResponse(error, meta);
