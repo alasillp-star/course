@@ -8,9 +8,15 @@ import postgres from "postgres";
  * Safe to run on every deploy (already-applied migrations are skipped).
  */
 async function main() {
-  const url = process.env.DATABASE_URL;
+  // A direct / session connection is preferable for migrations; transaction
+  // poolers (Supabase :6543, PgBouncer) need DATABASE_PREPARE=false.
+  const url = process.env.DATABASE_MIGRATION_URL || process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL is not set");
-  const client = postgres(url, { max: 1, onnotice: () => {} });
+  const client = postgres(url, {
+    max: 1,
+    onnotice: () => {},
+    prepare: process.env.DATABASE_MIGRATION_URL ? true : process.env.DATABASE_PREPARE !== "false",
+  });
   try {
     await migrate(drizzle(client), { migrationsFolder: "drizzle" });
     console.log("✓ migrations applied");

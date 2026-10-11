@@ -12,12 +12,16 @@ Recommended production setup (lowest operational effort):
 | Orders    | Your landing page (e.g. Lovable + Supabase)               | Any system able to POST JSON                                      |
 | Delivery  | Your delivery company's webhook, or its CSV export        | —                                                                 |
 
+Step-by-step in Arabic for the academy owner: [GO_LIVE.ar.md](./GO_LIVE.ar.md).
+
 ## 1. Prepare the database
 
 1. Create the database (Supabase: _Project → Database_; Neon: new project). Enable point-in-time recovery.
 2. Use a **dedicated role** for the app (owner of the tables) and the **pooled** connection string:
    - Supabase transaction pooler (port 6543) or Neon pooled endpoint → set `DATABASE_PREPARE=false`.
    - Add `?sslmode=require` to the URL.
+   - Migrations: set `DATABASE_MIGRATION_URL` to a direct or session connection (Supabase session pooler,
+     port 5432); without it, migrations use `DATABASE_URL` and honour `DATABASE_PREPARE`.
 3. (Supabase) You may disable the Data API entirely — the app does not use it, and RLS already blocks it.
 
 ## 2. Configure e-mail
@@ -52,17 +56,23 @@ start-up (`instrumentation.ts`): HTTPS `APP_URL`, real e-mail transport, distinc
 
 1. Import the repository; framework preset **Next.js**; Node 22.
 2. Add environment variables for _Production_ (and separate values for _Preview_ with a separate database).
-3. Build command: `npm run build`. Run migrations **before** promoting a deployment, e.g. in CI:
+3. Build: Vercel runs `npm run vercel-build` (`scripts/deploy/vercel-build.ts`). For **production**
+   deployments it validates the configuration (`npm run env:check`), applies pending migrations
+   (`DATABASE_MIGRATION_URL` — a direct/session connection — or `DATABASE_URL`) and the idempotent seed,
+   then builds; a configuration error fails the deploy instead of going live. Preview deployments only
+   build (set `MIGRATE_ON_BUILD=true` with a separate preview database to migrate them too).
+   Elsewhere, run before each release:
    ```bash
    npm ci
-   npm run db:migrate   # uses DATABASE_URL of the target environment
-   npm run db:seed      # idempotent
+   npm run env:check && npm run db:migrate && npm run db:seed
    ```
-   (`.github/workflows/ci.yml` runs the full test suite; add a protected "deploy" job with production secrets.)
+   (`.github/workflows/ci.yml` runs the full test suite.)
 4. Custom domain + HTTPS (automatic on Vercel). Keep `APP_URL` equal to the public origin — it is printed
    in every QR code, so choose the final domain **before printing cards**.
-5. Daily housekeeping: a Vercel Cron (or GitHub Actions schedule) running `npm run maintenance:cleanup`
-   (also purges raw integration messages, which contain customer data, after 30 days).
+5. Daily housekeeping: `vercel.json` schedules Vercel Cron on `GET /api/cron/maintenance`, authenticated
+   with `CRON_SECRET` (Vercel sends `Authorization: Bearer $CRON_SECRET`; the endpoint is disabled while it
+   is unset). Other hosts: run `npm run maintenance:cleanup` daily. It also purges raw integration messages,
+   which contain customer data, after 30 days.
 
 ## 5. Self-hosting (Docker / VPS)
 

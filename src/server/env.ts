@@ -99,6 +99,9 @@ const EnvSchema = z
     /** Optional: also require an HMAC-SHA256 signature of the body on delivery webhooks. */
     DELIVERY_WEBHOOK_SECRET: z.string().min(16).optional(),
 
+    /** Shared secret of the daily maintenance URL (Vercel Cron sends it automatically). */
+    CRON_SECRET: z.string().min(16, "use at least 16 random characters").optional(),
+
     LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
   })
   .superRefine((env, ctx) => {

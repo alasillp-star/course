@@ -22,6 +22,7 @@ import {
   unassignCardFromOrder,
 } from "@/modules/commerce/orders.service";
 import { hasCourseAccess } from "@/modules/entitlements/entitlements.service";
+import { runMaintenance } from "@/modules/platform/maintenance.service";
 import { closeDb, getDb } from "@/server/db/client";
 import {
   activationCodes,
@@ -593,5 +594,21 @@ describe("carrier CSV import and order lists", () => {
         ),
       );
     expect(logged).toHaveLength(1);
+  });
+
+  it("purges raw integration messages after 30 days but keeps the orders", async () => {
+    await ingestLandingOrder(landingOrder(), testMeta());
+    await getDb()
+      .insert(integrationEvents)
+      .values({
+        source: "landing_site",
+        status: "processed",
+        payload: { full_name: "Old customer" },
+        receivedAt: new Date(Date.now() - 31 * 24 * 60 * 60 * 1000),
+      });
+    const removed = await runMaintenance(getDb());
+    expect(removed.integrationEvents).toBe(1);
+    expect(await getDb().select().from(integrationEvents)).toHaveLength(1);
+    expect(await getDb().select().from(orders)).toHaveLength(1);
   });
 });

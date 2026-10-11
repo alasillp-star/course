@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "vercel-build": "tsx scripts/deploy/vercel-build.ts",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
@@ -23,6 +24,11 @@
     "admin:grant-role": "tsx --conditions=react-server scripts/admin/grant-role.ts",
     "maintenance:cleanup": "tsx --conditions=react-server scripts/maintenance/cleanup.ts",
     "secrets:generate": "tsx scripts/generate-secrets.ts",
+    "env:check": "tsx --conditions=react-server scripts/deploy/check-env.ts",
+    "setup": "tsx scripts/setup.ts",
+    "try": "tsx scripts/setup.ts --start",
+    "simulate": "tsx scripts/simulate.ts",
+    "start:phone": "tsx scripts/start-phone.ts",
     "e2e:prepare": "tsx --conditions=react-server scripts/db/reset.ts && tsx --conditions=react-server scripts/db/seed.ts"
   },
   "dependencies": {

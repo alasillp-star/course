@@ -1,38 +1,12 @@
 import "../_env";
-import { sql } from "drizzle-orm";
+import { runMaintenance } from "@/modules/platform/maintenance.service";
 import { closeDb, getDb } from "@/server/db/client";
 
-/**
- * Data-retention housekeeping (schedule daily, e.g. Vercel Cron / GitHub
- * Actions / crontab):
- *  - OTP challenges older than 7 days,
- *  - sessions expired or revoked more than 30 days ago,
- *  - elapsed rate-limit windows,
- *  - e-mail delivery logs older than 90 days,
- *  - raw integration messages (landing-site orders, carrier updates: customer
- *    names, phones, addresses) older than 30 days — the orders and shipments
- *    themselves are kept.
- * Audit logs and activation events are kept (append-only by design).
- */
+/** Data-retention housekeeping (schedule daily); see maintenance.service.ts for the rules. */
 async function main() {
-  const db = getDb();
-  const results = await db.transaction(async (tx) => ({
-    otp: await tx.execute(
-      sql`delete from auth_otp_challenges where created_at < now() - interval '7 days'`,
-    ),
-    sessions: await tx.execute(
-      sql`delete from auth_sessions where (expires_at < now() - interval '30 days') or (revoked_at < now() - interval '30 days')`,
-    ),
-    rateLimits: await tx.execute(sql`delete from rate_limit_buckets where reset_at < now()`),
-    emails: await tx.execute(
-      sql`delete from email_deliveries where created_at < now() - interval '90 days'`,
-    ),
-    integrationEvents: await tx.execute(
-      sql`delete from integration_events where received_at < now() - interval '30 days'`,
-    ),
-  }));
-  for (const [name, result] of Object.entries(results)) {
-    console.log(`✓ ${name}: ${result.count} rows removed`);
+  const removed = await runMaintenance(getDb());
+  for (const [name, count] of Object.entries(removed)) {
+    console.log(`✓ ${name}: ${count} rows removed`);
   }
 }
 

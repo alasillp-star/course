@@ -155,9 +155,10 @@ status vocabulary: [INTEGRATIONS.md](./INTEGRATIONS.md).
 
 ## Operations
 
-| Method & path     | Description                                                           |
-| ----------------- | --------------------------------------------------------------------- |
-| `GET /api/health` | `{ status, database }` — 200 when the database answers, 503 otherwise |
+| Method & path               | Description                                                                                                               |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/health`           | `{ status, database }` — 200 when the database answers, 503 otherwise                                                     |
+| `GET /api/cron/maintenance` | `Authorization: Bearer $CRON_SECRET` → `{ removed: { … } }` — daily data-retention job (503 while `CRON_SECRET` is unset) |
 
 ## Error codes
 

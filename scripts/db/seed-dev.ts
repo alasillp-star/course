@@ -211,7 +211,13 @@ async function main() {
   );
   console.log(`   ${delivery.delivered.card.url}`);
   console.log(`   ${delivery.waiting.orderNumber}  — new landing-page order, no card packed yet`);
-  console.log("\n  Sign-in codes are written to the dev mailbox (.data/mailbox).");
+  console.log(
+    process.env.EMAIL_TRANSPORT === "dev-outbox" || !process.env.EMAIL_TRANSPORT
+      ? "\n  Sign-in codes are written to the dev mailbox (.data/mailbox)."
+      : `\n  Sign-in codes are sent through ${process.env.EMAIL_TRANSPORT}${
+          process.env.SMTP_URL?.includes("1025") ? " to Mailpit: http://localhost:8025" : ""
+        }.`,
+  );
 }
 
 /**

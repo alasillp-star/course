@@ -79,12 +79,14 @@ live sessions & 1-on-1 booking: schema ready.
 
 ## Phase 7 — Quality & deployment 🟡
 
-| Item                                                                            | Status                        |
-| ------------------------------------------------------------------------------- | ----------------------------- |
-| Unit (71), integration (77 + 3 S3, real PostgreSQL), E2E (31, production build) | ✅                            |
-| CI pipeline                                                                     | ✅ `.github/workflows/ci.yml` |
-| Deployment, backup/recovery, security docs                                      | ✅                            |
-| Production deployment, monitoring provider, backup automation                   | ⏳ needs your accounts        |
+| Item                                                                            | Status                                                                        |
+| ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Unit (71), integration (78 + 3 S3, real PostgreSQL), E2E (31, production build) | ✅                                                                            |
+| CI pipeline                                                                     | ✅ `.github/workflows/ci.yml`                                                 |
+| Deployment, backup/recovery, security docs                                      | ✅                                                                            |
+| One-command local trial (`npm run try`), simulators, phone mode                 | ✅ tested on Linux (Windows/macOS: same Node + Docker commands, not run here) |
+| Deployment automation: Vercel build validates config + migrates, daily cron     | ✅ tested locally (not yet run on a real Vercel account)                      |
+| Production deployment, monitoring provider, backup automation                   | ⏳ needs your accounts                                                        |
 
 ## Acceptance criteria
 
