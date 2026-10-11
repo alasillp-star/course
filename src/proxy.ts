@@ -7,6 +7,7 @@ import {
   matchLocale,
   type Locale,
 } from "@/i18n/config";
+import { mediaCspSources } from "@/lib/media-csp";
 
 /**
  * Network-edge concerns only:
@@ -29,15 +30,17 @@ function preferredLocale(request: NextRequest): Locale {
 function buildCsp(nonce: string): string {
   const isDev = process.env.NODE_ENV === "development";
   const httpsOnly = (process.env.APP_URL ?? "").startsWith("https://");
+  const extra = mediaCspSources(process.env);
+  const list = (values: string[]) => (values.length ? ` ${values.join(" ")}` : "");
   const directives = [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""}`,
     // Inline style attributes are needed by React/Radix; script execution stays nonce-locked.
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' blob: data:",
+    `img-src 'self' blob: data:${list(extra.img)}`,
     "font-src 'self' data:",
-    `connect-src 'self'${isDev ? " ws: wss:" : ""}`,
-    "media-src 'self' blob:",
+    `connect-src 'self'${isDev ? " ws: wss:" : ""}${list(extra.connect)}`,
+    `media-src 'self' blob:${list(extra.media)}`,
     "frame-src 'none'",
     "worker-src 'self' blob:",
     "object-src 'none'",

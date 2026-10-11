@@ -1,5 +1,14 @@
 import { sql } from "drizzle-orm";
-import { index, integer, pgTable, primaryKey, smallint, text, uuid } from "drizzle-orm/pg-core";
+import {
+  index,
+  integer,
+  jsonb,
+  pgTable,
+  primaryKey,
+  smallint,
+  text,
+  uuid,
+} from "drizzle-orm/pg-core";
 import { LESSON_PROGRESS_STATUSES } from "../../../shared/enums";
 import { createdAt, deletedAt, enumCheck, pk, rule, tstz, updatedAt } from "./_columns";
 import { courses, lessons, mediaAssets } from "./catalog";
@@ -57,6 +66,10 @@ export const videoProgress = pgTable(
     /** Seconds of distinct content watched (server-validated, not trusted blindly). */
     watchedSeconds: integer().notNull().default(0),
     maxPositionSeconds: integer().notNull().default(0),
+    /** Merged [start, end) second ranges actually watched; watchedSeconds is their total. */
+    watchedRanges: jsonb().$type<Array<[number, number]>>().notNull().default([]),
+    /** Time of the last accepted heartbeat: new coverage is capped by elapsed time. */
+    lastHeartbeatAt: tstz(),
     updatedAt: updatedAt(),
   },
   (t) => [

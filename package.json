@@ -26,9 +26,15 @@
     "e2e:prepare": "tsx --conditions=react-server scripts/db/reset.ts && tsx --conditions=react-server scripts/db/seed.ts"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@mux/upchunk": "^3.5.0",
+    "aws4fetch": "^1.0.20",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.4",
+    "hls.js": "^1.7.3",
     "input-otp": "^1.5.0",
     "lucide-react": "^1.55.0",
     "next": "16.4.0",
@@ -39,9 +45,12 @@
     "radix-ui": "^1.7.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
     "server-only": "^0.0.1",
     "sonner": "^2.0.8",
     "tailwind-merge": "^3.7.0",
+    "tus-js-client": "^4.3.1",
     "zod": "^4.6.6"
   },
   "devDependencies": {

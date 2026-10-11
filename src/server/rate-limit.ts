@@ -27,6 +27,13 @@ export const RATE_LIMITS = {
   "activation:start:ip": { limit: 15, windowSeconds: 15 * 60 },
   // Staff second factor
   "mfa:verify:user": { limit: 10, windowSeconds: 15 * 60 },
+  // Learning: generous for real students, a ceiling for scripted scraping
+  "playback:user": { limit: 300, windowSeconds: 60 * 60 },
+  "progress:user": { limit: 1200, windowSeconds: 60 * 60 },
+  "notes:user": { limit: 120, windowSeconds: 60 * 60 },
+  "download:user": { limit: 120, windowSeconds: 60 * 60 },
+  // Staff uploads
+  "media:upload:user": { limit: 200, windowSeconds: 60 * 60 },
 } as const satisfies Record<string, RateLimitPolicy>;
 
 export type RateLimitName = keyof typeof RATE_LIMITS;

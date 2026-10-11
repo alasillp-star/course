@@ -57,7 +57,6 @@ export default async function AdminLayout({ children }: LayoutProps<"/[locale]/a
       href: `${base}/content`,
       label: t.content,
       icon: <BookOpenIcon />,
-      soonLabel: soon,
       visible: can(actor, "content.read"),
     },
     {

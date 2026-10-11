@@ -15,6 +15,13 @@
       "when": 1791747511734,
       "tag": "0001_security_hardening",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791753206431,
+      "tag": "0002_learning_media",
+      "breakpoints": true
     }
   ]
 }

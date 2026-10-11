@@ -3,6 +3,7 @@ import {
   BookOpenIcon,
   HomeIcon,
   MessagesSquareIcon,
+  NotebookPenIcon,
   RadioIcon,
   SettingsIcon,
 } from "lucide-react";
@@ -21,12 +22,8 @@ export default async function StudentLayout({ children }: LayoutProps<"/[locale]
   const base = `/${locale}/app`;
   const items: NavItem[] = [
     { href: base, label: t.dashboard, icon: <HomeIcon />, exact: true },
-    {
-      href: `${base}/course`,
-      label: t.course,
-      icon: <BookOpenIcon />,
-      soonLabel: dict.common.soon,
-    },
+    { href: `${base}/course`, label: t.course, icon: <BookOpenIcon /> },
+    { href: `${base}/notes`, label: t.notes, icon: <NotebookPenIcon /> },
     {
       href: `${base}/community`,
       label: t.community,

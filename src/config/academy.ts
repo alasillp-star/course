@@ -16,6 +16,8 @@ export const ACADEMY = {
   cardIssuer: "OXA",
   supportEmail: process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? "support@example.com",
   defaultCurrency: "DZD",
+  /** Time zone in which staff enter schedules (IANA name). */
+  timeZone: "Africa/Algiers",
   /** Slug of the flagship course created by the seed scripts. */
   mainCourseSlug: "main-course",
 } as const;

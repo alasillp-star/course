@@ -24,6 +24,9 @@ const testEnv = {
   STAFF_MFA_REQUIRED: "true",
   MAX_ACTIVE_SESSIONS_PER_USER: "5",
   TRUST_PROXY_HEADERS: "true",
+  VIDEO_PROVIDER: "local",
+  STORAGE_PROVIDER: "local",
+  LOCAL_STORAGE_DIR: ".data/test-storage",
 };
 
 const shared = {

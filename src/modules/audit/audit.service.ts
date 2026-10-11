@@ -35,7 +35,25 @@ export type AuditAction =
   | "activation.code_redeemed"
   // Entitlements
   | "entitlement.granted"
-  | "entitlement.revoked";
+  | "entitlement.revoked"
+  // Course content
+  | "content.module_created"
+  | "content.module_updated"
+  | "content.module_deleted"
+  | "content.modules_reordered"
+  | "content.lesson_created"
+  | "content.lesson_updated"
+  | "content.lesson_deleted"
+  | "content.lessons_reordered"
+  | "content.publication_changed"
+  | "content.resource_added"
+  | "content.resource_updated"
+  | "content.resource_deleted"
+  // Media
+  | "media.upload_started"
+  | "media.ready"
+  | "media.failed"
+  | "media.video_detached";
 
 export type AuditEntry = {
   action: AuditAction;

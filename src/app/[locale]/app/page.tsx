@@ -5,6 +5,7 @@ import {
   BellIcon,
   BookOpenIcon,
   CalendarClockIcon,
+  CheckCircle2Icon,
   ClipboardCheckIcon,
   InfinityIcon,
   MessagesSquareIcon,
@@ -75,12 +76,24 @@ export default async function StudentDashboardPage({ searchParams }: PageProps<"
                   {format(t.lessonsDone, { done: data.completedLessons, total: data.totalLessons })}
                 </p>
               </div>
-              <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:items-center">
-                <Button variant="gold" size="lg" disabled>
-                  <PlayIcon />
-                  {data.completedLessons > 0 ? t.continueLearning : t.startLearning}
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <Button asChild variant="gold" size="lg">
+                  <Link
+                    href={
+                      data.continueLesson
+                        ? `/${locale}/app/course/${data.continueLesson.id}`
+                        : `/${locale}/app/course`
+                    }
+                  >
+                    <PlayIcon />
+                    {data.completedLessons > 0 ? t.continueLearning : t.startLearning}
+                  </Link>
                 </Button>
-                <p className="text-xs text-white/60">{t.lessonPlayerSoon}</p>
+                {data.continueLesson ? (
+                  <p className="min-w-0 truncate text-sm text-white/70">
+                    {format(t.nextUp, { title: pickLocalized(data.continueLesson.title, locale) })}
+                  </p>
+                ) : null}
               </div>
             </section>
           ) : (
@@ -126,15 +139,23 @@ export default async function StudentDashboardPage({ searchParams }: PageProps<"
                     </summary>
                     <ul className="grid gap-1 px-4 pb-4">
                       {module.lessons.map((lesson) => (
-                        <li
-                          key={lesson.id}
-                          className="text-muted-foreground flex items-center gap-3 rounded-lg px-2 py-2 text-sm"
-                        >
-                          <PlayIcon className="size-3.5 shrink-0" />
-                          <span className="text-foreground/90 min-w-0 flex-1 truncate">
-                            {pickLocalized(lesson.title, locale)}
-                          </span>
-                          <span className="tabular text-xs">{minutes(lesson.durationSeconds)}</span>
+                        <li key={lesson.id}>
+                          <Link
+                            href={`/${locale}/app/course/${lesson.id}`}
+                            className="text-muted-foreground hover:bg-muted flex items-center gap-3 rounded-lg px-2 py-2 text-sm"
+                          >
+                            {lesson.completed ? (
+                              <CheckCircle2Icon className="text-success size-4 shrink-0" />
+                            ) : (
+                              <PlayIcon className="size-3.5 shrink-0" />
+                            )}
+                            <span className="text-foreground/90 min-w-0 flex-1 truncate">
+                              {pickLocalized(lesson.title, locale)}
+                            </span>
+                            <span className="tabular text-xs">
+                              {minutes(lesson.durationSeconds)}
+                            </span>
+                          </Link>
                         </li>
                       ))}
                     </ul>
@@ -262,6 +283,14 @@ export default async function StudentDashboardPage({ searchParams }: PageProps<"
                   t.noNotes
                 )}
               </p>
+              {data.notesCount > 0 ? (
+                <Link
+                  href={`/${locale}/app/notes`}
+                  className="text-gold-strong dark:text-gold mt-2 inline-block text-sm font-semibold"
+                >
+                  {t.allNotes}
+                </Link>
+              ) : null}
             </CardContent>
           </Card>
           <Card>

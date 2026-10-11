@@ -14,6 +14,7 @@ import {
 import type { Actor } from "../access/actor";
 import { getCourseOutline, getLearnerProgress, getMainCourse } from "../catalog/catalog.service";
 import { hasCourseAccess, listUserEntitlements } from "../entitlements/entitlements.service";
+import { pickContinueLesson } from "./lesson.service";
 
 /** Everything the student dashboard renders, from real data only. */
 export async function getStudentDashboard(actor: Actor) {
@@ -132,6 +133,14 @@ export async function getStudentDashboard(actor: Actor) {
         .flatMap((module) => module.lessons)
         .filter((lesson) => progress.completedLessonIds.has(lesson.id)).length
     : 0;
+  const orderedLessons = outline.flatMap((module) => module.lessons);
+  const continueLessonId = progress
+    ? pickContinueLesson(
+        orderedLessons.map((lesson) => lesson.id),
+        progress.completedLessonIds,
+        progress.lastLessonId,
+      )
+    : null;
 
   return {
     displayName: profileRows[0]?.displayName ?? profileRows[0]?.fullName ?? null,
@@ -141,10 +150,17 @@ export async function getStudentDashboard(actor: Actor) {
       entitlements.find((row) => row.courseId === course?.id && row.status === "active") ?? null,
     outline: outline.map((module) => ({
       ...module,
+      lessons: module.lessons.map((lesson) => ({
+        ...lesson,
+        completed: progress?.completedLessonIds.has(lesson.id) ?? false,
+      })),
       completedLessons: progress
         ? module.lessons.filter((lesson) => progress.completedLessonIds.has(lesson.id)).length
         : 0,
     })),
+    continueLesson: continueLessonId
+      ? (orderedLessons.find((lesson) => lesson.id === continueLessonId) ?? null)
+      : null,
     totalLessons,
     completedLessons: completed,
     percent: totalLessons > 0 ? Math.round((completed / totalLessons) * 100) : 0,
@@ -155,5 +171,48 @@ export async function getStudentDashboard(actor: Actor) {
     certificates: certificateRows,
     assignments: openAssignments,
     communityPosts: latestPosts,
+  };
+}
+
+/** The course page: full outline with completion, locks and the lesson to continue. */
+export async function getCourseOverview(actor: Actor) {
+  const course = await getMainCourse();
+  if (!course) return null;
+  const db = getDb();
+  const [hasAccess, outline, progress] = await Promise.all([
+    hasCourseAccess(db, actor.userId, course.id),
+    getCourseOutline(course.id),
+    getLearnerProgress(actor.userId, course.id),
+  ]);
+  const lessons = outline.flatMap((module) => module.lessons);
+  const open = lessons.filter((lesson) => hasAccess || lesson.isFreePreview);
+  const continueId = pickContinueLesson(
+    open.map((lesson) => lesson.id),
+    progress.completedLessonIds,
+    progress.lastLessonId,
+  );
+  const completedLessons = lessons.filter((lesson) =>
+    progress.completedLessonIds.has(lesson.id),
+  ).length;
+  return {
+    course,
+    hasAccess,
+    totalLessons: lessons.length,
+    completedLessons,
+    percent: lessons.length ? Math.round((completedLessons / lessons.length) * 100) : 0,
+    started: completedLessons > 0 || !!progress.lastLessonId,
+    continueLesson: lessons.find((lesson) => lesson.id === continueId) ?? null,
+    outline: outline.map((module) => ({
+      id: module.id,
+      title: module.title,
+      description: module.description,
+      lessons: module.lessons.map((lesson) => ({
+        id: lesson.id,
+        title: lesson.title,
+        durationSeconds: lesson.durationSeconds,
+        completed: progress.completedLessonIds.has(lesson.id),
+        locked: !hasAccess && !lesson.isFreePreview,
+      })),
+    })),
   };
 }

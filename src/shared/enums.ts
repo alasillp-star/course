@@ -59,6 +59,8 @@ export const MEDIA_PROVIDERS = [
   "s3",
   "supabase_storage",
   "external",
+  /** Development / test only (refused in staging and production). */
+  "local",
 ] as const;
 export type MediaProvider = (typeof MEDIA_PROVIDERS)[number];
 

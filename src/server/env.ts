@@ -52,6 +52,44 @@ const EnvSchema = z
     STAFF_MFA_MAX_AGE_HOURS: z.coerce.number().int().min(1).max(168).default(12),
     MAX_ACTIVE_SESSIONS_PER_USER: z.coerce.number().int().min(0).max(50).default(5),
 
+    /**
+     * Video hosting. `local` streams files from disk for development and tests
+     * only; production uses Mux or Cloudflare Stream (signed HLS playback).
+     */
+    VIDEO_PROVIDER: z.enum(["none", "local", "mux", "cloudflare_stream"]).default("none"),
+    MUX_TOKEN_ID: z.string().optional(),
+    MUX_TOKEN_SECRET: z.string().optional(),
+    MUX_SIGNING_KEY_ID: z.string().optional(),
+    /** Base64-encoded PEM private key of a Mux URL signing key. */
+    MUX_SIGNING_KEY_PRIVATE: z.string().optional(),
+    MUX_WEBHOOK_SECRET: z.string().optional(),
+    MUX_PLAYBACK_RESTRICTION_ID: z.string().optional(),
+    MUX_VIDEO_QUALITY: z.enum(["basic", "plus", "premium"]).default("basic"),
+    CLOUDFLARE_ACCOUNT_ID: z.string().optional(),
+    CLOUDFLARE_STREAM_API_TOKEN: z.string().optional(),
+    /** The xxxx in https://customer-xxxx.cloudflarestream.com (Stream dashboard). */
+    CLOUDFLARE_STREAM_CUSTOMER_CODE: z
+      .string()
+      .regex(/^[a-z0-9]+$/, "only the code, e.g. f33zs165nr7gyfy4")
+      .optional(),
+    CLOUDFLARE_STREAM_SIGNING_KEY_ID: z.string().optional(),
+    /** Base64-encoded PEM private key (the `pem` field returned by POST /stream/keys). */
+    CLOUDFLARE_STREAM_SIGNING_KEY_PEM: z.string().optional(),
+    CLOUDFLARE_STREAM_WEBHOOK_SECRET: z.string().optional(),
+
+    /** Files (lesson resources). `local` writes to disk for development and tests only. */
+    STORAGE_PROVIDER: z.enum(["none", "local", "s3"]).default("none"),
+    /** Omit for AWS S3; set for R2, Supabase Storage, MinIO, Backblaze B2, Wasabi... */
+    S3_ENDPOINT: z.url().optional(),
+    S3_REGION: z.string().default("us-east-1"),
+    S3_BUCKET: z.string().optional(),
+    S3_ACCESS_KEY_ID: z.string().optional(),
+    S3_SECRET_ACCESS_KEY: z.string().optional(),
+    S3_FORCE_PATH_STYLE: booleanish.default(false),
+    LOCAL_STORAGE_DIR: z.string().default(".data/storage"),
+    MAX_UPLOAD_FILE_MB: z.coerce.number().int().min(1).max(2048).default(50),
+    MAX_UPLOAD_VIDEO_MB: z.coerce.number().int().min(1).max(30_000).default(8192),
+
     LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
   })
   .superRefine((env, ctx) => {
@@ -64,6 +102,32 @@ const EnvSchema = z
     if (env.EMAIL_TRANSPORT === "resend" && !env.RESEND_API_KEY) {
       issue("RESEND_API_KEY", "RESEND_API_KEY is required when EMAIL_TRANSPORT=resend");
     }
+    const requireAll = (when: boolean, label: string, names: Array<keyof typeof env>) => {
+      if (!when) return;
+      for (const name of names) {
+        if (!env[name]) issue(name, `${name} is required when ${label}`);
+      }
+    };
+    requireAll(env.VIDEO_PROVIDER === "mux", "VIDEO_PROVIDER=mux", [
+      "MUX_TOKEN_ID",
+      "MUX_TOKEN_SECRET",
+      "MUX_SIGNING_KEY_ID",
+      "MUX_SIGNING_KEY_PRIVATE",
+      "MUX_WEBHOOK_SECRET",
+    ]);
+    requireAll(env.VIDEO_PROVIDER === "cloudflare_stream", "VIDEO_PROVIDER=cloudflare_stream", [
+      "CLOUDFLARE_ACCOUNT_ID",
+      "CLOUDFLARE_STREAM_API_TOKEN",
+      "CLOUDFLARE_STREAM_CUSTOMER_CODE",
+      "CLOUDFLARE_STREAM_SIGNING_KEY_ID",
+      "CLOUDFLARE_STREAM_SIGNING_KEY_PEM",
+      "CLOUDFLARE_STREAM_WEBHOOK_SECRET",
+    ]);
+    requireAll(env.STORAGE_PROVIDER === "s3", "STORAGE_PROVIDER=s3", [
+      "S3_BUCKET",
+      "S3_ACCESS_KEY_ID",
+      "S3_SECRET_ACCESS_KEY",
+    ]);
     if (env.APP_ENV === "production" || env.APP_ENV === "staging") {
       if (env.EMAIL_TRANSPORT === "dev-outbox") {
         issue("EMAIL_TRANSPORT", "dev-outbox only writes e-mails to disk; use smtp or resend");
@@ -73,6 +137,12 @@ const EnvSchema = z
       }
       if (!env.STAFF_MFA_REQUIRED) {
         issue("STAFF_MFA_REQUIRED", "staff MFA cannot be disabled outside development");
+      }
+      if (env.VIDEO_PROVIDER === "local") {
+        issue("VIDEO_PROVIDER", "local serves raw files from disk; use mux or cloudflare_stream");
+      }
+      if (env.STORAGE_PROVIDER === "local") {
+        issue("STORAGE_PROVIDER", "local writes files to the server's disk; use s3");
       }
       const keys = [env.AUTH_SECRET, env.ACTIVATION_CODE_PEPPER, env.DATA_ENCRYPTION_KEY];
       if (new Set(keys).size !== keys.length) {

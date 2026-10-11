@@ -1,11 +1,19 @@
 import "../_env";
-import { eq } from "drizzle-orm";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+import { and, eq } from "drizzle-orm";
 import type { Actor } from "@/modules/access/actor";
 import { ALL_PERMISSIONS } from "@/modules/access/catalog";
 import { assignRoleUnchecked } from "@/modules/access/rbac.service";
 import { markCardsSold } from "@/modules/activation/admin-codes.service";
 import { createBatch, loadPrintableCards } from "@/modules/activation/batches.service";
 import { formatCardCode, formatCardPin } from "@/modules/activation/codes";
+import { addLinkResource } from "@/modules/content/content.service";
+import {
+  completeUpload,
+  startVideoUpload,
+  writeLocalUpload,
+} from "@/modules/content/media.service";
 import { bootstrapPlatform } from "@/modules/platform/bootstrap.service";
 import { closeDb, getDb } from "@/server/db/client";
 import { courseModules, lessons, profiles, users } from "@/server/db/schema";
@@ -154,6 +162,8 @@ async function main() {
     mfaVerified: true,
     authenticatedAt: new Date(),
   };
+  await attachSampleVideo(systemActor, courseId);
+
   const batch = await createBatch(
     systemActor,
     {
@@ -185,6 +195,63 @@ async function main() {
     console.log(`   ${card.url}`);
   }
   console.log("\n  Sign-in codes are written to the dev mailbox (.data/mailbox).");
+}
+
+/**
+ * With the local (development) video provider, gives the first demo lesson a
+ * real playable video, a text body and a link — through the same services the
+ * admin editor uses.
+ */
+async function attachSampleVideo(actor: Actor, courseId: string) {
+  if (process.env.VIDEO_PROVIDER !== "local") return;
+  const db = getDb();
+  const [first] = await db
+    .select({ id: lessons.id, videoAssetId: lessons.videoAssetId })
+    .from(lessons)
+    .where(and(eq(lessons.courseId, courseId), eq(lessons.slug, "m1-l1")));
+  if (!first || first.videoAssetId) return;
+  const bytes = await readFile(path.resolve("tests/fixtures/lesson-sample.webm"));
+  const { assetId, target } = await startVideoUpload(
+    actor,
+    {
+      lessonId: first.id,
+      filename: "sample-lesson.webm",
+      sizeBytes: bytes.byteLength,
+      contentType: "video/webm",
+    },
+    SYSTEM_REQUEST_META,
+  );
+  if (target.protocol !== "put") return;
+  await writeLocalUpload(
+    actor,
+    target.url.split("/").pop()!,
+    "video/webm",
+    new Blob([bytes]).stream() as ReadableStream<Uint8Array>,
+  );
+  await completeUpload(actor, assetId, { durationSeconds: 20 }, SYSTEM_REQUEST_META);
+  await db
+    .update(lessons)
+    .set({
+      summary: {
+        ar: "نظرة عامة على ما ستبنيه في هذه الدورة وكيف تستفيد منها أقصى استفادة.",
+        fr: "Vue d'ensemble de ce que vous allez construire et comment en tirer le meilleur parti.",
+      },
+      body: {
+        ar: "## ما ستتعلمه\n\n- بناء متجر يثق به الزبون\n- اختيار **منتج رابح**\n- إطلاق أول حملة إعلانية\n\n> نصيحة: دوّن ملاحظاتك أثناء المشاهدة، وستجدها كلها في صفحة «ملاحظاتي».",
+        fr: "## Ce que vous allez apprendre\n\n- Construire une boutique qui inspire confiance\n- Choisir un **produit gagnant**\n- Lancer votre première campagne\n\n> Astuce : prenez des notes pendant la vidéo, elles sont toutes regroupées dans « Mes notes ».",
+      },
+    })
+    .where(eq(lessons.id, first.id));
+  await addLinkResource(
+    actor,
+    {
+      lessonId: first.id,
+      title: { ar: "دليل Meta لأصحاب المتاجر", fr: "Guide Meta pour les commerçants" },
+      url: "https://www.facebook.com/business/learn",
+    },
+    SYSTEM_REQUEST_META,
+  );
+  console.log("✓ sample video, text and a link attached to the first lesson (local provider)");
 }
 
 main()

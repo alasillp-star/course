@@ -42,3 +42,30 @@ export function safeRedirectPath(candidate: string | null | undefined, fallback:
   }
   return candidate;
 }
+
+/**
+ * Translatable text from the editor: { ar?, fr?, en? }. Empty strings are
+ * dropped; `required` demands at least one language.
+ */
+export function localizedTextSchema(maxLength: number, options: { required?: boolean } = {}) {
+  const value = z.string().trim().max(maxLength).optional();
+  return z
+    .object({ ar: value, fr: value, en: value })
+    .strict()
+    .transform((input) => {
+      const out: Partial<Record<Locale, string>> = {};
+      for (const locale of ["ar", "fr", "en"] as const) {
+        const text = input[locale];
+        if (text) out[locale] = text;
+      }
+      return out;
+    })
+    .refine((output) => !options.required || Object.keys(output).length > 0, {
+      message: "At least one language is required",
+    });
+}
+
+/** ISO date-time or null (clears a schedule). */
+export const nullableDateTimeSchema = z
+  .union([z.iso.datetime({ offset: true }), z.null()])
+  .transform((value) => (value === null ? null : new Date(value)));

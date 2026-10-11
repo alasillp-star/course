@@ -9,6 +9,7 @@ import {
   text,
   uniqueIndex,
   uuid,
+  type AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import {
   CONTENT_STATUSES,
@@ -73,6 +74,8 @@ export const mediaAssets = pgTable(
     provider: text({ enum: MEDIA_PROVIDERS }).notNull(),
     /** Provider-side identifiers; never exposed to students directly. */
     providerAssetId: text(),
+    /** Provider upload session (Mux direct upload id), used to reconcile missed webhooks. */
+    providerUploadId: text(),
     playbackId: text(),
     storageKey: text(),
     originalFilename: text(),
@@ -85,6 +88,11 @@ export const mediaAssets = pgTable(
     status: text({ enum: MEDIA_STATUSES }).notNull().default("pending_upload"),
     failureReason: text(),
     uploadedBy: uuid().references(() => users.id, { onDelete: "set null" }),
+    /**
+     * Lesson this video replaces/fills once processing succeeds. The lesson keeps
+     * playing its current video until then (no downtime when replacing).
+     */
+    attachToLessonId: uuid().references((): AnyPgColumn => lessons.id, { onDelete: "set null" }),
     metadata: jsonb().$type<Record<string, unknown>>().notNull().default({}),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
@@ -98,6 +106,9 @@ export const mediaAssets = pgTable(
       .on(t.provider, t.providerAssetId)
       .where(sql`${t.providerAssetId} is not null`),
     index("media_assets_kind_idx").on(t.kind, t.createdAt),
+    index("media_assets_attach_lesson_idx")
+      .on(t.attachToLessonId)
+      .where(sql`${t.attachToLessonId} is not null`),
   ],
 );
 
@@ -138,7 +149,7 @@ export const lessons = pgTable(
     slug: text().notNull(),
     title: localized().notNull(),
     summary: localized(),
-    /** Rich-text body (sanitised HTML per locale). */
+    /** Lesson text per locale, in Markdown (rendered without raw HTML). */
     body: localized(),
     videoAssetId: uuid().references(() => mediaAssets.id, { onDelete: "set null" }),
     durationSeconds: integer(),
