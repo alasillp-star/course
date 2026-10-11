@@ -1,12 +1,15 @@
 import "server-only";
 import {
   appendBezierCurve,
+  clip,
   closePath,
+  endPath,
   fill,
   lineTo,
   moveTo,
   PDFDocument,
   type PDFFont,
+  type PDFImage,
   type PDFPage,
   popGraphicsState,
   pushGraphicsState,
@@ -17,16 +20,18 @@ import {
   type RGB,
 } from "pdf-lib";
 import QRCode from "qrcode";
-import { formatCardCode, formatCardPin } from "./codes";
+import { formatCardPin } from "./codes";
 
 /**
- * Print-ready activation cards: A4 sheets with 10 credit-card-size cards
- * (85.6 x 54 mm, ISO/IEC 7810 ID-1) and crop marks. Text on the card is
- * Latin-only (built-in PDF fonts); Arabic artwork belongs in the optional
- * background image designed by the brand team (see CardDesign.background).
+ * Print-ready activation cards in the Abdou Academy identity: A4 sheets with
+ * 10 credit-card-size cards (85.6 x 54 mm, ISO/IEC 7810 ID-1) and crop marks.
  *
- * The PIN is printed inside the marked "scratch" panel: the print shop
- * applies scratch-off foil over that rectangle.
+ * The card carries the QR code and the serial only — no printed code and no
+ * scratch-off PIN: activation is unlocked when the delivery company confirms
+ * the parcel was delivered (the delivery gate replaces the hidden PIN). The
+ * official inverse logo (PNG, purple background) is embedded as artwork;
+ * texts use the built-in Helvetica (Latin only). For legacy batches created
+ * with a PIN, the PIN is still printed in a scratch panel.
  */
 
 const MM = 72 / 25.4;
@@ -39,12 +44,16 @@ const PAGE_W = 595.28;
 const PAGE_H = 841.89;
 
 export type CardDesign = {
-  title: string;
-  subtitle: string;
   hostLabel: string;
-  primary: RGB;
-  accent: RGB;
-  /** Optional PNG/JPEG artwork drawn full-card behind the variable data. */
+  eyebrow: string;
+  tagline: string;
+  scanLabel: string;
+  purple: RGB;
+  lime: RGB;
+  ink: RGB;
+  /** Official inverse logo (purple background), drawn top-left. */
+  logo?: { bytes: Uint8Array; type: "png" | "jpg" };
+  /** Optional full-card artwork from the brand team (replaces the purple field). */
   background?: { bytes: Uint8Array; type: "png" | "jpg" };
 };
 
@@ -55,13 +64,26 @@ export type CardData = {
   url: string;
 };
 
-export function defaultCardDesign(params: { academyName: string; appUrl: string }): CardDesign {
+const hex = (value: string) =>
+  rgb(
+    Number.parseInt(value.slice(1, 3), 16) / 255,
+    Number.parseInt(value.slice(3, 5), 16) / 255,
+    Number.parseInt(value.slice(5, 7), 16) / 255,
+  );
+
+export function defaultCardDesign(params: {
+  appUrl: string;
+  logo?: CardDesign["logo"];
+}): CardDesign {
   return {
-    title: params.academyName.toUpperCase(),
-    subtitle: "Carte d'activation  ·  Activation card",
     hostLabel: new URL(params.appUrl).host,
-    primary: rgb(11 / 255, 19 / 255, 43 / 255),
-    accent: rgb(201 / 255, 162 / 255, 77 / 255),
+    eyebrow: "A C T I V A T I O N   C A R D",
+    tagline: "Activate once. Learn for life.",
+    scanLabel: "S C A N   T O   A C T I V A T E",
+    purple: hex("#4B2AF0"),
+    lime: hex("#D6FF46"),
+    ink: hex("#1C1734"),
+    logo: params.logo,
   };
 }
 
@@ -154,11 +176,13 @@ function fitText(font: PDFFont, text: string, size: number, maxWidth: number): n
   return current;
 }
 
+type Images = { logo: PDFImage | null; background: PDFImage | null };
+
 function drawCard(
   page: PDFPage,
   fonts: Fonts,
   design: CardDesign,
-  background: Awaited<ReturnType<PDFDocument["embedPng"]>> | null,
+  images: Images,
   card: CardData,
   x: number,
   y: number,
@@ -166,107 +190,120 @@ function drawCard(
   const white = rgb(1, 1, 1);
   const pad = 4 * MM;
 
-  if (background) {
-    page.drawImage(background, { x, y, width: CARD_W, height: CARD_H });
+  // Field: brand artwork, or purple with the concentric "loop" rings (clipped to the card).
+  if (images.background) {
+    page.drawImage(images.background, { x, y, width: CARD_W, height: CARD_H });
   } else {
-    page.drawRectangle({ x, y, width: CARD_W, height: CARD_H, color: design.primary });
-    page.drawRectangle({
-      x,
-      y: y + CARD_H - 1.2 * MM,
-      width: CARD_W,
-      height: 1.2 * MM,
-      color: design.accent,
-    });
+    page.drawRectangle({ x, y, width: CARD_W, height: CARD_H, color: design.purple });
+    page.pushOperators(pushGraphicsState(), rectangle(x, y, CARD_W, CARD_H), clip(), endPath());
+    for (const radius of [16, 23, 30]) {
+      page.drawCircle({
+        x: x + CARD_W - 9 * MM,
+        y: y + CARD_H + 3 * MM,
+        size: radius * MM,
+        borderColor: white,
+        borderOpacity: 0.16,
+        borderWidth: 0.45,
+      });
+    }
+    page.pushOperators(popGraphicsState());
   }
 
-  // QR panel (always dark-on-white for reliable scanning).
-  const qrSize = 30 * MM;
-  const qrX = x + pad;
-  const qrY = y + (CARD_H - qrSize) / 2 - 2 * MM;
-  roundedRect(
-    page,
-    qrX - 1.2 * MM,
-    qrY - 1.2 * MM,
-    qrSize + 2.4 * MM,
-    qrSize + 2.4 * MM,
-    2 * MM,
-    white,
-  );
-  drawQr(page, card.url, qrX, qrY, qrSize, rgb(0, 0, 0));
+  // QR tile (ink on white, generous quiet zone) on the right.
+  const tile = 31 * MM;
+  const tileX = x + CARD_W - pad - tile;
+  const tileY = y + (CARD_H - tile) / 2 + 2.2 * MM;
+  roundedRect(page, tileX, tileY, tile, tile, 3 * MM, white);
+  drawQr(page, card.url, tileX + 1.2 * MM, tileY + 1.2 * MM, tile - 2.4 * MM, design.ink);
+  const scanSize = fitText(fonts.bold, design.scanLabel, 4.6, tile);
+  page.drawText(design.scanLabel, {
+    x: tileX + (tile - fonts.bold.widthOfTextAtSize(design.scanLabel, scanSize)) / 2,
+    y: tileY - 3.2 * MM,
+    size: scanSize,
+    font: fonts.bold,
+    color: design.lime,
+  });
 
-  const textX = qrX + qrSize + 4 * MM;
-  const textW = x + CARD_W - pad - textX;
-  const light = background ? design.primary : white;
-  const muted = background ? design.primary : rgb(0.8, 0.83, 0.9);
-
-  let cursor = y + CARD_H - pad - 3.2 * MM;
-  const titleSize = fitText(fonts.bold, design.title, 8.5, textW);
-  page.drawText(design.title, {
+  // Left column: official logo, eyebrow, tagline, serial and host.
+  const textX = x + pad;
+  const textW = tileX - 3 * MM - textX;
+  let cursor = y + CARD_H - pad;
+  if (images.logo) {
+    const logoW = Math.min(textW + 3 * MM, 42 * MM);
+    const logoH = (logoW * images.logo.height) / images.logo.width;
+    // The artwork has its own margins; offset so the symbol aligns with the text column.
+    page.drawImage(images.logo, {
+      x: textX - 0.06 * logoW,
+      y: cursor - logoH + 0.14 * logoH,
+      width: logoW,
+      height: logoH,
+    });
+    cursor -= logoH * 0.86;
+  } else {
+    page.drawText("abdou", {
+      x: textX,
+      y: cursor - 6 * MM,
+      size: 17,
+      font: fonts.bold,
+      color: white,
+    });
+    cursor -= 9 * MM;
+  }
+  cursor -= 2.6 * MM;
+  page.drawText(design.eyebrow, {
     x: textX,
     y: cursor,
-    size: titleSize,
+    size: fitText(fonts.bold, design.eyebrow, 4.8, textW),
     font: fonts.bold,
-    color: design.accent,
+    color: design.lime,
   });
   cursor -= 3.6 * MM;
-  const subtitleSize = fitText(fonts.regular, design.subtitle, 6, textW);
-  page.drawText(design.subtitle, {
+  page.drawText(design.tagline, {
     x: textX,
     y: cursor,
-    size: subtitleSize,
+    size: fitText(fonts.regular, design.tagline, 6.4, textW),
     font: fonts.regular,
-    color: muted,
+    color: white,
+    opacity: 0.85,
   });
 
-  cursor -= 5.2 * MM;
-  page.drawText("N°", { x: textX, y: cursor, size: 5.5, font: fonts.regular, color: muted });
-  page.drawText(card.serial, {
-    x: textX + 3.4 * MM,
-    y: cursor,
-    size: 7.5,
-    font: fonts.bold,
-    color: light,
-  });
-
-  cursor -= 4.2 * MM;
-  const codeText = formatCardCode(card.code);
-  page.drawText(codeText, {
-    x: textX,
-    y: cursor,
-    size: fitText(fonts.mono, codeText, 8, textW),
-    font: fonts.mono,
-    color: light,
-  });
-
-  // Scratch-off panel with the PIN.
+  // Legacy batches only: PIN under a scratch-off panel.
   if (card.pin) {
-    const panelH = 8.5 * MM;
-    const panelY = y + pad;
-    roundedRect(page, textX, panelY, textW, panelH, 1.5 * MM, design.accent);
-    page.drawText("PIN", {
-      x: textX + 2 * MM,
-      y: panelY + panelH - 3 * MM,
-      size: 5,
-      font: fonts.bold,
-      color: design.primary,
-    });
-    const pinText = formatCardPin(card.pin);
+    const panelH = 7.5 * MM;
+    const panelY = y + pad + 7 * MM;
+    roundedRect(page, textX, panelY, textW, panelH, 1.5 * MM, design.lime);
+    const pinText = `PIN ${formatCardPin(card.pin)}`;
     page.drawText(pinText, {
       x: textX + 2 * MM,
-      y: panelY + 1.8 * MM,
-      size: fitText(fonts.mono, pinText, 11, textW - 4 * MM),
+      y: panelY + 2.4 * MM,
+      size: fitText(fonts.mono, pinText, 9, textW - 4 * MM),
       font: fonts.mono,
-      color: design.primary,
+      color: design.ink,
     });
   }
 
-  const host = design.hostLabel;
-  page.drawText(host, {
+  page.drawText("N°", {
     x: textX,
-    y: y + pad + (card.pin ? 9.6 * MM : 0),
-    size: fitText(fonts.regular, host, 6, textW),
+    y: y + pad + 3.2 * MM,
+    size: 5.5,
     font: fonts.regular,
-    color: muted,
+    color: white,
+    opacity: 0.7,
+  });
+  page.drawText(card.serial, {
+    x: textX + 3.6 * MM,
+    y: y + pad + 3.2 * MM,
+    size: fitText(fonts.bold, card.serial, 8, textW - 3.6 * MM),
+    font: fonts.bold,
+    color: white,
+  });
+  page.drawText(design.hostLabel, {
+    x: textX,
+    y: y + pad,
+    size: fitText(fonts.regular, design.hostLabel, 5.5, textW),
+    font: fonts.regular,
+    color: white,
+    opacity: 0.6,
   });
 }
 
@@ -277,18 +314,23 @@ export async function renderCardsPdf(params: {
 }): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
   pdf.setTitle(params.documentTitle);
-  pdf.setCreator("Academy platform");
-  pdf.setProducer("Academy platform");
+  pdf.setCreator("Abdou Academy");
+  pdf.setProducer("Abdou Academy");
   const fonts: Fonts = {
     regular: await pdf.embedFont(StandardFonts.Helvetica),
     bold: await pdf.embedFont(StandardFonts.HelveticaBold),
     mono: await pdf.embedFont(StandardFonts.CourierBold),
   };
-  const background = params.design.background
-    ? params.design.background.type === "png"
-      ? await pdf.embedPng(params.design.background.bytes)
-      : await pdf.embedJpg(params.design.background.bytes)
-    : null;
+  const embed = (image?: { bytes: Uint8Array; type: "png" | "jpg" }) =>
+    image
+      ? image.type === "png"
+        ? pdf.embedPng(image.bytes)
+        : pdf.embedJpg(image.bytes)
+      : Promise.resolve(null);
+  const images: Images = {
+    logo: await embed(params.design.logo),
+    background: await embed(params.design.background),
+  };
 
   const gridW = COLS * CARD_W + (COLS - 1) * GUTTER;
   const gridH = ROWS * CARD_H + (ROWS - 1) * GUTTER;
@@ -304,7 +346,7 @@ export async function renderCardsPdf(params: {
       const x = marginX + col * (CARD_W + GUTTER);
       const y = PAGE_H - marginY - (row + 1) * CARD_H - row * GUTTER;
       cropMarks(page, x, y);
-      drawCard(page, fonts, params.design, background, card, x, y);
+      drawCard(page, fonts, params.design, images, card, x, y);
     });
   }
   return pdf.save({ useObjectStreams: true });

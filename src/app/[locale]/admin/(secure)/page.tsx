@@ -136,7 +136,7 @@ export default async function AdminOverviewPage() {
                             status === "activated"
                               ? "bg-success h-full rounded-full"
                               : status === "sold"
-                                ? "bg-gold h-full rounded-full"
+                                ? "bg-lime h-full rounded-full"
                                 : status === "revoked"
                                   ? "bg-destructive/70 h-full rounded-full"
                                   : "bg-primary/70 h-full rounded-full"

@@ -56,7 +56,7 @@ export default async function StudentDetailPage({
             {student.roles
               .filter((role) => role !== "student")
               .map((role) => (
-                <Badge key={role} variant="gold">
+                <Badge key={role} variant="brand">
                   {dict.roles[role as keyof typeof dict.roles] ?? role}
                 </Badge>
               ))}

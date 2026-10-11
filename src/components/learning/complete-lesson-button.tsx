@@ -34,7 +34,7 @@ export function CompleteLessonButton({
   return (
     <Button
       type="button"
-      variant="gold"
+      variant="lime"
       disabled={pending}
       onClick={async () => {
         setPending(true);

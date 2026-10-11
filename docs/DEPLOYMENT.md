@@ -23,7 +23,7 @@ Recommended production setup (lowest operational effort):
 - Create a sending domain (e.g. `mail.your-academy.com`), publish **SPF**, **DKIM** and **DMARC** records.
 - `EMAIL_TRANSPORT=smtp` with `SMTP_URL=smtps://user:pass@smtp.provider.com:465`, or
   `EMAIL_TRANSPORT=resend` with `RESEND_API_KEY`.
-- `EMAIL_FROM="Oryx Academy <no-reply@mail.your-academy.com>"`.
+- `EMAIL_FROM="Abdou Academy <no-reply@mail.your-academy.com>"`.
 
 ## 3. Environment variables
 

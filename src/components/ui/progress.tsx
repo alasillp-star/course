@@ -24,7 +24,7 @@ export function Progress({
     >
       <div
         className={cn(
-          "from-gold-strong to-gold h-full rounded-full bg-gradient-to-r transition-[width] duration-700 rtl:bg-gradient-to-l",
+          "bg-primary h-full rounded-full transition-[width] duration-700",
           indicatorClassName,
         )}
         style={{ width: `${clamped}%` }}

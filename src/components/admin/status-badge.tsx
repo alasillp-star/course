@@ -1,9 +1,9 @@
 import { Badge } from "@/components/ui/badge";
 import type { ActivationCodeStatus } from "@/shared/enums";
 
-const VARIANT: Record<ActivationCodeStatus, "muted" | "gold" | "success" | "danger"> = {
+const VARIANT: Record<ActivationCodeStatus, "muted" | "brand" | "success" | "danger"> = {
   available: "muted",
-  sold: "gold",
+  sold: "brand",
   activated: "success",
   revoked: "danger",
 };

@@ -2,10 +2,11 @@
 @import "tw-animate-css";
 
 /*
- * Design tokens — "Midnight & Champagne".
- * Brand anchors come from the academy's existing identity (deep navy + gold).
- * Light mode: warm ivory canvas, navy ink, gold reserved for emphasis.
- * Dark mode: midnight navy canvas, gold becomes the primary action colour.
+ * Design tokens — Abdou Academy brand system (direction 02).
+ * Purple #4B2AF0 for actions and emphasis, lime #D6FF46 for fills and
+ * highlights (always with ink text), ink #1C1734 for text, lilac #E9E4FF for
+ * soft surfaces, ivory #F5F3EF as the canvas. Dark mode keeps purple actions
+ * on an ink canvas and switches text accents to lime.
  * Every component reads these semantic tokens, never raw colours.
  */
 
@@ -14,25 +15,35 @@
 :root {
   --radius: 0.875rem;
 
-  --background: oklch(0.985 0.004 85);
-  --foreground: oklch(0.205 0.045 268);
-  --card: oklch(1 0 0);
+  /* Abdou Academy brand palette (brand board, direction 02). */
+  --brand-purple: #4b2af0;
+  --brand-lime: #d6ff46;
+  --brand-ink: #1c1734;
+  --brand-lilac: #e9e4ff;
+  --brand-ivory: #f5f3ef;
+
+  --background: var(--brand-ivory);
+  --foreground: var(--brand-ink);
+  --card: #ffffff;
   --card-foreground: var(--foreground);
-  --popover: oklch(1 0 0);
+  --popover: #ffffff;
   --popover-foreground: var(--foreground);
 
-  --primary: oklch(0.205 0.045 268);
-  --primary-foreground: oklch(0.985 0.004 85);
-  --secondary: oklch(0.955 0.008 265);
-  --secondary-foreground: oklch(0.265 0.05 268);
-  --muted: oklch(0.958 0.006 85);
-  --muted-foreground: oklch(0.48 0.025 265);
-  --accent: oklch(0.955 0.03 85);
-  --accent-foreground: oklch(0.32 0.06 70);
+  --primary: var(--brand-purple);
+  --primary-foreground: #ffffff;
+  --secondary: var(--brand-lilac);
+  --secondary-foreground: #2b1b8f;
+  --muted: #ece9e3;
+  --muted-foreground: #5d5970;
+  --accent: #efebff;
+  --accent-foreground: #3a20c4;
 
-  --gold: oklch(0.74 0.115 82);
-  --gold-strong: oklch(0.64 0.12 75);
-  --gold-foreground: oklch(0.205 0.045 268);
+  /* Lime: fills and highlights (always with ink text). */
+  --lime: var(--brand-lime);
+  --lime-foreground: var(--brand-ink);
+  /* Accent for text and icons: purple on light, lime on dark. */
+  --highlight: var(--brand-purple);
+  --lilac: var(--brand-lilac);
 
   --success: oklch(0.56 0.12 160);
   --success-foreground: oklch(0.985 0 0);
@@ -40,49 +51,49 @@
   --warning-foreground: oklch(0.25 0.05 60);
   --destructive: oklch(0.56 0.2 25);
   --destructive-foreground: oklch(0.985 0 0);
-  --info: oklch(0.56 0.15 255);
+  --info: oklch(0.52 0.16 265);
   --info-foreground: oklch(0.985 0 0);
 
-  --border: oklch(0.915 0.008 85);
-  --input: oklch(0.9 0.01 85);
-  --ring: oklch(0.74 0.115 82);
+  --border: #e2ded7;
+  --input: #d9d5ce;
+  --ring: var(--brand-purple);
 
-  --chart-1: oklch(0.205 0.045 268);
-  --chart-2: oklch(0.74 0.115 82);
+  --chart-1: var(--brand-purple);
+  --chart-2: #a3c72a;
   --chart-3: oklch(0.56 0.12 160);
-  --chart-4: oklch(0.56 0.15 255);
+  --chart-4: var(--brand-ink);
   --chart-5: oklch(0.56 0.2 25);
 
   --surface-hero:
-    radial-gradient(1200px 600px at 85% -10%, oklch(0.42 0.09 268 / 0.55), transparent 60%),
-    radial-gradient(900px 500px at 0% 110%, oklch(0.74 0.115 82 / 0.22), transparent 60%),
-    linear-gradient(180deg, oklch(0.18 0.045 268), oklch(0.145 0.04 268));
+    radial-gradient(900px 520px at 100% -10%, rgb(255 255 255 / 0.12), transparent 60%),
+    radial-gradient(760px 420px at -5% 115%, rgb(214 255 70 / 0.16), transparent 60%),
+    linear-gradient(160deg, #5434f3, #4b2af0 45%, #3e1fdc);
 
-  --shadow-soft: 0 1px 2px oklch(0.2 0.04 268 / 0.05), 0 8px 24px -12px oklch(0.2 0.04 268 / 0.18);
-  --shadow-lifted:
-    0 2px 4px oklch(0.2 0.04 268 / 0.06), 0 24px 48px -24px oklch(0.2 0.04 268 / 0.35);
+  --shadow-soft: 0 1px 2px rgb(28 23 52 / 0.05), 0 8px 24px -12px rgb(28 23 52 / 0.18);
+  --shadow-lifted: 0 2px 4px rgb(28 23 52 / 0.06), 0 24px 48px -24px rgb(28 23 52 / 0.35);
 }
 
 .dark {
-  --background: oklch(0.155 0.035 268);
-  --foreground: oklch(0.955 0.01 265);
-  --card: oklch(0.19 0.038 268);
+  --background: #110e22;
+  --foreground: var(--brand-ivory);
+  --card: var(--brand-ink);
   --card-foreground: var(--foreground);
-  --popover: oklch(0.2 0.038 268);
+  --popover: #221c3f;
   --popover-foreground: var(--foreground);
 
-  --primary: oklch(0.8 0.11 85);
-  --primary-foreground: oklch(0.18 0.04 268);
-  --secondary: oklch(0.245 0.04 268);
-  --secondary-foreground: oklch(0.93 0.01 265);
-  --muted: oklch(0.225 0.035 268);
-  --muted-foreground: oklch(0.72 0.025 265);
-  --accent: oklch(0.27 0.045 268);
-  --accent-foreground: oklch(0.86 0.09 85);
+  --primary: #5b3dff;
+  --primary-foreground: #ffffff;
+  --secondary: #2a2254;
+  --secondary-foreground: var(--brand-lilac);
+  --muted: #221c40;
+  --muted-foreground: #aaa4c6;
+  --accent: #2a2254;
+  --accent-foreground: var(--brand-lime);
 
-  --gold: oklch(0.8 0.11 85);
-  --gold-strong: oklch(0.84 0.12 88);
-  --gold-foreground: oklch(0.18 0.04 268);
+  --lime: var(--brand-lime);
+  --lime-foreground: var(--brand-ink);
+  --highlight: var(--brand-lime);
+  --lilac: #2a2254;
 
   --success: oklch(0.7 0.13 160);
   --success-foreground: oklch(0.16 0.03 160);
@@ -90,15 +101,20 @@
   --warning-foreground: oklch(0.2 0.04 60);
   --destructive: oklch(0.66 0.19 25);
   --destructive-foreground: oklch(0.985 0 0);
-  --info: oklch(0.7 0.13 255);
-  --info-foreground: oklch(0.16 0.03 255);
+  --info: oklch(0.72 0.12 270);
+  --info-foreground: oklch(0.16 0.03 270);
 
-  --border: oklch(0.29 0.035 268);
-  --input: oklch(0.31 0.035 268);
-  --ring: oklch(0.8 0.11 85);
+  --border: #2e2752;
+  --input: #372e62;
+  --ring: var(--brand-lime);
 
-  --shadow-soft: 0 1px 2px oklch(0 0 0 / 0.3), 0 8px 24px -12px oklch(0 0 0 / 0.55);
-  --shadow-lifted: 0 2px 4px oklch(0 0 0 / 0.35), 0 24px 48px -24px oklch(0 0 0 / 0.7);
+  --surface-hero:
+    radial-gradient(900px 520px at 100% -10%, rgb(255 255 255 / 0.1), transparent 60%),
+    radial-gradient(760px 420px at -5% 115%, rgb(214 255 70 / 0.12), transparent 60%),
+    linear-gradient(160deg, #4b2af0, #3d1fd6 50%, #2c16a3);
+
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -12px rgb(0 0 0 / 0.55);
+  --shadow-lifted: 0 2px 4px rgb(0 0 0 / 0.35), 0 24px 48px -24px rgb(0 0 0 / 0.7);
 }
 
 @theme inline {
@@ -119,9 +135,12 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
-  --color-gold: var(--gold);
-  --color-gold-strong: var(--gold-strong);
-  --color-gold-foreground: var(--gold-foreground);
+  --color-lime: var(--lime);
+  --color-lime-foreground: var(--lime-foreground);
+  --color-highlight: var(--highlight);
+  --color-lilac: var(--lilac);
+  --color-ink: var(--brand-ink);
+  --color-brand: var(--brand-purple);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
@@ -195,7 +214,7 @@
     line-height: 1.75;
   }
   ::selection {
-    background: color-mix(in oklch, var(--gold) 35%, transparent);
+    background: color-mix(in oklch, var(--lime) 75%, transparent);
   }
   :focus-visible {
     outline: 2px solid var(--ring);
@@ -215,31 +234,34 @@
 
 @layer utilities {
   .surface-hero {
-    background: var(--surface-hero);
-  }
-  .text-gradient-gold {
-    /* background-image (not the shorthand) so colour fallbacks never reset the clip. */
-    background-image: linear-gradient(
-      100deg,
-      var(--gold-strong),
-      var(--gold) 45%,
-      oklch(0.9 0.07 90)
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-    -webkit-box-decoration-break: clone;
-    box-decoration-break: clone;
+    /* The brand's concentric "learning loop" rings over the purple field. */
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 600'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.16' stroke-width='1.5'%3E%3Ccircle cx='300' cy='300' r='170'/%3E%3Ccircle cx='300' cy='300' r='240'/%3E%3Ccircle cx='300' cy='300' r='298'/%3E%3C/g%3E%3C/svg%3E")
+        no-repeat right -220px top -260px / 640px 640px,
+      var(--surface-hero);
   }
   .hairline {
     background: linear-gradient(
       90deg,
       transparent,
-      color-mix(in oklch, var(--gold) 70%, transparent),
+      color-mix(in oklch, var(--lime) 80%, transparent),
       transparent
     );
     height: 1px;
+  }
+  /* Brand voice for Latin headings: heavy and tight (Inter 800). Arabic keeps
+     IBM Plex Sans Arabic at its 700 maximum. Out-ranks .font-bold/.tracking-*. */
+  html:not([lang="ar"]) h1,
+  html:not([lang="ar"]) h2 {
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+  /* Letter-spaced capitals, like "ACADEMY" in the wordmark. */
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
   }
   .grid-pattern {
     background-image:
@@ -315,18 +337,15 @@
     margin-top: 0.3em;
   }
   .prose-lesson a {
-    color: var(--gold-strong);
+    color: var(--highlight);
     text-decoration: underline;
     text-underline-offset: 3px;
-  }
-  .dark .prose-lesson a {
-    color: var(--gold);
   }
   .prose-lesson strong {
     font-weight: 700;
   }
   .prose-lesson blockquote {
-    border-inline-start: 3px solid var(--gold);
+    border-inline-start: 3px solid var(--highlight);
     padding-inline-start: 1em;
     color: var(--muted-foreground);
   }
@@ -385,7 +404,7 @@
     width: 14px;
     height: 14px;
     border-radius: 999px;
-    background: var(--gold);
+    background: var(--lime);
     border: 2px solid white;
     box-shadow: 0 1px 4px rgb(0 0 0 / 0.4);
   }
@@ -393,7 +412,7 @@
     width: 14px;
     height: 14px;
     border-radius: 999px;
-    background: var(--gold);
+    background: var(--lime);
     border: 2px solid white;
   }
   .player-range:focus-visible {

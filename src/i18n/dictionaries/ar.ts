@@ -4,7 +4,7 @@
  */
 export const ar = {
   meta: {
-    title: "أكاديمية Oryx Strategy",
+    title: "أكاديمية عبدو | Abdou Academy",
     description:
       "منصة تعليمية متكاملة: دورة احترافية بوصول مدى الحياة، مجتمع للطلبة ومتابعة لتقدمك.",
   },
@@ -48,7 +48,7 @@ export const ar = {
     contact: "تواصل معنا",
   },
   home: {
-    eyebrow: "أكاديمية رقمية بوصول مدى الحياة",
+    eyebrow: "تعلّم. ابنِ. امتلك.",
     title: "تعلّم التجارة الإلكترونية باحتراف،",
     titleHighlight: "وابقَ في الصدارة مدى الحياة.",
     subtitle:

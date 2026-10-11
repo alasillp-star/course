@@ -75,7 +75,11 @@ async function student(email: string, entitled = true) {
 
 /** A published module with published lessons (positions in the given order). */
 async function publishedLessons(count: number, options: { durationSeconds?: number } = {}) {
-  const courseModule = await createModule(instructor, { courseId, title: { ar: "الوحدة" } }, testMeta());
+  const courseModule = await createModule(
+    instructor,
+    { courseId, title: { ar: "الوحدة" } },
+    testMeta(),
+  );
   await updateModule(instructor, courseModule.id, { status: "published" }, testMeta());
   const ids: string[] = [];
   for (let index = 0; index < count; index += 1) {
@@ -193,7 +197,11 @@ describe("course editor", () => {
       "FORBIDDEN",
     );
 
-    const courseModule = await createModule(instructor, { courseId, title: { ar: "و" } }, testMeta());
+    const courseModule = await createModule(
+      instructor,
+      { courseId, title: { ar: "و" } },
+      testMeta(),
+    );
     const lesson = await createLesson(
       instructor,
       { moduleId: courseModule.id, title: { ar: "د" } },
@@ -214,7 +222,11 @@ describe("course editor", () => {
   });
 
   it("rejects orderings that omit items or reach into another course", async () => {
-    const courseModule = await createModule(instructor, { courseId, title: { ar: "و" } }, testMeta());
+    const courseModule = await createModule(
+      instructor,
+      { courseId, title: { ar: "و" } },
+      testMeta(),
+    );
     await createModule(instructor, { courseId, title: { ar: "ز" } }, testMeta());
     await expectAppError(
       reorderModules(instructor, courseId, [courseModule.id], testMeta()),

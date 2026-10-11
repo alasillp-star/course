@@ -75,7 +75,7 @@ export default async function StaffPage() {
                   <div className="flex flex-wrap items-center gap-1.5">
                     {member.roles.map((role) => (
                       <span key={role} className="inline-flex items-center gap-1">
-                        <Badge variant="gold">{label(role)}</Badge>
+                        <Badge variant="brand">{label(role)}</Badge>
                         {can(actor, "staff.manage") &&
                         member.userId !== actor.userId &&
                         (grantable as readonly string[]).includes(role) ? (

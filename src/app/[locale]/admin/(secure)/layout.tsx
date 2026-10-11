@@ -151,7 +151,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/[locale]/a
           </Sheet>
           <div className="hidden min-w-0 items-center gap-2 sm:flex">
             {roleLabels.map((label) => (
-              <Badge key={label} variant="gold">
+              <Badge key={label} variant="brand">
                 {label}
               </Badge>
             ))}

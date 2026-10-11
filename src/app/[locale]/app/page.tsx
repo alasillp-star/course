@@ -58,7 +58,7 @@ export default async function StudentDashboardPage({ searchParams }: PageProps<"
                   <span className="bg-success size-1.5 rounded-full" />
                   {t.accessActive}
                 </Badge>
-                <Badge variant="outline" className="border-gold/40 bg-gold/15 text-gold">
+                <Badge variant="outline" className="border-lime/40 bg-lime/15 text-lime">
                   <InfinityIcon />
                   {t.lifetime}
                 </Badge>
@@ -71,13 +71,18 @@ export default async function StudentDashboardPage({ searchParams }: PageProps<"
                   <span>{t.progress}</span>
                   <span className="tabular font-semibold text-white">{data.percent}%</span>
                 </div>
-                <Progress value={data.percent} className="bg-white/15" label={t.progress} />
+                <Progress
+                  value={data.percent}
+                  className="bg-white/15"
+                  indicatorClassName="bg-lime"
+                  label={t.progress}
+                />
                 <p className="text-xs text-white/60">
                   {format(t.lessonsDone, { done: data.completedLessons, total: data.totalLessons })}
                 </p>
               </div>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <Button asChild variant="gold" size="lg">
+                <Button asChild variant="lime" size="lg">
                   <Link
                     href={
                       data.continueLesson
@@ -98,10 +103,10 @@ export default async function StudentDashboardPage({ searchParams }: PageProps<"
             </section>
           ) : (
             <section className="border-border bg-card rounded-3xl border border-dashed p-8 text-center">
-              <QrCodeIcon className="text-gold-strong dark:text-gold mx-auto size-10" />
+              <QrCodeIcon className="text-highlight mx-auto size-10" />
               <h2 className="mt-4 text-xl font-bold">{t.noAccessTitle}</h2>
               <p className="text-muted-foreground mx-auto mt-2 max-w-md">{t.noAccessBody}</p>
-              <Button asChild variant="gold" size="lg" className="mt-6">
+              <Button asChild size="lg" className="mt-6">
                 <Link href={`/${locale}/activate`}>{dict.common.activateCard}</Link>
               </Button>
             </section>
@@ -222,7 +227,7 @@ export default async function StudentDashboardPage({ searchParams }: PageProps<"
                 {t.notifications}
               </CardTitle>
               {data.unreadNotifications > 0 ? (
-                <Badge variant="gold">{data.unreadNotifications}</Badge>
+                <Badge variant="brand">{data.unreadNotifications}</Badge>
               ) : null}
             </CardHeader>
             <CardContent>
@@ -286,7 +291,7 @@ export default async function StudentDashboardPage({ searchParams }: PageProps<"
               {data.notesCount > 0 ? (
                 <Link
                   href={`/${locale}/app/notes`}
-                  className="text-gold-strong dark:text-gold mt-2 inline-block text-sm font-semibold"
+                  className="text-highlight mt-2 inline-block text-sm font-semibold"
                 >
                   {t.allNotes}
                 </Link>

@@ -19,15 +19,15 @@ export async function SiteHeader() {
   const home = actor ? (actor.isStaff ? `/${locale}/admin` : `/${locale}/app`) : null;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-[oklch(0.18_0.045_268/0.97)] text-white backdrop-blur-xl">
+    <header className="border-border bg-background/85 sticky top-0 z-40 border-b backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 sm:px-6">
-        <Logo href={`/${locale}`} inverted />
+        <Logo href={`/${locale}`} />
         <nav className="ms-6 hidden items-center gap-1 md:flex" aria-label="Main">
           {nav.map((item) => (
             <a
               key={item.href}
               href={item.href}
-              className="rounded-lg px-3 py-2 text-sm font-medium text-white/75 transition hover:bg-white/10 hover:text-white"
+              className="text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg px-3 py-2 text-sm font-semibold transition"
             >
               {item.label}
             </a>
@@ -37,24 +37,19 @@ export async function SiteHeader() {
           <LocaleSwitcher
             locale={locale}
             label={dict.common.language}
-            variant="glass"
             className="hidden sm:inline-flex"
           />
-          <ThemeToggle
-            labels={dict.common.theme}
-            variant="glass"
-            className="hidden sm:inline-flex"
-          />
+          <ThemeToggle labels={dict.common.theme} className="hidden sm:inline-flex" />
           {home ? (
-            <Button asChild variant="gold" size="sm" className="ms-1">
+            <Button asChild size="sm" className="ms-1">
               <Link href={home}>{actor?.isStaff ? dict.common.admin : dict.common.dashboard}</Link>
             </Button>
           ) : (
             <>
-              <Button asChild variant="glass" size="sm" className="hidden sm:inline-flex">
+              <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
                 <Link href={`/${locale}/login`}>{dict.common.signIn}</Link>
               </Button>
-              <Button asChild variant="gold" size="sm">
+              <Button asChild size="sm">
                 <Link href={`/${locale}/activate`}>{dict.common.activateCard}</Link>
               </Button>
             </>
@@ -62,7 +57,7 @@ export async function SiteHeader() {
           <Sheet>
             <SheetTrigger asChild>
               <Button
-                variant="glass"
+                variant="ghost"
                 size="icon"
                 className="md:hidden"
                 aria-label={dict.common.menu}

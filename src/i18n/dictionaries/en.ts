@@ -3,7 +3,7 @@ import type { Dictionary } from "./ar";
 /** English — wired in but not yet enabled (add "en" to ENABLED_LOCALES after review). */
 export const en: Dictionary = {
   meta: {
-    title: "Oryx Strategy Academy",
+    title: "Abdou Academy",
     description:
       "A complete learning platform: lifetime course access, a student community and progress tracking.",
   },
@@ -42,7 +42,7 @@ export const en: Dictionary = {
   },
   nav: { course: "The course", howItWorks: "How activation works", faq: "FAQ", contact: "Contact" },
   home: {
-    eyebrow: "An online academy with lifetime access",
+    eyebrow: "Learn it. Build it. Own it.",
     title: "Master e-commerce,",
     titleHighlight: "and stay ahead for life.",
     subtitle:

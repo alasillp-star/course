@@ -28,7 +28,7 @@ export default async function MfaPage() {
       >
         <Logo href={`/${locale}`} />
         <div className="mt-6 flex items-center gap-3">
-          <span className="bg-gold/15 text-gold-strong dark:text-gold grid size-10 place-items-center rounded-xl">
+          <span className="bg-secondary text-highlight grid size-10 place-items-center rounded-xl">
             <ShieldCheckIcon className="size-5" />
           </span>
           <h1 className="text-xl font-bold">{enrolled ? t.verifyTitle : t.enrollTitle}</h1>

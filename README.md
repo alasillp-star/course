@@ -1,4 +1,4 @@
-# Oryx Strategy Academy — e-learning platform
+# Abdou Academy — e-learning platform
 
 <div dir="rtl">
 

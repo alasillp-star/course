@@ -14,7 +14,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ActivationCardVisual } from "@/components/marketing/activation-card-visual";
-import { ACADEMY } from "@/config/academy";
 import { format, pickLocalized } from "@/i18n/format";
 import { getI18n } from "@/i18n/server";
 import { getCourseOutline, getMainCourse } from "@/modules/catalog/catalog.service";
@@ -32,21 +31,20 @@ export default async function HomePage() {
     <>
       {/* Hero */}
       <section className="surface-hero relative overflow-hidden text-white">
-        <div className="grid-pattern pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)] opacity-[0.07]" />
         <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 pt-14 pb-20 sm:px-6 lg:grid-cols-[1.15fr_1fr] lg:pt-24 lg:pb-28">
           <div className="animate-fade-up">
             <Badge variant="outline" className="border-white/20 bg-white/5 px-3 py-1 text-white/80">
-              <span className="bg-gold me-1 inline-block size-1.5 rounded-full" />
+              <span className="bg-lime me-1 inline-block size-1.5 rounded-full" />
               {t.eyebrow}
             </Badge>
             <h1 className="mt-6 text-[2.15rem] leading-[1.2] font-bold tracking-tight text-balance sm:text-5xl lg:text-[3.35rem]">
-              {t.title} <span className="text-gradient-gold">{t.titleHighlight}</span>
+              {t.title} <span className="text-lime">{t.titleHighlight}</span>
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-white/72 sm:text-lg">
               {t.subtitle}
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button asChild variant="gold" size="xl">
+              <Button asChild variant="lime" size="xl">
                 <Link href={`/${locale}/activate`}>
                   <QrCodeIcon />
                   {t.primaryCta}
@@ -59,7 +57,7 @@ export default async function HomePage() {
             <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/70">
               {t.trust.map((item) => (
                 <li key={item} className="inline-flex items-center gap-2">
-                  <CheckCircle2Icon className="text-gold size-4" />
+                  <CheckCircle2Icon className="text-lime size-4" />
                   {item}
                 </li>
               ))}
@@ -70,7 +68,6 @@ export default async function HomePage() {
               label={t.card.label}
               scan={t.card.scan}
               serialLabel={t.card.serial}
-              academy={ACADEMY.shortName}
               className="animate-fade-up [animation-delay:150ms] lg:rotate-[-4deg]"
             />
           </div>
@@ -92,7 +89,7 @@ export default async function HomePage() {
                 className="group border-border bg-card shadow-soft hover:shadow-lifted relative rounded-2xl border p-6 transition hover:-translate-y-0.5"
               >
                 <div className="flex items-center justify-between">
-                  <span className="bg-primary text-primary-foreground dark:bg-gold/15 dark:text-gold grid size-11 place-items-center rounded-xl">
+                  <span className="bg-primary text-primary-foreground dark:bg-lime/15 dark:text-lime grid size-11 place-items-center rounded-xl">
                     <Icon className="size-5" />
                   </span>
                   <span className="text-muted tabular text-4xl font-bold">
@@ -129,7 +126,7 @@ export default async function HomePage() {
                   key={module.id}
                   className="border-border bg-background flex gap-4 rounded-2xl border p-5"
                 >
-                  <span className="bg-gold/15 text-accent-foreground tabular dark:text-gold grid size-10 shrink-0 place-items-center rounded-xl font-semibold">
+                  <span className="bg-secondary text-highlight tabular grid size-10 shrink-0 place-items-center rounded-xl font-semibold">
                     {index + 1}
                   </span>
                   <div className="min-w-0">
@@ -164,7 +161,7 @@ export default async function HomePage() {
                 key={feature.title}
                 className="border-border bg-card shadow-soft rounded-2xl border p-6"
               >
-                <Icon className="text-gold-strong dark:text-gold size-6" />
+                <Icon className="text-highlight size-6" />
                 <h3 className="mt-4 font-semibold">{feature.title}</h3>
                 <p className="text-muted-foreground mt-2 text-sm leading-relaxed">{feature.body}</p>
               </div>
@@ -199,7 +196,7 @@ export default async function HomePage() {
         <div className="surface-hero relative overflow-hidden rounded-3xl px-6 py-12 text-center text-white sm:px-12">
           <h2 className="text-2xl font-bold sm:text-3xl">{t.cta.title}</h2>
           <p className="mx-auto mt-3 max-w-xl text-white/70">{t.cta.subtitle}</p>
-          <Button asChild variant="gold" size="xl" className="mt-8">
+          <Button asChild variant="lime" size="xl" className="mt-8">
             <Link href={`/${locale}/activate`}>
               <QrCodeIcon />
               {t.primaryCta}

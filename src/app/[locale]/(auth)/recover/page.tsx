@@ -28,7 +28,7 @@ export default async function RecoverPage() {
             key={item.title}
             className="border-border bg-card shadow-soft flex gap-4 rounded-2xl border p-5"
           >
-            <item.icon className="text-gold-strong dark:text-gold mt-0.5 size-5 shrink-0" />
+            <item.icon className="text-highlight mt-0.5 size-5 shrink-0" />
             <div>
               <p className="font-semibold">{item.title}</p>
               <p className="text-muted-foreground mt-1 text-sm leading-relaxed">{item.body}</p>
@@ -37,7 +37,7 @@ export default async function RecoverPage() {
         ))}
       </div>
       <div className="mt-8 grid gap-2 sm:grid-cols-2">
-        <Button asChild variant="gold">
+        <Button asChild>
           <a href={`mailto:${ACADEMY.supportEmail}`}>{t.contact}</a>
         </Button>
         <Button asChild variant="outline">

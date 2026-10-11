@@ -46,8 +46,8 @@ describe("TOTP (RFC 6238)", () => {
   });
 
   it("builds an otpauth URI for authenticator apps", () => {
-    const uri = buildOtpauthUri({ secret: "ABC", accountName: "a@b.c", issuer: "Oryx Academy" });
-    expect(uri).toMatch(/^otpauth:\/\/totp\/Oryx%20Academy%3Aa%40b\.c\?/);
+    const uri = buildOtpauthUri({ secret: "ABC", accountName: "a@b.c", issuer: "Abdou Academy" });
+    expect(uri).toMatch(/^otpauth:\/\/totp\/Abdou%20Academy%3Aa%40b\.c\?/);
     expect(uri).toContain("secret=ABC");
   });
 });

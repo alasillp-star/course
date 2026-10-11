@@ -109,7 +109,7 @@ export default async function StudentsPage({
                   </TableCell>
                   <TableCell>
                     {student.hasAccess ? (
-                      <Badge variant="gold">{t.withAccess}</Badge>
+                      <Badge variant="brand">{t.withAccess}</Badge>
                     ) : (
                       <Badge variant="muted">{t.withoutAccess}</Badge>
                     )}

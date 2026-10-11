@@ -2,7 +2,7 @@ import type { Dictionary } from "./ar";
 
 export const fr: Dictionary = {
   meta: {
-    title: "Académie Oryx Strategy",
+    title: "Abdou Academy",
     description:
       "Une plateforme de formation complète : un accès à vie, une communauté d'apprenants et un suivi de votre progression.",
   },
@@ -46,7 +46,7 @@ export const fr: Dictionary = {
     contact: "Contact",
   },
   home: {
-    eyebrow: "Une académie en ligne, accès à vie",
+    eyebrow: "Apprends-le. Construis-le. Fais-le tien.",
     title: "Maîtrisez l'e-commerce",
     titleHighlight: "et gardez une longueur d'avance, à vie.",
     subtitle:

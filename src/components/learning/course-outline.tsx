@@ -78,7 +78,7 @@ export function CourseOutline({
                 const rowClass = cn(
                   "flex items-center gap-3 rounded-lg border border-transparent px-3 text-sm",
                   compact ? "py-2" : "py-2.5",
-                  lesson.current && "border-gold/40 bg-gold/10 font-medium",
+                  lesson.current && "border-primary/30 bg-secondary font-medium",
                 );
                 return (
                   <li key={lesson.id}>

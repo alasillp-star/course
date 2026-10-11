@@ -78,10 +78,10 @@ export default async function LessonPage({
   if (!data) {
     return (
       <section className="border-border bg-card mx-auto grid max-w-xl justify-items-center gap-4 rounded-3xl border border-dashed p-10 text-center">
-        <LockIcon className="text-gold-strong dark:text-gold size-10" />
+        <LockIcon className="text-highlight size-10" />
         <h1 className="text-xl font-bold">{t.locked}</h1>
         <p className="text-muted-foreground">{dict.errors.COURSE_ACCESS_REQUIRED}</p>
-        <Button asChild variant="gold" size="lg">
+        <Button asChild size="lg">
           <Link href={`/${locale}/activate`}>{dict.common.activateCard}</Link>
         </Button>
       </section>
@@ -127,8 +127,8 @@ export default async function LessonPage({
               {t.previewBanner}
             </p>
           ) : !data.access.entitled ? (
-            <p className="border-gold/40 bg-gold/10 flex flex-wrap items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium">
-              <SparklesIcon className="text-gold-strong dark:text-gold size-4 shrink-0" />
+            <p className="border-lime bg-lime/25 flex flex-wrap items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium">
+              <SparklesIcon className="text-highlight size-4 shrink-0" />
               <span className="flex-1">{t.freePreviewBanner}</span>
               <Link
                 href={`/${locale}/activate`}
@@ -181,7 +181,7 @@ export default async function LessonPage({
                   {format(t.minutes, { count: minutes })}
                 </Badge>
               ) : null}
-              {data.lesson.isFreePreview ? <Badge variant="gold">{t.freePreview}</Badge> : null}
+              {data.lesson.isFreePreview ? <Badge variant="brand">{t.freePreview}</Badge> : null}
               {completed ? (
                 <Badge variant="success">{t.completed}</Badge>
               ) : data.lesson.hasVideo && data.progress.percent > 0 ? (
@@ -344,7 +344,7 @@ export default async function LessonPage({
               <span />
             )}
             {data.next ? (
-              <Button asChild variant={completed ? "gold" : "default"}>
+              <Button asChild variant={completed ? "lime" : "default"}>
                 <Link href={lessonHref(data.next)}>
                   {t.next}
                   <ArrowRightIcon className="rtl:rotate-180" />

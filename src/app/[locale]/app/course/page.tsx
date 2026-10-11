@@ -36,7 +36,7 @@ export default async function CoursePage() {
                 <span className="bg-success size-1.5 rounded-full" />
                 {t.accessActive}
               </Badge>
-              <Badge variant="outline" className="border-gold/40 bg-gold/15 text-gold">
+              <Badge variant="outline" className="border-lime/40 bg-lime/15 text-lime">
                 <InfinityIcon />
                 {t.lifetime}
               </Badge>
@@ -56,14 +56,19 @@ export default async function CoursePage() {
             <span>{t.progress}</span>
             <span className="tabular font-semibold text-white">{data.percent}%</span>
           </div>
-          <Progress value={data.percent} className="bg-white/15" label={t.progress} />
+          <Progress
+            value={data.percent}
+            className="bg-white/15"
+            indicatorClassName="bg-lime"
+            label={t.progress}
+          />
           <p className="text-xs text-white/60">
             {format(t.lessonsDone, { done: data.completedLessons, total: data.totalLessons })}
           </p>
         </div>
         <div className="mt-6 flex flex-wrap items-center gap-3">
           {data.continueLesson ? (
-            <Button asChild variant="gold" size="lg">
+            <Button asChild variant="lime" size="lg">
               <Link href={`/${locale}/app/course/${data.continueLesson.id}`}>
                 <PlayIcon />
                 {data.started ? t.continueLearning : t.startLearning}

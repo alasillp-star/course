@@ -97,7 +97,7 @@ export default async function BatchDetailPage({
             <span className="font-mono text-sm" dir="ltr">
               {batch.serialPrefix}
             </span>
-            <Badge variant={batch.requiresPin ? "gold" : "muted"}>
+            <Badge variant={batch.requiresPin ? "brand" : "muted"}>
               {batch.requiresPin ? t.requiresPin : t.noPin}
             </Badge>
             <Badge variant={batch.requiresSale ? "info" : "muted"}>
@@ -122,7 +122,6 @@ export default async function BatchDetailPage({
               triggerLabel={dict.admin.batches.sellCards}
               common={dict.common}
               errors={dict.errors}
-              variant="gold"
             />
           ) : null
         }

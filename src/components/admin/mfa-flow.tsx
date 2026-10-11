@@ -81,9 +81,7 @@ export function MfaFlow({
             <CopyIcon />
             {common.copy}
           </Button>
-          <Button variant="gold" onClick={finish}>
-            {t.recoverySaved}
-          </Button>
+          <Button onClick={finish}>{t.recoverySaved}</Button>
         </div>
       </div>
     );

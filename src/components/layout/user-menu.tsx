@@ -23,7 +23,7 @@ export function initialsFrom(nameOrEmail: string): string {
 export function Avatar({ label, className }: { label: string; className?: string }) {
   return (
     <span
-      className={`from-gold-strong to-gold text-gold-foreground ring-background grid size-9 shrink-0 place-items-center rounded-full bg-gradient-to-br text-[13px] font-bold ring-2 ${className ?? ""}`}
+      className={`bg-lime text-lime-foreground ring-background grid size-9 shrink-0 place-items-center rounded-full text-[13px] font-bold ring-2 ${className ?? ""}`}
       aria-hidden="true"
     >
       {initialsFrom(label)}

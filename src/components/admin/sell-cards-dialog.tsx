@@ -36,7 +36,7 @@ export function SellCardsDialog({
   errors: Dictionary["errors"];
   defaultOpen?: boolean;
   initialSerials?: string;
-  variant?: "outline" | "default" | "gold";
+  variant?: "outline" | "default" | "lime";
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(!!defaultOpen);

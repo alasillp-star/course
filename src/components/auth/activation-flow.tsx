@@ -165,7 +165,7 @@ export function ActivationFlow({
   return (
     <div>
       <div className="flex items-center gap-3">
-        <span className="bg-primary text-primary-foreground dark:bg-gold/15 dark:text-gold grid size-11 place-items-center rounded-xl">
+        <span className="bg-primary text-primary-foreground dark:bg-lime/15 dark:text-lime grid size-11 place-items-center rounded-xl">
           <QrCodeIcon className="size-5" />
         </span>
         <div>
@@ -181,8 +181,8 @@ export function ActivationFlow({
               <span
                 className={cn(
                   "bg-muted h-1.5 rounded-full transition-colors duration-500",
-                  index < stepIndex && "bg-gold",
-                  index === stepIndex && "bg-primary dark:bg-gold/60",
+                  index < stepIndex && "bg-lime",
+                  index === stepIndex && "bg-primary",
                 )}
               />
               <span
@@ -342,12 +342,11 @@ export function ActivationFlow({
 
         {state.step === "success" ? (
           <div className="border-border bg-card shadow-soft rounded-2xl border p-6 text-center">
-            <PartyPopperIcon className="text-gold-strong dark:text-gold mx-auto size-10" />
+            <PartyPopperIcon className="text-highlight mx-auto size-10" />
             <p className="mt-4 text-xl font-bold">{t.successTitle}</p>
             <p className="text-muted-foreground mt-2 text-sm">{t.successBody}</p>
             <Button
               size="lg"
-              variant="gold"
               className="mt-6 w-full"
               onClick={() => {
                 router.replace(state.redirectTo);

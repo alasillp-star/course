@@ -110,7 +110,7 @@ export function LessonNotes({
                 type="checkbox"
                 checked={attachTime}
                 onChange={(event) => setAttachTime(event.target.checked)}
-                className="size-4 accent-[var(--gold-strong)]"
+                className="size-4 accent-[var(--primary)]"
               />
               {labels.attachTime}
             </label>
@@ -141,7 +141,7 @@ export function LessonNotes({
                   <button
                     type="button"
                     onClick={() => player?.controls.current?.seek(note.videoTimestampSeconds ?? 0)}
-                    className="bg-gold/15 text-accent-foreground dark:text-gold hover:bg-gold/25 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold"
+                    className="bg-secondary text-highlight hover:bg-secondary/70 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold"
                     aria-label={format(labels.jump, {
                       time: formatClock(note.videoTimestampSeconds),
                     })}

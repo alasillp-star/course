@@ -65,7 +65,7 @@ export default async function SettingsPage() {
         href={`/${locale}/app/settings/security`}
         className="border-border bg-card shadow-soft hover:bg-muted/40 flex items-center gap-4 rounded-2xl border p-5 transition"
       >
-        <ShieldIcon className="text-gold-strong dark:text-gold size-5" />
+        <ShieldIcon className="text-highlight size-5" />
         <div className="flex-1">
           <p className="font-semibold">{dict.student.security.title}</p>
           <p className="text-muted-foreground text-sm">{dict.student.security.subtitle}</p>

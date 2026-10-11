@@ -137,7 +137,7 @@ export default async function CardDetailPage({
               <ol className="border-border relative grid gap-4 border-s ps-5">
                 {card.events.map((event) => (
                   <li key={event.id} className="relative">
-                    <span className="bg-gold ring-card absolute -start-[25px] top-1.5 size-2.5 rounded-full ring-4" />
+                    <span className="bg-primary ring-card absolute -start-[25px] top-1.5 size-2.5 rounded-full ring-4" />
                     <p className="text-sm font-medium">
                       {t.events[event.type as keyof typeof t.events] ?? event.type}
                     </p>

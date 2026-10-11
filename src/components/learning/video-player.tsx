@@ -351,7 +351,7 @@ export function VideoPlayer({
       data-testid="lesson-player"
       className={cn(
         "group relative overflow-hidden bg-black outline-none select-none",
-        "focus-visible:ring-gold/60 focus-visible:ring-[3px]",
+        "focus-visible:ring-lime/70 focus-visible:ring-[3px]",
         pseudoFullscreen
           ? "fixed inset-0 z-[100] flex items-center"
           : "shadow-lifted aspect-video w-full rounded-2xl",
@@ -455,7 +455,7 @@ export function VideoPlayer({
           type="button"
           onClick={togglePlay}
           aria-label={labels.play}
-          className="bg-gold text-gold-foreground absolute top-1/2 left-1/2 z-20 grid size-16 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full shadow-2xl transition hover:scale-105 sm:size-20"
+          className="bg-lime text-lime-foreground absolute top-1/2 left-1/2 z-20 grid size-16 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full shadow-2xl transition hover:scale-105 sm:size-20"
         >
           <PlayIcon className="size-7 translate-x-0.5 fill-current sm:size-8" />
         </button>
@@ -498,7 +498,7 @@ export function VideoPlayer({
               {nextHref ? (
                 <Link
                   href={nextHref}
-                  className="bg-gold text-gold-foreground inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold"
+                  className="bg-lime text-lime-foreground inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold"
                 >
                   {labels.nextLesson}
                   <SkipForwardIcon className="size-4" />
@@ -531,7 +531,7 @@ export function VideoPlayer({
             setCurrent(Number(event.target.value));
           }}
           style={{
-            background: `linear-gradient(to right, var(--gold) ${playedPct}%, rgb(255 255 255 / 0.45) ${playedPct}% ${Math.max(playedPct, bufferedPct)}%, rgb(255 255 255 / 0.2) ${Math.max(playedPct, bufferedPct)}%)`,
+            background: `linear-gradient(to right, var(--lime) ${playedPct}%, rgb(255 255 255 / 0.45) ${playedPct}% ${Math.max(playedPct, bufferedPct)}%, rgb(255 255 255 / 0.2) ${Math.max(playedPct, bufferedPct)}%)`,
           }}
         />
         <div className="mt-1.5 flex items-center gap-1 sm:gap-2">

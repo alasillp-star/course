@@ -48,7 +48,7 @@ export default async function NotesPage() {
                 </CardTitle>
                 <Link
                   href={`/${locale}/app/course/${lessonId}`}
-                  className="text-gold-strong dark:text-gold shrink-0 text-sm font-semibold"
+                  className="text-highlight shrink-0 text-sm font-semibold"
                 >
                   {t.openLesson}
                 </Link>
@@ -60,7 +60,7 @@ export default async function NotesPage() {
                       {note.videoTimestampSeconds !== null ? (
                         <Link
                           href={`/${locale}/app/course/${lessonId}?t=${note.videoTimestampSeconds}`}
-                          className="bg-gold/15 text-accent-foreground dark:text-gold mb-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold"
+                          className="bg-secondary text-highlight mb-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold"
                         >
                           <ClockIcon className="size-3" />
                           <span className="tabular" dir="ltr">

@@ -22,21 +22,20 @@ function escapeHtml(value: string): string {
 function layout(locale: Locale, title: string, bodyHtml: string, footer: string): string {
   const dir = localeDirection(locale);
   const align = dir === "rtl" ? "right" : "left";
-  const name = escapeHtml(ACADEMY.name[locale]);
   return `<!doctype html>
 <html lang="${locale}" dir="${dir}">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)}</title></head>
-<body style="margin:0;padding:0;background:#f4f5f7;font-family:'Segoe UI',Tahoma,Arial,sans-serif;color:#0b132b;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f5f7;padding:32px 12px;">
+<body style="margin:0;padding:0;background:#f5f3ef;font-family:'Segoe UI',Tahoma,Arial,sans-serif;color:#1c1734;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f3ef;padding:32px 12px;">
 <tr><td align="center">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e6e8ee;">
-<tr><td style="background:#0b132b;padding:22px 28px;text-align:${align};">
-<span style="color:#e3c26b;font-size:18px;font-weight:700;letter-spacing:.3px;">${name}</span>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:18px;overflow:hidden;border:1px solid #e2ded7;">
+<tr><td style="background:#4b2af0;padding:22px 28px;text-align:${align};">
+<span dir="ltr" style="display:inline-block;text-align:left;line-height:1;"><span style="color:#ffffff;font-family:Inter,'Segoe UI',Arial,sans-serif;font-size:28px;font-weight:900;letter-spacing:-1.2px;">abdou</span><br><span style="color:#d6ff46;font-family:Inter,'Segoe UI',Arial,sans-serif;font-size:9px;font-weight:800;letter-spacing:4.5px;">ACADEMY</span></span>
 </td></tr>
 <tr><td dir="${dir}" style="padding:28px;text-align:${align};font-size:15px;line-height:1.7;">
 ${bodyHtml}
 </td></tr>
-<tr><td dir="${dir}" style="padding:18px 28px;border-top:1px solid #eef0f4;color:#6b7280;font-size:12px;line-height:1.6;text-align:${align};">
+<tr><td dir="${dir}" style="padding:18px 28px;border-top:1px solid #ece9e3;color:#5d5970;font-size:12px;line-height:1.6;text-align:${align};">
 ${footer}
 </td></tr>
 </table>
@@ -47,7 +46,7 @@ ${footer}
 }
 
 function codeBlock(code: string): string {
-  return `<div dir="ltr" style="margin:22px 0;padding:16px;background:#f7f3e8;border:1px solid #ead9a8;border-radius:12px;text-align:center;font-family:'SFMono-Regular',Consolas,monospace;font-size:30px;font-weight:700;letter-spacing:8px;color:#0b132b;">${escapeHtml(code)}</div>`;
+  return `<div dir="ltr" style="margin:22px 0;padding:16px;background:#e9e4ff;border:1px solid #d5ccff;border-radius:14px;text-align:center;font-family:'SFMono-Regular',Consolas,monospace;font-size:30px;font-weight:700;letter-spacing:8px;color:#1c1734;">${escapeHtml(code)}</div>`;
 }
 
 const OTP_COPY = {
@@ -157,7 +156,7 @@ export function renderNoAccountEmail(params: {
     params.locale,
     subject,
     `<p style="margin:0 0 18px;">${escapeHtml(copy.body)}</p>
-<a href="${escapeHtml(params.activationUrl)}" style="display:inline-block;background:#0b132b;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;">${escapeHtml(copy.cta)}</a>`,
+<a href="${escapeHtml(params.activationUrl)}" style="display:inline-block;background:#4b2af0;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;">${escapeHtml(copy.cta)}</a>`,
     escapeHtml(OTP_COPY[params.locale].ignore),
   );
   return { subject, html, text: `${copy.body}\n\n${copy.cta}: ${params.activationUrl}` };

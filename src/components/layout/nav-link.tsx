@@ -37,7 +37,7 @@ export function SidebarLink({ item }: { item: NavItem }) {
       className={cn(
         "text-muted-foreground hover:bg-muted hover:text-foreground flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition [&_svg]:size-[18px]",
         active &&
-          "bg-primary text-primary-foreground shadow-soft hover:bg-primary hover:text-primary-foreground dark:bg-gold/15 dark:text-gold",
+          "bg-primary text-primary-foreground shadow-soft hover:bg-primary hover:text-primary-foreground",
       )}
     >
       {item.icon}
@@ -57,7 +57,7 @@ export function BottomNavLink({ item }: { item: NavItem }) {
       aria-current={active ? "page" : undefined}
       className={cn(
         "text-muted-foreground flex flex-1 flex-col items-center gap-1 py-2 text-[11px] font-medium [&_svg]:size-5",
-        active && "text-foreground [&_svg]:text-gold-strong dark:[&_svg]:text-gold",
+        active && "text-foreground [&_svg]:text-highlight",
       )}
     >
       {item.icon}

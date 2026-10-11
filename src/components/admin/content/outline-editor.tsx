@@ -508,7 +508,7 @@ function SortableLesson({
       <div className="flex flex-wrap items-center gap-1.5">
         <ContentStatusBadge status={lesson.displayStatus} labels={t.status} />
         <VideoStatusBadge status={videoStatus} labels={t.video} />
-        {lesson.isFreePreview ? <Badge variant="gold">{t.freePreview}</Badge> : null}
+        {lesson.isFreePreview ? <Badge variant="brand">{t.freePreview}</Badge> : null}
         {lesson.resourceCount > 0 ? (
           <Badge variant="outline">
             <PaperclipIcon />

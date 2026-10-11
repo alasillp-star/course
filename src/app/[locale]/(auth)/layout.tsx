@@ -9,14 +9,13 @@ export default async function AuthLayout({ children }: LayoutProps<"/[locale]">)
   return (
     <div className="grid min-h-dvh lg:grid-cols-[1fr_1.05fr]">
       <aside className="surface-hero relative hidden overflow-hidden p-10 text-white lg:flex lg:flex-col">
-        <div className="grid-pattern pointer-events-none absolute inset-0 opacity-[0.06]" />
         <Logo href={`/${locale}`} inverted className="relative" />
         <div className="relative mt-auto max-w-md">
-          <SparklesIcon className="text-gold size-6" />
+          <SparklesIcon className="text-lime size-6" />
           <p className="mt-4 text-3xl leading-snug font-bold">{dict.auth.sideTitle}</p>
           <p className="mt-3 text-white/70">{dict.auth.sideBody}</p>
           <p className="mt-10 inline-flex items-center gap-2 text-sm text-white/60">
-            <ShieldCheckIcon className="text-gold size-4" />
+            <ShieldCheckIcon className="text-lime size-4" />
             {dict.home.footer.secure}
           </p>
         </div>
