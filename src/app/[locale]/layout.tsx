@@ -51,6 +51,7 @@ export default async function RootLayout({ children }: LayoutProps<"/[locale]">)
       lang={locale}
       dir={dir}
       suppressHydrationWarning
+      data-scroll-behavior="smooth"
       className={cn(arabic.variable, latin.variable)}
     >
       <head>

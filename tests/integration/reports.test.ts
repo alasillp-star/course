@@ -43,6 +43,8 @@ describe("admin overview metrics", () => {
     expect(metrics.students.total).toBe(1);
     expect(metrics.students.withAccess).toBe(1);
     expect(metrics.students.new7d).toBe(1);
+    // Signing in (here: through activation) counts as activity.
+    expect(metrics.students.active30d).toBe(1);
     expect(metrics.activation).toMatchObject({ issued: 4, available: 2, sold: 1, activated: 1, revoked: 0 });
     expect(metrics.activation.activationRate).toBeCloseTo(0.5);
     expect(metrics.activation.activated7d).toBe(1);

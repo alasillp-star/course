@@ -56,6 +56,8 @@ export async function createSession(
     })
     .returning();
   if (!session) throw new Error("Failed to create session");
+  // Signing in is activity: keep users.last_seen_at (used by reports) in step with the session.
+  await executor.update(users).set({ lastSeenAt: now }).where(eq(users.id, params.userId));
 
   const limit = getEnv().MAX_ACTIVE_SESSIONS_PER_USER;
   if (limit > 0) {

@@ -22,7 +22,7 @@ import { StatCard } from "@/components/ui/stat-card";
 import { formatMoney, formatNumber, formatPercent } from "@/i18n/format";
 import { getI18n } from "@/i18n/server";
 import { can } from "@/modules/access/actor";
-import { getCurrentActor } from "@/modules/identity/current";
+import { requirePageActor } from "@/modules/identity/current";
 import { getOverviewMetrics } from "@/modules/reports/overview.service";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -32,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AdminOverviewPage() {
   const { locale, dict } = await getI18n();
-  const actor = (await getCurrentActor())!;
+  const actor = await requirePageActor(locale, { adminArea: true, next: `/${locale}/admin` });
   const t = dict.admin.overview;
   const n = (value: number) => formatNumber(value, locale);
   const metrics = can(actor, "reports.read") ? await getOverviewMetrics(actor) : null;

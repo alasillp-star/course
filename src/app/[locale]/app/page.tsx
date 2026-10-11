@@ -19,7 +19,7 @@ import { Progress } from "@/components/ui/progress";
 import { EmptyState } from "@/components/ui/stat-card";
 import { format, formatDateTime, pickLocalized, formatRelative } from "@/i18n/format";
 import { getI18n } from "@/i18n/server";
-import { getCurrentActor } from "@/modules/identity/current";
+import { requirePageActor } from "@/modules/identity/current";
 import { getStudentDashboard } from "@/modules/learning/dashboard.service";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -33,7 +33,7 @@ function minutes(seconds: number | null) {
 
 export default async function StudentDashboardPage({ searchParams }: PageProps<"/[locale]/app">) {
   const { locale, dict } = await getI18n();
-  const actor = (await getCurrentActor())!;
+  const actor = await requirePageActor(locale, { next: `/${locale}/app` });
   const data = await getStudentDashboard(actor);
   const t = dict.student.dashboard;
   const isWelcome = (await searchParams).welcome === "1";

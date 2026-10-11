@@ -7,7 +7,7 @@ import { EmailChangeForm } from "@/components/student/email-change-form";
 import { formatDate } from "@/i18n/format";
 import { getI18n } from "@/i18n/server";
 import { findUserById } from "@/modules/identity/users.service";
-import { getCurrentActor, isRecentlyAuthenticated } from "@/modules/identity/current";
+import { isRecentlyAuthenticated, requirePageActor } from "@/modules/identity/current";
 import { getDb } from "@/server/db/client";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -17,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function SettingsPage() {
   const { locale, dict } = await getI18n();
-  const actor = (await getCurrentActor())!;
+  const actor = await requirePageActor(locale, { next: `/${locale}/app/settings` });
   const user = await findUserById(getDb(), actor.userId);
   const t = dict.student.settings;
   const recentlyAuthenticated = isRecentlyAuthenticated(actor);

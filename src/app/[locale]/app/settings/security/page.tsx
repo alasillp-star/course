@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { SessionsManager } from "@/components/student/sessions-manager";
 import { format } from "@/i18n/format";
 import { getI18n } from "@/i18n/server";
-import { getCurrentActor } from "@/modules/identity/current";
+import { requirePageActor } from "@/modules/identity/current";
 import { listActiveSessions } from "@/modules/identity/session.service";
 import { getDb } from "@/server/db/client";
 import { getEnv } from "@/server/env";
@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function SecurityPage() {
   const { locale, dict } = await getI18n();
-  const actor = (await getCurrentActor())!;
+  const actor = await requirePageActor(locale, { next: `/${locale}/app/settings/security` });
   const sessions = await listActiveSessions(getDb(), actor.userId);
   const t = dict.student.security;
   const limit = getEnv().MAX_ACTIVE_SESSIONS_PER_USER;
