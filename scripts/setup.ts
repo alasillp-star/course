@@ -51,6 +51,13 @@ function npmRun(script: string, capture = false): string {
   return result.stdout ?? "";
 }
 
+/** Public URL of a forwarded port when running in GitHub Codespaces. */
+function codespaceUrl(port: number): string | undefined {
+  const name = process.env.CODESPACE_NAME;
+  const domain = process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN;
+  return name && domain ? `https://${name}-${port}.${domain}` : undefined;
+}
+
 function dockerAvailable(): boolean {
   const result = spawnSync("docker", ["compose", "version"], { shell: isWindows, stdio: "ignore" });
   return result.status === 0;
@@ -179,12 +186,18 @@ async function main() {
 
   step("Database and e-mail inbox");
   if (docker) {
-    const up = spawnSync("docker", ["compose", "up", "-d"], {
-      cwd: ROOT,
-      shell: isWindows,
-      stdio: "inherit",
-    });
-    if (up.status !== 0) {
+    // The Docker engine may still be starting (Docker Desktop, Codespaces): retry for ~40 s.
+    let started = false;
+    for (let attempt = 1; attempt <= 5 && !started; attempt += 1) {
+      const up = spawnSync("docker", ["compose", "up", "-d"], {
+        cwd: ROOT,
+        shell: isWindows,
+        stdio: "inherit",
+      });
+      started = up.status === 0;
+      if (!started && attempt < 5) await new Promise((resolve) => setTimeout(resolve, 8000));
+    }
+    if (!started) {
       console.warn("  ! Docker could not start the services. Is Docker Desktop running?");
     }
   }
@@ -212,8 +225,11 @@ async function main() {
     console.log("\n  ✓ demo data already present (npm run setup -- --reset to start over)");
   }
 
-  const appUrl = envValue(env, "APP_URL") ?? "http://localhost:3000";
-  const inbox = usesMailpit ? MAILPIT_UI : path.join(ROOT, ".data", "mailbox");
+  // APP_URL from the environment wins (npm run codespace / start:phone set it).
+  const appUrl = process.env.APP_URL ?? envValue(env, "APP_URL") ?? "http://localhost:3000";
+  const inbox = usesMailpit
+    ? (codespaceUrl(8025) ?? MAILPIT_UI)
+    : path.join(ROOT, ".data", "mailbox");
   console.log(`
 ────────────────────────────────────────────────────────────────────
  Abdou Academy is ready

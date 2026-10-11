@@ -7,6 +7,7 @@
 - **حالة التسليم وما هو مكتمل وغير مكتمل:** [docs/STATUS.md](docs/STATUS.md)
 - **دليل لوحة الإدارة بالعربية:** [docs/ADMIN_GUIDE.ar.md](docs/ADMIN_GUIDE.ar.md)
 - **ربط صفحة البيع وشركة التوصيل:** [docs/INTEGRATIONS.md](docs/INTEGRATIONS.md)
+- **▶ افتح المنصة في السحابة بنقرة واحدة (بدون تثبيت):** [https://codespaces.new/alasillp-star/course?ref=claude/exciting-albattani-r5u25c&quickstart=1](https://codespaces.new/alasillp-star/course?ref=claude/exciting-albattani-r5u25c&quickstart=1)
 - **جرّب المنصة على حاسوبك (أمر واحد `npm run try`):** [docs/TRY_IT.ar.md](docs/TRY_IT.ar.md)
 - **التشغيل على الإنترنت:** [docs/GO_LIVE.ar.md](docs/GO_LIVE.ar.md)
 
@@ -39,6 +40,12 @@ Next.js 16 (App Router, Node.js runtime) · React 19 · TypeScript 5.9 (strict) 
 Vitest · Playwright. Rationale in [ADRs](docs/adr).
 
 ## Quick start (development)
+
+**In the cloud, nothing to install:** [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/alasillp-star/course?ref=claude/exciting-albattani-r5u25c&quickstart=1)
+— the codespace starts PostgreSQL + Mailpit, configures, seeds demo data, builds and serves the platform on
+its https address (`.devcontainer/devcontainer.json` → `npm run codespace`).
+
+**On your computer:**
 
 Requirements: Node.js ≥ 22.11 and Docker Desktop running (or your own PostgreSQL 16 in `DATABASE_URL`).
 
