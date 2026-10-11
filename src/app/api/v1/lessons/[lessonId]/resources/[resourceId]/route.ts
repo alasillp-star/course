@@ -8,7 +8,7 @@ import { parseIdParam } from "@/server/http/schemas";
  * five-minute URL (presigned S3 URL, or our own signed URL in development).
  */
 export const GET = withApi<{ lessonId: string; resourceId: string }>(
-  async (request, { params }) => {
+  async (_request, { params }) => {
     const actor = await requireApiActor();
     const { lessonId, resourceId } = await params;
     const target = await getResourceDownloadUrl(
@@ -19,7 +19,10 @@ export const GET = withApi<{ lessonId: string; resourceId: string }>(
     return new Response(null, {
       status: 302,
       headers: {
-        Location: new URL(target, request.url).toString(),
+        // Kept as given (presigned absolute URL, or a relative path in development):
+        // request.url is the server's bind address (0.0.0.0 / localhost), not the
+        // address the browser used behind a proxy such as GitHub Codespaces.
+        Location: target,
         "Referrer-Policy": "no-referrer",
       },
     });
