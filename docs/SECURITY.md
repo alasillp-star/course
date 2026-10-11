@@ -41,6 +41,7 @@
 | `DATA_ENCRYPTION_KEY` (+ `_PREVIOUS`)  | AES-256-GCM for printable card secrets and TOTP secrets | Supported: set the old key as `_PREVIOUS`, deploy, re-encrypt, remove  |
 | `ORDERS_INTEGRATION_TOKEN`             | Landing page → order intake                             | Safe: set the new value here and at the sender at the same time        |
 | `DELIVERY_WEBHOOK_TOKEN` (+ `_SECRET`) | Carrier → parcel statuses                               | Safe: same as above                                                    |
+| `CRON_SECRET`                          | Authenticates the daily maintenance URL                 | Safe: update it in the host's settings                                 |
 
 Generate with `npm run secrets:generate`. Keep them in the hosting provider's secret store, never in git.
 Back up `DATA_ENCRYPTION_KEY` and `ACTIVATION_CODE_PEPPER` separately from database backups.
