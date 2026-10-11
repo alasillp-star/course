@@ -18,6 +18,7 @@ import { randomBytes } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import postgres from "postgres";
+import { codespaceUrl } from "./_codespace";
 
 const ROOT = process.cwd();
 const ENV_FILE = path.join(ROOT, ".env.local");
@@ -49,13 +50,6 @@ function npmRun(script: string, capture = false): string {
   });
   if (result.status !== 0) fail(`"npm run ${script}" failed (see the messages above).`);
   return result.stdout ?? "";
-}
-
-/** Public URL of a forwarded port when running in GitHub Codespaces. */
-function codespaceUrl(port: number): string | undefined {
-  const name = process.env.CODESPACE_NAME;
-  const domain = process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN;
-  return name && domain ? `https://${name}-${port}.${domain}` : undefined;
 }
 
 function dockerAvailable(): boolean {
@@ -110,6 +104,14 @@ function prepareEnvFile(useDocker: boolean): string {
     ["STORAGE_PROVIDER", "local"],
   ];
   for (const [key, value] of defaults) content = setEnv(content, key, value, fresh);
+  // In GitHub Codespaces the platform is reached through the codespace's https
+  // address, never localhost: every start command must use it (sign-in is
+  // refused for any other origin, links and QR codes must open from outside).
+  const cloudUrl = codespaceUrl(3000);
+  const currentUrl = envValue(content, "APP_URL");
+  if (cloudUrl && (!currentUrl || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(currentUrl))) {
+    content = setEnv(content, "APP_URL", cloudUrl, true);
+  }
   // Generated values: only filled when empty, never replaced.
   for (const key of ["AUTH_SECRET", "ACTIVATION_CODE_PEPPER", "DATA_ENCRYPTION_KEY"]) {
     content = setEnv(content, key, secret(), false);
@@ -248,8 +250,18 @@ async function main() {
 ────────────────────────────────────────────────────────────────────`);
 
   if (flags.has("--start")) {
-    step(`Starting the platform on ${appUrl} (Ctrl+C to stop)`);
-    const child = spawn("npm", ["run", "dev"], { cwd: ROOT, shell: isWindows, stdio: "inherit" });
+    // In a codespace: production build in the background on the codespace address.
+    const cloud = codespaceUrl(3000);
+    step(
+      cloud
+        ? `Starting the platform on ${cloud}`
+        : `Starting the platform on ${appUrl} (Ctrl+C to stop)`,
+    );
+    const child = spawn("npm", ["run", cloud ? "start:phone" : "dev"], {
+      cwd: ROOT,
+      shell: isWindows,
+      stdio: "inherit",
+    });
     child.on("exit", (code) => process.exit(code ?? 0));
   }
 }

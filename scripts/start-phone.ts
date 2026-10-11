@@ -4,6 +4,7 @@ import { createConnection } from "node:net";
 import { networkInterfaces } from "node:os";
 import path from "node:path";
 import QRCode from "qrcode";
+import { codespaceUrl } from "./_codespace";
 
 /**
  * Serves a production build of the platform beyond this computer:
@@ -27,12 +28,6 @@ const LOG_FILE = path.join(DATA_DIR, "server.log");
 const PID_FILE = path.join(DATA_DIR, "server.pid");
 const isWindows = process.platform === "win32";
 const withSetup = process.argv.includes("--setup");
-
-function codespaceUrl(port: number): string | undefined {
-  const name = process.env.CODESPACE_NAME;
-  const domain = process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN;
-  return name && domain ? `https://${name}-${port}.${domain}` : undefined;
-}
 
 function lanAddress(): string | undefined {
   const candidates: string[] = [];
@@ -140,14 +135,13 @@ async function main() {
     npm(["run", "build"], env);
   }
 
-  if (cloud && process.env.CODESPACE_NAME) {
+  const codespaceName = cloud ? new URL(cloud).hostname.replace(/-\d+\..*$/, "") : undefined;
+  if (codespaceName) {
     // Best effort: lets phones open the site without a GitHub login. The sign-in
     // codes inbox (port 8025) stays private to the codespace owner.
-    spawnSync(
-      "gh",
-      ["codespace", "ports", "visibility", `${PORT}:public`, "-c", process.env.CODESPACE_NAME],
-      { stdio: "ignore" },
-    );
+    spawnSync("gh", ["codespace", "ports", "visibility", `${PORT}:public`, "-c", codespaceName], {
+      stdio: "ignore",
+    });
   }
 
   const args = ["run", "start", "--", "-H", "0.0.0.0", "-p", String(PORT)];

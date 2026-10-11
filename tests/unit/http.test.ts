@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { maskEmail, normalizeEmail, emailSchema } from "@/modules/identity/email";
 import { describeUserAgent } from "@/modules/identity/device";
 import { assertSameOrigin } from "@/server/http/api";
+import { resetEnvCache } from "@/server/env";
 import { safeRedirectPath } from "@/server/http/schemas";
 
 describe("redirect safety", () => {
@@ -25,6 +26,40 @@ describe("CSRF origin check", () => {
   it("accepts same-origin requests", () => {
     expect(() => assertSameOrigin(request({ origin: "http://localhost:3000" }))).not.toThrow();
     expect(() => assertSameOrigin(request({ "sec-fetch-site": "same-origin" }))).not.toThrow();
+  });
+
+  it("accepts this codespace's forwarded address in development only", () => {
+    const previous = { ...process.env };
+    process.env.CODESPACE_NAME = "didactic-carnival-6976";
+    process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN = "app.github.dev";
+    process.env.APP_ENV = "development";
+    resetEnvCache();
+    try {
+      expect(() =>
+        assertSameOrigin(request({ origin: "https://didactic-carnival-6976-3000.app.github.dev" })),
+      ).not.toThrow();
+      expect(() =>
+        assertSameOrigin(request({ origin: "https://other-codespace-3000.app.github.dev" })),
+      ).toThrow("CSRF_REJECTED");
+      expect(() =>
+        assertSameOrigin(
+          request({ origin: "https://didactic-carnival-6976-3000.app.github.dev.evil.example" }),
+        ),
+      ).toThrow("CSRF_REJECTED");
+      process.env.APP_ENV = "production";
+      process.env.APP_URL = "https://academy.example";
+      process.env.EMAIL_TRANSPORT = "resend";
+      process.env.RESEND_API_KEY = "re_test";
+      process.env.VIDEO_PROVIDER = "none";
+      process.env.STORAGE_PROVIDER = "none";
+      resetEnvCache();
+      expect(() =>
+        assertSameOrigin(request({ origin: "https://didactic-carnival-6976-3000.app.github.dev" })),
+      ).toThrow("CSRF_REJECTED");
+    } finally {
+      process.env = previous;
+      resetEnvCache();
+    }
   });
 
   it("rejects cross-site and signal-less requests", () => {

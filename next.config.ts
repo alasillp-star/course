@@ -23,6 +23,8 @@ const nextConfig: NextConfig = {
   // shells. See docs/adr/0004-strict-csp-over-ppr.md.
   cacheComponents: false,
   poweredByHeader: false,
+  // Development server reached through GitHub Codespaces port forwarding.
+  allowedDevOrigins: ["*.app.github.dev"],
   reactStrictMode: true,
   turbopack: {
     rules: {

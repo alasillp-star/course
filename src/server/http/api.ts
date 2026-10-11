@@ -31,7 +31,16 @@ export function assertSameOrigin(request: Request): void {
       throw new AppError("CSRF_REJECTED");
     }
     const trustProxy = process.env.TRUST_PROXY_HEADERS !== "false";
-    const allowed = new Set<string>([new URL(getEnv().APP_URL).host]);
+    const env = getEnv();
+    const allowed = new Set<string>([new URL(env.APP_URL).host]);
+    // Development in GitHub Codespaces: the browser is on this codespace's
+    // forwarded https address while the server sees localhost.
+    const codespace = process.env.CODESPACE_NAME;
+    const domain = process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN;
+    if (env.APP_ENV === "development" && codespace && domain) {
+      const escape = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      if (new RegExp(`^${escape(codespace)}-\\d+\\.${escape(domain)}$`).test(originHost)) return;
+    }
     const host =
       (trustProxy && request.headers.get("x-forwarded-host")) || request.headers.get("host");
     if (host) allowed.add(host);
