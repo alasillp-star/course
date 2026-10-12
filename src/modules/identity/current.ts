@@ -23,18 +23,29 @@ export function sessionCookieName(): string {
   return getEnv().APP_URL.startsWith("https://") ? "__Host-academy_session" : "academy_session";
 }
 
-export async function setSessionCookie(token: string, expiresAt: Date): Promise<void> {
-  (await cookies()).set(sessionCookieName(), token, {
+/** Attributes shared by setting and clearing: a __Host- cookie must be Secure to be accepted. */
+function sessionCookieAttributes() {
+  return {
     httpOnly: true,
     secure: getEnv().APP_URL.startsWith("https://"),
-    sameSite: "lax",
+    sameSite: "lax" as const,
     path: "/",
+  };
+}
+
+export async function setSessionCookie(token: string, expiresAt: Date): Promise<void> {
+  (await cookies()).set(sessionCookieName(), token, {
+    ...sessionCookieAttributes(),
     expires: expiresAt,
   });
 }
 
 export async function clearSessionCookie(): Promise<void> {
-  (await cookies()).delete({ name: sessionCookieName(), path: "/" });
+  (await cookies()).set(sessionCookieName(), "", {
+    ...sessionCookieAttributes(),
+    expires: new Date(0),
+    maxAge: 0,
+  });
 }
 
 export async function readSessionToken(): Promise<string | null> {

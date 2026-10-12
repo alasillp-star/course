@@ -615,6 +615,9 @@ describe("file resources", () => {
 
     const enrolled = await student("enrolled@example.com");
     const url = await getResourceDownloadUrl(enrolled, lessonIds[0]!, resource!.id);
+    // Relative in development: the download redirect must stay on the address the
+    // browser used (behind GitHub Codespaces the server only knows localhost).
+    expect(url).toMatch(/^\/api\/v1\/files\/[^/]+$/);
     const token = verifyUrlToken<{ viewerId: string; filename: string }>(
       "local-file",
       tokenFromUrl(url),

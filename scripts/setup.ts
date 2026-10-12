@@ -18,7 +18,7 @@ import { randomBytes } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import postgres from "postgres";
-import { codespaceUrl } from "./_codespace";
+import { codespaceUrl, inCodespace } from "./_codespace";
 
 const ROOT = process.cwd();
 const ENV_FILE = path.join(ROOT, ".env.local");
@@ -55,6 +55,23 @@ function npmRun(script: string, capture = false): string {
 function dockerAvailable(): boolean {
   const result = spawnSync("docker", ["compose", "version"], { shell: isWindows, stdio: "ignore" });
   return result.status === 0;
+}
+
+/** Waits for the Docker engine (in a codespace it starts with the container, sometimes slowly). */
+async function waitForDockerEngine(seconds: number): Promise<boolean> {
+  const deadline = Date.now() + seconds * 1000;
+  let announced = false;
+  for (;;) {
+    if (spawnSync("docker", ["info"], { shell: isWindows, stdio: "ignore" }).status === 0) {
+      return true;
+    }
+    if (Date.now() > deadline) return false;
+    if (!announced) {
+      console.log("  … waiting for Docker to start");
+      announced = true;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+  }
 }
 
 // .env.local -----------------------------------------------------------------------
@@ -180,6 +197,12 @@ async function main() {
   }
 
   const docker = dockerAvailable() && existsSync(path.join(ROOT, "docker-compose.yml"));
+  const cloud = inCodespace();
+  // In a codespace Docker is part of the container: no Docker Desktop to start.
+  const dockerHint = cloud
+    ? "Docker is not ready in this codespace. Wait a minute, then run: npm run codespace " +
+      "(if it keeps failing: Command Palette → Codespaces: Rebuild Container)."
+    : "Start Docker Desktop, then run this command again.";
   step("Configuration");
   const env = prepareEnvFile(docker);
   const databaseUrl = envValue(env, "DATABASE_URL") ?? LOCAL_DB;
@@ -188,7 +211,8 @@ async function main() {
 
   step("Database and e-mail inbox");
   if (docker) {
-    // The Docker engine may still be starting (Docker Desktop, Codespaces): retry for ~40 s.
+    if (!(await waitForDockerEngine(cloud ? 180 : 60))) fail(`Docker is not running. ${dockerHint}`);
+    // The engine may still be settling: retry the services for ~40 s.
     let started = false;
     for (let attempt = 1; attempt <= 5 && !started; attempt += 1) {
       const up = spawnSync("docker", ["compose", "up", "-d"], {
@@ -200,13 +224,13 @@ async function main() {
       if (!started && attempt < 5) await new Promise((resolve) => setTimeout(resolve, 8000));
     }
     if (!started) {
-      console.warn("  ! Docker could not start the services. Is Docker Desktop running?");
+      console.warn(`  ! Docker could not start the services. ${dockerHint}`);
     }
   }
   if (!(await waitForDatabase(databaseUrl, docker ? 90 : 5))) {
     fail(
       docker
-        ? "PostgreSQL did not answer. Start Docker Desktop, then run this command again."
+        ? `PostgreSQL did not answer. ${dockerHint}`
         : "No database: install and start Docker Desktop (https://www.docker.com/products/docker-desktop/), " +
             "or set DATABASE_URL in .env.local to your own PostgreSQL 16, then run this command again.",
     );
@@ -251,13 +275,13 @@ async function main() {
 
   if (flags.has("--start")) {
     // In a codespace: production build in the background on the codespace address.
-    const cloud = codespaceUrl(3000);
+    const cloudUrl = codespaceUrl(3000);
     step(
-      cloud
-        ? `Starting the platform on ${cloud}`
+      cloudUrl
+        ? `Starting the platform on ${cloudUrl}`
         : `Starting the platform on ${appUrl} (Ctrl+C to stop)`,
     );
-    const child = spawn("npm", ["run", cloud ? "start:phone" : "dev"], {
+    const child = spawn("npm", ["run", cloudUrl ? "start:phone" : "dev"], {
       cwd: ROOT,
       shell: isWindows,
       stdio: "inherit",

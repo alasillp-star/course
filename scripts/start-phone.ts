@@ -6,6 +6,7 @@ import path from "node:path";
 import QRCode from "qrcode";
 import { codespaceUrl } from "./_codespace";
 import { serversOnPort, stopNextServersAndWait } from "./_server-process";
+import { acquireStartLock } from "./_start-lock";
 
 /**
  * Serves a production build of the platform beyond this computer:
@@ -19,8 +20,10 @@ import { serversOnPort, stopNextServersAndWait } from "./_server-process";
  *
  * APP_URL is set for the server process only (QR codes of cards downloaded
  * meanwhile open on that address); .env.local is not modified. The build is
- * reused while the code has not changed. The links are printed once the site
- * actually answers.
+ * reused while the code has not changed; dependencies are reinstalled when
+ * package-lock.json changed (git pull). Only one start runs at a time (the
+ * codespace starts one on every attach): a second one waits, then reuses it.
+ * The links are printed once the site actually answers.
  */
 const PORT = Number(process.env.PORT ?? 3000);
 const ROOT = process.cwd();
@@ -83,6 +86,14 @@ function newestSource(): number {
   return newest;
 }
 
+/** package-lock.json changed since the last install (e.g. after git pull). */
+function dependenciesOutdated(): boolean {
+  const lock = path.join(ROOT, "package-lock.json");
+  const installed = path.join(ROOT, "node_modules", ".package-lock.json");
+  if (!existsSync(lock)) return false;
+  return !existsSync(installed) || statSync(installed).mtimeMs < statSync(lock).mtimeMs;
+}
+
 function npm(args: string[], env: NodeJS.ProcessEnv) {
   const result = spawnSync("npm", args, { cwd: ROOT, env, shell: isWindows, stdio: "inherit" });
   if (result.status !== 0) process.exit(result.status ?? 1);
@@ -126,6 +137,7 @@ async function main() {
   }
   const url = cloud ?? `http://${ip}:${PORT}`;
   const env = { ...process.env, APP_URL: url };
+  await acquireStartLock(path.join(DATA_DIR, "start.lock"));
 
   const buildId = path.join(ROOT, ".next", "BUILD_ID");
   const buildOutdated = () => !existsSync(buildId) || statSync(buildId).mtimeMs < newestSource();
@@ -133,7 +145,7 @@ async function main() {
   if (await portInUse(PORT)) {
     const running = serversOnPort(PORT).find((server) => /next/i.test(server.command));
     const wrongAddress = !!running?.appUrl && running.appUrl !== url;
-    if (running && (wrongAddress || buildOutdated())) {
+    if (running && (wrongAddress || buildOutdated() || dependenciesOutdated())) {
       // Started another way (npm run dev / try), an older version, or code updated
       // since (git pull): replace it so the current code runs on the right address.
       console.log(
@@ -146,6 +158,10 @@ async function main() {
       await banner(url, !!cloud);
       return;
     }
+  }
+  if (dependenciesOutdated()) {
+    console.log("\n▸ Installing updated dependencies (1–2 minutes)…");
+    npm(["ci", "--no-audit", "--no-fund"], env);
   }
   if (withSetup) npm(["run", "setup"], env);
 
