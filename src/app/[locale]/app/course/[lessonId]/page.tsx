@@ -126,17 +126,6 @@ export default async function LessonPage({
               <EyeIcon className="size-4 shrink-0" />
               {t.previewBanner}
             </p>
-          ) : !data.access.entitled ? (
-            <p className="border-lime bg-lime/25 flex flex-wrap items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium">
-              <SparklesIcon className="text-highlight size-4 shrink-0" />
-              <span className="flex-1">{t.freePreviewBanner}</span>
-              <Link
-                href={`/${locale}/activate`}
-                className="font-semibold underline underline-offset-4"
-              >
-                {dict.common.activateCard}
-              </Link>
-            </p>
           ) : null}
 
           {data.lesson.hasVideo ? (
@@ -181,7 +170,6 @@ export default async function LessonPage({
                   {format(t.minutes, { count: minutes })}
                 </Badge>
               ) : null}
-              {data.lesson.isFreePreview ? <Badge variant="brand">{t.freePreview}</Badge> : null}
               {completed ? (
                 <Badge variant="success">{t.completed}</Badge>
               ) : data.lesson.hasVideo && data.progress.percent > 0 ? (

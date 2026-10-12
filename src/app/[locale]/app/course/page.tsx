@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { InfinityIcon, PlayIcon, QrCodeIcon } from "lucide-react";
+import { EyeIcon, InfinityIcon, PlayIcon, QrCodeIcon } from "lucide-react";
 import { CourseOutline } from "@/components/learning/course-outline";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,11 @@ export default async function CoursePage() {
                 {t.lifetime}
               </Badge>
             </>
+          ) : data.staffPreview ? (
+            <Badge variant="outline" className="border-white/20 bg-white/10 text-white">
+              <EyeIcon />
+              {tl.teamPreview}
+            </Badge>
           ) : null}
         </div>
         <h1 className="mt-4 text-2xl leading-snug font-bold sm:text-3xl">
@@ -75,7 +80,7 @@ export default async function CoursePage() {
               </Link>
             </Button>
           ) : null}
-          {!data.hasAccess ? (
+          {!data.hasAccess && !data.staffPreview ? (
             <Button
               asChild
               variant="outline"

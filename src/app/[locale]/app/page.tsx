@@ -7,6 +7,7 @@ import {
   CalendarClockIcon,
   CheckCircle2Icon,
   ClipboardCheckIcon,
+  EyeIcon,
   InfinityIcon,
   MessagesSquareIcon,
   NotebookPenIcon,
@@ -54,14 +55,23 @@ export default async function StudentDashboardPage({ searchParams }: PageProps<"
           {data.course && data.hasAccess ? (
             <section className="surface-hero shadow-lifted relative overflow-hidden rounded-3xl p-6 text-white sm:p-8">
               <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="outline" className="border-white/20 bg-white/10 text-white">
-                  <span className="bg-success size-1.5 rounded-full" />
-                  {t.accessActive}
-                </Badge>
-                <Badge variant="outline" className="border-lime/40 bg-lime/15 text-lime">
-                  <InfinityIcon />
-                  {t.lifetime}
-                </Badge>
+                {data.staffPreview ? (
+                  <Badge variant="outline" className="border-white/20 bg-white/10 text-white">
+                    <EyeIcon />
+                    {dict.student.lesson.teamPreview}
+                  </Badge>
+                ) : (
+                  <>
+                    <Badge variant="outline" className="border-white/20 bg-white/10 text-white">
+                      <span className="bg-success size-1.5 rounded-full" />
+                      {t.accessActive}
+                    </Badge>
+                    <Badge variant="outline" className="border-lime/40 bg-lime/15 text-lime">
+                      <InfinityIcon />
+                      {t.lifetime}
+                    </Badge>
+                  </>
+                )}
               </div>
               <h2 className="mt-4 text-xl leading-snug font-bold sm:text-2xl">
                 {pickLocalized(data.course.title, locale)}

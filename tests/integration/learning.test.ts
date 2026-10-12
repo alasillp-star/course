@@ -1,3 +1,4 @@
+import { getCourseOverview } from "@/modules/learning/dashboard.service";
 import { createHmac, generateKeyPairSync, verify } from "node:crypto";
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
@@ -288,21 +289,30 @@ describe("lesson access", () => {
     expect(preview.access.tracked).toBe(false);
   });
 
-  it("lets anyone signed in open a free-preview lesson, without tracking", async () => {
+  it("opens every lesson to paying students and the team, and none to anyone else", async () => {
     const { lessonIds } = await publishedLessons(2, { durationSeconds: 300 });
+    // A legacy "free preview" flag no longer opens anything to non-paying accounts.
     await updateLesson(instructor, lessonIds[0]!, { isFreePreview: true }, testMeta());
     const visitor = await student("visitor@example.com", false);
-    const page = await getLessonPage(visitor, lessonIds[0]!);
-    expect(page.access).toEqual({ entitled: false, tracked: false, preview: false });
-    expect(page.outline[0]!.lessons[1]!.locked).toBe(true);
-    expect(page.next).toBeNull();
-    expect(
-      await recordHeartbeat(visitor, lessonIds[0]!, {
-        positionSeconds: 30,
-        playedRanges: [[0, 30]],
-      }),
-    ).toEqual({ recorded: false });
+    await expectAppError(getLessonPage(visitor, lessonIds[0]!), "COURSE_ACCESS_REQUIRED");
     await expectAppError(getLessonPage(visitor, lessonIds[1]!), "COURSE_ACCESS_REQUIRED");
+
+    const enrolled = await student("paid@example.com");
+    const page = await getLessonPage(enrolled, lessonIds[0]!);
+    expect(page.access).toMatchObject({ entitled: true, tracked: true, preview: false });
+    expect(page.outline[0]!.lessons.every((lesson) => !lesson.locked)).toBe(true);
+    expect(page.next).toBe(lessonIds[1]);
+
+    // The team (content.read) sees every lesson unlocked, untracked.
+    const teamPage = await getLessonPage(instructor, lessonIds[0]!);
+    expect(teamPage.access).toMatchObject({ entitled: false, tracked: false, preview: true });
+    expect(teamPage.outline[0]!.lessons.every((lesson) => !lesson.locked)).toBe(true);
+    expect(teamPage.next).toBe(lessonIds[1]);
+    const overview = await getCourseOverview(instructor);
+    expect(overview?.staffPreview).toBe(true);
+    expect(overview?.outline.flatMap((module) => module.lessons).every((l) => !l.locked)).toBe(
+      true,
+    );
   });
 
   it("issues viewer-bound playback only once the video is ready", async () => {

@@ -312,6 +312,7 @@ export const en: Dictionary = {
       locked: "Available after activation",
       freePreview: "Free preview",
       previewBanner: "Staff preview — progress is not recorded.",
+      teamPreview: "Team preview",
       freePreviewBanner: "This lesson is free. Activate your card to unlock the whole course.",
       videoProcessing: "The video is still processing. Check back shortly.",
       videoUnavailable: "The video could not be played. Refresh the page or try again later.",

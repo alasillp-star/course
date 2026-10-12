@@ -116,7 +116,6 @@ export function LessonForm({
   const [bodyFr, setBodyFr] = useState(lesson.body?.fr ?? "");
   const [status, setStatus] = useState<ContentStatus>(lesson.status);
   const [publishAt, setPublishAt] = useState(toZonedInputValue(lesson.publishAt, ACADEMY.timeZone));
-  const [freePreview, setFreePreview] = useState(lesson.isFreePreview);
   const [threshold, setThreshold] = useState(lesson.completionThresholdPercent);
   const [minutes, setMinutes] = useState(
     lesson.durationSeconds ? String(Math.round(lesson.durationSeconds / 60)) : "",
@@ -146,7 +145,6 @@ export function LessonForm({
             ? {
                 status,
                 publishAt: fromZonedInputValue(publishAt, ACADEMY.timeZone),
-                isFreePreview: freePreview,
               }
             : {}),
         },
@@ -306,19 +304,6 @@ export function LessonForm({
                   </div>
                 </Field>
               </div>
-              <label className="border-border flex items-start justify-between gap-4 rounded-xl border p-3">
-                <span>
-                  <span className="block text-sm font-medium">{labels.freePreview}</span>
-                  <span className="text-muted-foreground block text-xs">
-                    {labels.freePreviewHint}
-                  </span>
-                </span>
-                <Switch
-                  checked={freePreview}
-                  onCheckedChange={setFreePreview}
-                  aria-label={labels.freePreview}
-                />
-              </label>
             </>
           ) : (
             <p className="text-muted-foreground text-sm">{labels.noPublishPermission}</p>

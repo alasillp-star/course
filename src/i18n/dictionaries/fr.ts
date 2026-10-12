@@ -317,6 +317,7 @@ export const fr: Dictionary = {
       locked: "Disponible après activation",
       freePreview: "Aperçu gratuit",
       previewBanner: "Aperçu équipe — la progression n'est pas enregistrée.",
+      teamPreview: "Aperçu de l'équipe",
       freePreviewBanner: "Leçon gratuite. Activez votre carte pour accéder à toute la formation.",
       videoProcessing: "La vidéo est en cours de traitement. Revenez dans un instant.",
       videoUnavailable: "Impossible de lire la vidéo. Actualisez la page ou réessayez plus tard.",

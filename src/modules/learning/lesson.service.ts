@@ -34,8 +34,9 @@ import {
 /**
  * Learner side of the course: who may open a lesson, signed playback,
  * server-validated progress, completion, notes and resource downloads.
- * Access = an active entitlement (hasCourseAccess), or a free-preview lesson.
- * Staff with content.read may preview anything without being tracked.
+ * Access = an active entitlement (hasCourseAccess): everyone who activated a
+ * card sees every published lesson. Staff with content.read may preview
+ * anything (drafts included) without being tracked.
  */
 
 const visibleNow = (status: string, publishAt: Date | null, now: Date) =>
@@ -84,16 +85,15 @@ export async function resolveLessonAccess(
     visibleNow(row.lesson.status, row.lesson.publishAt, now);
   if (!visible && !staff) throw new AppError("NOT_FOUND");
   const entitled = await hasCourseAccess(executor, actor.userId, row.course.id);
-  if (!entitled && !row.lesson.isFreePreview && !staff) {
-    throw new AppError("COURSE_ACCESS_REQUIRED");
-  }
+  if (!entitled && !staff) throw new AppError("COURSE_ACCESS_REQUIRED");
   return {
     ...row,
     entitled,
     visible,
     /** Progress is only recorded for enrolled students on published lessons. */
     tracked: entitled && visible,
-    preview: staff && (!visible || (!entitled && !row.lesson.isFreePreview)),
+    staff,
+    preview: staff && (!visible || !entitled),
   };
 }
 
@@ -164,7 +164,7 @@ export async function getLessonPage(actor: Actor, lessonId: string) {
   const completed = new Set(completedRows.map((row) => row.lessonId));
   const flat = outline.flatMap((module) => module.lessons.map((item) => ({ ...item, module })));
   const index = flat.findIndex((item) => item.id === lesson.id);
-  const canOpen = (item: { isFreePreview: boolean }) => ctx.entitled || item.isFreePreview;
+  const canOpen = ctx.entitled || ctx.staff;
   const duration = video?.durationSeconds ?? lesson.durationSeconds ?? null;
 
   return {
@@ -176,7 +176,6 @@ export async function getLessonPage(actor: Actor, lessonId: string) {
       summary: lesson.summary,
       body: lesson.body,
       durationSeconds: duration,
-      isFreePreview: lesson.isFreePreview,
       completionThresholdPercent: lesson.completionThresholdPercent,
       hasVideo: !!lesson.videoAssetId,
       videoReady: video?.status === "ready",
@@ -195,15 +194,12 @@ export async function getLessonPage(actor: Actor, lessonId: string) {
         title: item.title,
         durationSeconds: item.durationSeconds,
         completed: completed.has(item.id),
-        locked: !canOpen(item),
+        locked: !canOpen,
         current: item.id === lesson.id,
       })),
     })),
     previous: index > 0 ? flat[index - 1]!.id : null,
-    next:
-      index >= 0 && index < flat.length - 1 && canOpen(flat[index + 1]!)
-        ? flat[index + 1]!.id
-        : null,
+    next: index >= 0 && index < flat.length - 1 && canOpen ? flat[index + 1]!.id : null,
     resources: resources
       .filter((resource) => resource.kind === "link" || resource.assetStatus === "ready")
       .map((resource) => ({

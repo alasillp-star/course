@@ -11,7 +11,7 @@ import {
   profiles,
   studentNotes,
 } from "@/server/db/schema";
-import type { Actor } from "../access/actor";
+import { can, type Actor } from "../access/actor";
 import { getCourseOutline, getLearnerProgress, getMainCourse } from "../catalog/catalog.service";
 import { hasCourseAccess, listUserEntitlements } from "../entitlements/entitlements.service";
 import { pickContinueLesson } from "./lesson.service";
@@ -20,7 +20,7 @@ import { pickContinueLesson } from "./lesson.service";
 export async function getStudentDashboard(actor: Actor) {
   const db = getDb();
   const course = await getMainCourse();
-  const [profileRows, entitlements, hasAccess] = await Promise.all([
+  const [profileRows, entitlements, entitled] = await Promise.all([
     db
       .select({ displayName: profiles.displayName, fullName: profiles.fullName })
       .from(profiles)
@@ -28,6 +28,9 @@ export async function getStudentDashboard(actor: Actor) {
     listUserEntitlements(db, actor.userId),
     course ? hasCourseAccess(db, actor.userId, course.id) : Promise.resolve(false),
   ]);
+  // The team sees the course like a student who paid (without a card).
+  const staffPreview = !entitled && can(actor, "content.read");
+  const hasAccess = entitled || staffPreview;
 
   const [
     outline,
@@ -143,6 +146,7 @@ export async function getStudentDashboard(actor: Actor) {
     : null;
 
   return {
+    staffPreview,
     displayName: profileRows[0]?.displayName ?? profileRows[0]?.fullName ?? null,
     course,
     hasAccess,
@@ -184,8 +188,11 @@ export async function getCourseOverview(actor: Actor) {
     getCourseOutline(course.id),
     getLearnerProgress(actor.userId, course.id),
   ]);
+  // The team previews every lesson without a card; students need an active entitlement.
+  const staffPreview = !hasAccess && can(actor, "content.read");
+  const canOpen = hasAccess || staffPreview;
   const lessons = outline.flatMap((module) => module.lessons);
-  const open = lessons.filter((lesson) => hasAccess || lesson.isFreePreview);
+  const open = canOpen ? lessons : [];
   const continueId = pickContinueLesson(
     open.map((lesson) => lesson.id),
     progress.completedLessonIds,
@@ -197,6 +204,7 @@ export async function getCourseOverview(actor: Actor) {
   return {
     course,
     hasAccess,
+    staffPreview,
     totalLessons: lessons.length,
     completedLessons,
     percent: lessons.length ? Math.round((completedLessons / lessons.length) * 100) : 0,
@@ -211,7 +219,7 @@ export async function getCourseOverview(actor: Actor) {
         title: lesson.title,
         durationSeconds: lesson.durationSeconds,
         completed: progress.completedLessonIds.has(lesson.id),
-        locked: !hasAccess && !lesson.isFreePreview,
+        locked: !canOpen,
       })),
     })),
   };
