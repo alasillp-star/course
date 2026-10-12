@@ -49,3 +49,6 @@ next-env.d.ts
 
 # E2E runtime state
 /tests/e2e/.state/
+
+# Claude Code worktrees (parallel work in progress)
+/.claude/worktrees/
