@@ -25,6 +25,7 @@ export type ApiContext<P> = { params: Promise<P>; meta: RequestMeta };
 export function assertSameOrigin(request: Request): void {
   const origin = request.headers.get("origin");
   const fetchSite = request.headers.get("sec-fetch-site");
+  const env = getEnv();
   if (origin) {
     let originHost: string;
     try {
@@ -32,20 +33,38 @@ export function assertSameOrigin(request: Request): void {
     } catch {
       throw new AppError("CSRF_REJECTED");
     }
-    const trustProxy = process.env.TRUST_PROXY_HEADERS !== "false";
-    const env = getEnv();
+    // The request's own host, in every form a reverse proxy may present it:
+    // GitHub Codespaces / dev tunnels rewrite both Host and Origin to
+    // localhost and pass the public host in X-Forwarded-Host, while Vercel
+    // keeps Host. A browser cannot forge Host, so any of them is safe.
     const allowed = new Set<string>([new URL(env.APP_URL).host]);
-    // Development in GitHub Codespaces: the browser is on the codespace's
-    // forwarded https address while the server sees localhost. Never in
-    // staging/production, where APP_URL is the only accepted origin.
-    if (env.APP_ENV === "development" && CODESPACES_ORIGIN.test(originHost)) return;
-    const host =
-      (trustProxy && request.headers.get("x-forwarded-host")) || request.headers.get("host");
+    const host = request.headers.get("host");
     if (host) allowed.add(host);
-    if (!allowed.has(originHost)) throw new AppError("CSRF_REJECTED");
-    return;
+    const forwardedHost = request.headers.get("x-forwarded-host");
+    if (forwardedHost && process.env.TRUST_PROXY_HEADERS !== "false") {
+      for (const value of forwardedHost.split(",")) allowed.add(value.trim());
+    }
+    if (allowed.has(originHost)) return;
+    // Development in GitHub Codespaces: the browser is on the codespace's
+    // forwarded https address. Never in staging/production.
+    if (env.APP_ENV === "development" && CODESPACES_ORIGIN.test(originHost)) return;
+    rejectCsrf(request, env.APP_ENV, { origin, allowed: [...allowed] });
   }
   if (fetchSite === "same-origin") return;
+  rejectCsrf(request, env.APP_ENV, { origin: null, fetchSite });
+}
+
+/** Rejects; in development, logs what was compared (no cookies or credentials). */
+function rejectCsrf(request: Request, appEnv: string, compared: Record<string, unknown>): never {
+  if (appEnv === "development") {
+    logger.warn("csrf rejected", {
+      path: new URL(request.url).pathname,
+      ...compared,
+      host: request.headers.get("host"),
+      forwardedHost: request.headers.get("x-forwarded-host"),
+      fetchSite: request.headers.get("sec-fetch-site"),
+    });
+  }
   throw new AppError("CSRF_REJECTED");
 }
 

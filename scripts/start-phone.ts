@@ -127,12 +127,20 @@ async function main() {
   const url = cloud ?? `http://${ip}:${PORT}`;
   const env = { ...process.env, APP_URL: url };
 
+  const buildId = path.join(ROOT, ".next", "BUILD_ID");
+  const buildOutdated = () => !existsSync(buildId) || statSync(buildId).mtimeMs < newestSource();
+
   if (await portInUse(PORT)) {
     const running = serversOnPort(PORT).find((server) => /next/i.test(server.command));
-    if (running?.appUrl && running.appUrl !== url) {
-      // A server started another way (npm run dev / try, an older version) with a
-      // different address: sign-in would be refused. Replace it.
-      console.log(`▸ Restarting the platform on ${url} (it was running on ${running.appUrl})`);
+    const wrongAddress = !!running?.appUrl && running.appUrl !== url;
+    if (running && (wrongAddress || buildOutdated())) {
+      // Started another way (npm run dev / try), an older version, or code updated
+      // since (git pull): replace it so the current code runs on the right address.
+      console.log(
+        wrongAddress
+          ? `▸ Restarting the platform on ${url} (it was running on ${running.appUrl})`
+          : "▸ Code updated: restarting the platform",
+      );
       await stopNextServersAndWait(PORT);
     } else {
       await banner(url, !!cloud);
@@ -141,8 +149,7 @@ async function main() {
   }
   if (withSetup) npm(["run", "setup"], env);
 
-  const buildId = path.join(ROOT, ".next", "BUILD_ID");
-  if (!existsSync(buildId) || statSync(buildId).mtimeMs < newestSource()) {
+  if (buildOutdated()) {
     console.log(`\n▸ Building the platform (1–3 minutes)…`);
     npm(["run", "build"], env);
   }

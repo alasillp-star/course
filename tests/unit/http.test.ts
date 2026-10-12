@@ -60,6 +60,44 @@ describe("CSRF origin check", () => {
     }
   });
 
+  it("accepts proxies that rewrite Host and Origin to localhost (GitHub Codespaces)", () => {
+    const previous = process.env.APP_URL;
+    process.env.APP_URL = "https://didactic-carnival-6976-3000.app.github.dev";
+    resetEnvCache();
+    try {
+      // Codespaces / dev tunnels: Origin and Host rewritten, public host forwarded.
+      expect(() =>
+        assertSameOrigin(
+          request({
+            origin: "http://localhost:3000",
+            "x-forwarded-host": "didactic-carnival-6976-3000.app.github.dev",
+          }),
+        ),
+      ).not.toThrow();
+      // Origin kept, Host rewritten.
+      expect(() =>
+        assertSameOrigin(
+          request({
+            origin: "https://didactic-carnival-6976-3000.app.github.dev",
+            "x-forwarded-host": "localhost:3000",
+          }),
+        ),
+      ).not.toThrow();
+      // A foreign site is still refused whatever the proxy headers say.
+      expect(() =>
+        assertSameOrigin(
+          request({
+            origin: "https://evil.example",
+            "x-forwarded-host": "didactic-carnival-6976-3000.app.github.dev",
+          }),
+        ),
+      ).toThrow("CSRF_REJECTED");
+    } finally {
+      process.env.APP_URL = previous;
+      resetEnvCache();
+    }
+  });
+
   it("rejects cross-site and signal-less requests", () => {
     expect(() => assertSameOrigin(request({ origin: "https://evil.example" }))).toThrow(
       "CSRF_REJECTED",
