@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input, NativeSelect, Textarea } from "@/components/ui/input";
 import { Field } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { ACADEMY } from "@/config/academy";
 import type { Dictionary } from "@/i18n/dictionaries/ar";
 import { api } from "@/lib/api-client";

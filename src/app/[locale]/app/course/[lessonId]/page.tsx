@@ -16,7 +16,6 @@ import {
   ListIcon,
   LockIcon,
   ShieldCheckIcon,
-  SparklesIcon,
 } from "lucide-react";
 import { CompleteLessonButton } from "@/components/learning/complete-lesson-button";
 import { CourseOutline } from "@/components/learning/course-outline";
