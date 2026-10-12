@@ -1,4 +1,13 @@
 import type { Dictionary } from "./ar";
+import { community } from "./features/community";
+import { live } from "./features/live";
+import { notifications } from "./features/notifications";
+import { certificates } from "./features/certificates";
+import { reports } from "./features/reports";
+import { settings } from "./features/settings";
+import { printing } from "./features/printing";
+import { orderIntake } from "./features/orderIntake";
+import { staffVerification } from "./features/staffVerification";
 
 /** English — wired in but not yet enabled (add "en" to ENABLED_LOCALES after review). */
 export const en: Dictionary = {
@@ -237,6 +246,7 @@ export const en: Dictionary = {
       notes: "My notes",
       settings: "Settings",
       security: "Security & devices",
+      more: "More",
     },
     dashboard: {
       welcome: "Hi {name} 👋",
@@ -374,6 +384,8 @@ export const en: Dictionary = {
       staff: "Team & permissions",
       audit: "Audit log",
       settings: "Settings",
+      printing: "Print queue",
+      certificates: "Certificates",
       backToSite: "Back to site",
     },
     mfa: {
@@ -920,6 +932,7 @@ export const en: Dictionary = {
     moderator: "Moderator",
     support_agent: "Support Agent",
     sales_agent: "Sales Agent",
+    print_operator: "Print operator",
     student: "Student",
   },
   errors: {
@@ -963,9 +976,31 @@ export const en: Dictionary = {
     WEBHOOK_SIGNATURE_INVALID: "Invalid signature.",
     PROVIDER_NOT_CONFIGURED: "This service isn't configured on the platform yet.",
     INVALID_STATE: "This action isn't possible in the current state.",
+    PRINT_NO_CARDS_AVAILABLE:
+      "No blank card is available. Create a new batch under “Activation cards”.",
+    PRINT_ORDER_NOT_READY:
+      "This order is no longer waiting for a card (unconfirmed, cancelled or card ready).",
+    MFA_METHOD_NOT_ALLOWED: "Your account uses an authenticator app: enter the code from the app.",
+    FEATURE_DISABLED: "This section is switched off for now.",
+    COMMUNITY_BANNED:
+      "Your community participation is suspended. Contact support if this is a mistake.",
+    COMMUNITY_POSTING_RESTRICTED: "Only the academy team posts in this space.",
+    LIVE_SESSION_NOT_OPEN:
+      "The link opens shortly before the session starts and closes when it ends.",
+    LIVE_SESSION_FULL: "This session is full.",
+    CERTIFICATE_NOT_ELIGIBLE: "Complete the course lessons first to get your certificate.",
     INTERNAL_ERROR: "Server error. Please try again.",
     SERVICE_UNAVAILABLE: "Service temporarily unavailable (e-mail delivery). Try again shortly.",
   },
+  community: community.en,
+  live: live.en,
+  notifications: notifications.en,
+  certificates: certificates.en,
+  reports: reports.en,
+  settings: settings.en,
+  printing: printing.en,
+  orderIntake: orderIntake.en,
+  staffVerification: staffVerification.en,
   forbidden: {
     title: "Access denied",
     body: "This page isn't available for your account. If you think this is a mistake, contact an administrator.",

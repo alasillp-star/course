@@ -40,6 +40,8 @@ export const PERMISSIONS = {
   "activation.codes.unlock": "Unlock cards locked after failed PIN attempts",
   "activation.batches.finalize": "Finalise a batch and purge printable secrets",
   "activation.templates.manage": "Customise the printed card design",
+  "printing.queue":
+    "Print queue: print the personalised card of each confirmed order (sees the recipient's name only)",
 
   // Content
   "content.read": "View unpublished content and the course editor",
@@ -51,6 +53,7 @@ export const PERMISSIONS = {
   "progress.read": "View students' learning progress",
   "assessments.manage": "Create and edit quizzes and assignments",
   "submissions.grade": "Review and grade assignment submissions",
+  "certificates.read": "View issued certificates",
   "certificates.issue": "Issue certificates",
   "certificates.revoke": "Revoke certificates",
 
@@ -110,6 +113,7 @@ const ADMIN_EXCLUDED: readonly Permission[] = ["roles.manage"];
  *  - moderator: community moderation only.
  *  - support_agent: account support; no sales, finance or staff management.
  *  - sales_agent: card sales and orders; no PII beyond customers, no admin.
+ *  - print_operator: the card print queue only (recipient names, nothing else).
  *  - student: community participation (course access comes from entitlements).
  */
 export const ROLE_PERMISSIONS: Record<SystemRole, readonly Permission[]> = {
@@ -125,6 +129,7 @@ export const ROLE_PERMISSIONS: Record<SystemRole, readonly Permission[]> = {
     "media.manage",
     "assessments.manage",
     "submissions.grade",
+    "certificates.read",
     "certificates.issue",
     "community.participate",
     "community.pin",
@@ -142,6 +147,7 @@ export const ROLE_PERMISSIONS: Record<SystemRole, readonly Permission[]> = {
     "activation.codes.read",
     "activation.codes.unlock",
     "progress.read",
+    "certificates.read",
     "support.tickets.read",
     "support.tickets.manage",
   ],
@@ -156,6 +162,7 @@ export const ROLE_PERMISSIONS: Record<SystemRole, readonly Permission[]> = {
     "refunds.request",
     "invoices.read",
   ],
+  print_operator: ["printing.queue"],
   student: ["community.participate"],
 };
 
@@ -166,5 +173,9 @@ export const ROLE_LABELS: Record<SystemRole, { name: string; description: string
   moderator: { name: "Moderator", description: "Keeps the community healthy" },
   support_agent: { name: "Support Agent", description: "Helps students with access and accounts" },
   sales_agent: { name: "Sales Agent", description: "Sells activation cards and records payments" },
+  print_operator: {
+    name: "Print Operator",
+    description: "Prints the personalised activation cards of confirmed orders",
+  },
   student: { name: "Student", description: "Learner account" },
 };

@@ -1,4 +1,5 @@
 import {
+  AwardIcon,
   BarChart3Icon,
   BookOpenIcon,
   CreditCardIcon,
@@ -6,6 +7,7 @@ import {
   LayoutDashboardIcon,
   MenuIcon,
   MessagesSquareIcon,
+  PrinterIcon,
   RadioIcon,
   SettingsIcon,
   ShoppingBagIcon,
@@ -29,7 +31,6 @@ export default async function AdminLayout({ children }: LayoutProps<"/[locale]/a
   const { locale, dict } = await getI18n();
   const actor = await requirePageActor(locale, { adminArea: true, next: `/${locale}/admin` });
   const t = dict.admin.nav;
-  const soon = dict.common.soon;
   const base = `/${locale}/admin`;
 
   const items: Array<NavItem & { visible: boolean }> = [
@@ -47,6 +48,12 @@ export default async function AdminLayout({ children }: LayoutProps<"/[locale]/a
       visible: canAny(actor, ["activation.batches.read", "activation.codes.read"]),
     },
     {
+      href: `${base}/printing`,
+      label: t.printing,
+      icon: <PrinterIcon />,
+      visible: can(actor, "printing.queue"),
+    },
+    {
       href: `${base}/orders`,
       label: t.sales,
       icon: <ShoppingBagIcon />,
@@ -62,21 +69,24 @@ export default async function AdminLayout({ children }: LayoutProps<"/[locale]/a
       href: `${base}/community`,
       label: t.community,
       icon: <MessagesSquareIcon />,
-      soonLabel: soon,
       visible: can(actor, "community.moderate"),
     },
     {
       href: `${base}/live`,
       label: t.live,
       icon: <RadioIcon />,
-      soonLabel: soon,
       visible: can(actor, "live.manage"),
+    },
+    {
+      href: `${base}/certificates`,
+      label: t.certificates,
+      icon: <AwardIcon />,
+      visible: can(actor, "certificates.read"),
     },
     {
       href: `${base}/reports`,
       label: t.reports,
       icon: <BarChart3Icon />,
-      soonLabel: soon,
       visible: can(actor, "reports.read"),
     },
     {
@@ -95,7 +105,6 @@ export default async function AdminLayout({ children }: LayoutProps<"/[locale]/a
       href: `${base}/settings`,
       label: t.settings,
       icon: <SettingsIcon />,
-      soonLabel: soon,
       visible: can(actor, "settings.read"),
     },
   ];

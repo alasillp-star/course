@@ -35,6 +35,24 @@ export const ERROR_STATUS = {
   ACTIVATION_PIN_REQUIRED: 400,
   ALREADY_ENTITLED: 409,
   ACTIVATION_SECRETS_PURGED: 409,
+  // Card printing
+  /** No blank card is left to print (every card of the usable batches is printed or packed). */
+  PRINT_NO_CARDS_AVAILABLE: 409,
+  /** The order is not (or no longer) waiting for a card: unconfirmed, cancelled or already packed. */
+  PRINT_ORDER_NOT_READY: 409,
+  // Staff second step
+  /** The account uses an authenticator app: an e-mailed code is not accepted. */
+  MFA_METHOD_NOT_ALLOWED: 409,
+  // Community, live sessions, certificates
+  /** The section is switched off in the platform settings. */
+  FEATURE_DISABLED: 403,
+  COMMUNITY_BANNED: 403,
+  /** Only the team can post in this space (Announcements). */
+  COMMUNITY_POSTING_RESTRICTED: 403,
+  /** The join link opens shortly before the start and closes at the end. */
+  LIVE_SESSION_NOT_OPEN: 409,
+  LIVE_SESSION_FULL: 409,
+  CERTIFICATE_NOT_ELIGIBLE: 409,
   // Learning & media
   COURSE_ACCESS_REQUIRED: 403,
   VIDEO_NOT_READY: 409,

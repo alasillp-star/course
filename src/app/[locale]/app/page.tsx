@@ -21,6 +21,7 @@ import { Progress } from "@/components/ui/progress";
 import { EmptyState } from "@/components/ui/stat-card";
 import { format, formatDateTime, pickLocalized, formatRelative } from "@/i18n/format";
 import { getI18n } from "@/i18n/server";
+import { notificationHref, notificationText } from "@/i18n/notification-text";
 import { requirePageActor } from "@/modules/identity/current";
 import { getStudentDashboard } from "@/modules/learning/dashboard.service";
 
@@ -245,14 +246,24 @@ export default async function StudentDashboardPage({ searchParams }: PageProps<"
                 <p className="text-muted-foreground text-sm">{t.noNotifications}</p>
               ) : (
                 <ul className="grid gap-2 text-sm">
-                  {data.notifications.map((notification) => (
-                    <li key={notification.id} className="bg-muted/60 rounded-lg px-3 py-2">
-                      <p className="font-medium">{notification.type}</p>
-                      <p className="text-muted-foreground text-xs">
-                        {formatRelative(notification.createdAt, locale)}
-                      </p>
-                    </li>
-                  ))}
+                  {data.notifications.map((notification) => {
+                    const href = notificationHref(locale, notification.link);
+                    const text = notificationText(dict, locale, notification);
+                    return (
+                      <li key={notification.id} className="bg-muted/60 rounded-lg px-3 py-2">
+                        {href ? (
+                          <Link href={href} className="font-medium hover:underline">
+                            {text}
+                          </Link>
+                        ) : (
+                          <p className="font-medium">{text}</p>
+                        )}
+                        <p className="text-muted-foreground text-xs">
+                          {formatRelative(notification.createdAt, locale)}
+                        </p>
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </CardContent>

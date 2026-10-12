@@ -23,6 +23,12 @@ import { closeDb, getDb } from "@/server/db/client";
 import { courseModules, lessons, profiles, users } from "@/server/db/schema";
 import { SYSTEM_REQUEST_META } from "@/server/http/request-meta";
 import type { SystemRole } from "@/shared/enums";
+import { seedCertificatesDemo } from "./seeds/certificates";
+import { seedCommunityDemo } from "./seeds/community";
+import { seedLiveDemo } from "./seeds/live";
+import { seedOrderIntakeDemo } from "./seeds/orderIntake";
+import { seedPrintingDemo } from "./seeds/printing";
+import type { DemoSeedContext } from "./seeds/types";
 
 /**
  * DEVELOPMENT DATA ONLY — refuses to run in staging/production.
@@ -100,7 +106,22 @@ const DEMO_STAFF: Array<[string, SystemRole]> = [
   ["moderator@academy.test", "moderator"],
   ["support@academy.test", "support_agent"],
   ["sales@academy.test", "sales_agent"],
+  ["print@academy.test", "print_operator"],
 ];
+
+/** Demo data of the community, live sessions, certificates, printing and order intake. */
+async function seedFeatureDemos(context: DemoSeedContext) {
+  for (const seed of [
+    seedCommunityDemo,
+    seedLiveDemo,
+    seedCertificatesDemo,
+    seedOrderIntakeDemo,
+    seedPrintingDemo,
+  ]) {
+    const line = await seed(context);
+    if (line) console.log(`✓ ${line}`);
+  }
+}
 
 async function main() {
   const db = getDb();
@@ -167,6 +188,11 @@ async function main() {
     mfaVerified: true,
     authenticatedAt: new Date(),
   };
+  if (process.argv.includes("--extras")) {
+    // Existing demo data (npm run setup): only the idempotent feature demos.
+    await seedFeatureDemos({ actor: systemActor, courseId });
+    return;
+  }
   await attachSampleVideo(systemActor, courseId);
 
   // QR-only cards (no scratch PIN), activatable only after a sale or a delivery.
@@ -196,6 +222,7 @@ async function main() {
   );
 
   const delivery = await seedDemoOrders(systemActor, cards.slice(10, 12));
+  await seedFeatureDemos({ actor: systemActor, courseId });
 
   console.log("\n  Counter-sold demo cards (development only):");
   for (const card of cards.slice(0, 2)) {

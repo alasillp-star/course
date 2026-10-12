@@ -16,6 +16,7 @@ import {
   DISCOUNT_KINDS,
   INVOICE_STATUSES,
   ORDER_CHANNELS,
+  ORDER_CONFIRMATION_SOURCES,
   ORDER_ITEM_KINDS,
   ORDER_STATUSES,
   PAYMENT_PROVIDERS,
@@ -138,6 +139,13 @@ export const orders = pgTable(
     /** Original payload / extra fields from the source system. */
     metadata: jsonb().$type<Record<string, unknown>>().notNull().default({}),
     placedAt: tstz(),
+    /**
+     * The customer confirmed the order (phone confirmation, e.g. in EcoManager):
+     * from then on it waits in the card print queue until a card is packed.
+     */
+    confirmedAt: tstz(),
+    confirmedVia: text({ enum: ORDER_CONFIRMATION_SOURCES }),
+    confirmedBy: uuid().references(() => users.id, { onDelete: "set null" }),
     paidAt: tstz(),
     cancelledAt: tstz(),
     createdBy: uuid().references(() => users.id, { onDelete: "set null" }),
@@ -146,6 +154,14 @@ export const orders = pgTable(
   },
   (t) => [
     uniqueIndex("orders_number_key").on(t.orderNumber),
+    enumCheck("orders_confirmed_via_check", t.confirmedVia, ORDER_CONFIRMATION_SOURCES),
+    rule(
+      "orders_confirmation_check",
+      sql`(${t.confirmedAt} is null) = (${t.confirmedVia} is null)`,
+    ),
+    index("orders_print_queue_idx")
+      .on(t.confirmedAt)
+      .where(sql`${t.confirmedAt} is not null and ${t.status} <> 'cancelled'`),
     uniqueIndex("orders_external_key")
       .on(t.externalSource, t.externalId)
       .where(sql`${t.externalId} is not null`),

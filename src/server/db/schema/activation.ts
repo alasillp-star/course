@@ -6,6 +6,7 @@ import {
   integer,
   jsonb,
   pgTable,
+  primaryKey,
   serial,
   smallint,
   text,
@@ -17,6 +18,8 @@ import {
   ACTIVATION_BATCH_STATUSES,
   ACTIVATION_CODE_STATUSES,
   ACTIVATION_EVENT_TYPES,
+  CARD_PRINT_KINDS,
+  CARD_PRINT_LAYOUTS,
 } from "../../../shared/enums";
 import { createdAt, enumCheck, pk, rule, tstz, updatedAt } from "./_columns";
 import { courses, mediaAssets } from "./catalog";
@@ -122,10 +125,20 @@ export const activationCodes = pgTable(
     replacesCodeId: uuid().references((): AnyPgColumn => activationCodes.id, {
       onDelete: "set null",
     }),
+    /** Times the card was printed (reprints after a printer jam count too). */
+    printCount: smallint().notNull().default(0),
+    lastPrintedAt: tstz(),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
   (t) => [
+    rule(
+      "activation_codes_print_check",
+      sql`${t.printCount} >= 0 and (${t.printCount} = 0) = (${t.lastPrintedAt} is null)`,
+    ),
+    index("activation_codes_unprinted_idx")
+      .on(t.batchId, t.sequence)
+      .where(sql`${t.printCount} = 0 and ${t.status} = 'available' and ${t.orderId} is null`),
     uniqueIndex("activation_codes_code_hash_key").on(t.codeHash),
     uniqueIndex("activation_codes_serial_key").on(t.serial),
     uniqueIndex("activation_codes_batch_sequence_key").on(t.batchId, t.sequence),
@@ -174,5 +187,53 @@ export const activationEvents = pgTable(
     index("activation_events_code_idx").on(t.codeId, t.occurredAt),
     index("activation_events_batch_idx").on(t.batchId, t.occurredAt),
     index("activation_events_type_idx").on(t.type, t.occurredAt),
+  ],
+);
+
+/**
+ * Who printed which cards, when (the PDF itself is never stored: it contains
+ * the cards' secrets). Personalised jobs link each card to the order whose
+ * recipient name was printed on it.
+ */
+export const cardPrintJobs = pgTable(
+  "card_print_jobs",
+  {
+    id: pk(),
+    kind: text({ enum: CARD_PRINT_KINDS }).notNull(),
+    layout: text({ enum: CARD_PRINT_LAYOUTS }).notNull(),
+    /** Set when every card comes from one batch (blank prints from a batch page). */
+    batchId: uuid().references(() => activationBatches.id, { onDelete: "restrict" }),
+    cardCount: integer().notNull(),
+    /** How the cards were chosen, e.g. { mode: "range", from: 1, to: 50 } (no secrets). */
+    selection: jsonb().$type<Record<string, unknown>>().notNull().default({}),
+    createdBy: uuid().references(() => users.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    enumCheck("card_print_jobs_kind_check", t.kind, CARD_PRINT_KINDS),
+    enumCheck("card_print_jobs_layout_check", t.layout, CARD_PRINT_LAYOUTS),
+    rule("card_print_jobs_count_check", sql`${t.cardCount} between 1 and 10000`),
+    index("card_print_jobs_created_idx").on(t.createdAt),
+    index("card_print_jobs_batch_idx").on(t.batchId, t.createdAt),
+  ],
+);
+
+export const cardPrintJobItems = pgTable(
+  "card_print_job_items",
+  {
+    jobId: uuid()
+      .notNull()
+      .references(() => cardPrintJobs.id, { onDelete: "cascade" }),
+    codeId: uuid()
+      .notNull()
+      .references(() => activationCodes.id, { onDelete: "restrict" }),
+    /** Personalised prints: the order whose recipient's name is on the card. */
+    orderId: uuid().references(() => orders.id, { onDelete: "set null" }),
+    position: integer().notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.jobId, t.codeId] }),
+    index("card_print_job_items_code_idx").on(t.codeId),
+    index("card_print_job_items_order_idx").on(t.orderId),
   ],
 );

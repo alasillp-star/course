@@ -46,13 +46,14 @@ export default defineConfig({
     {
       name: "mobile",
       dependencies: ["setup"],
-      testMatch: /(activation|student|responsive)\.spec\.ts/,
+      testMatch: /(activation|student|responsive|community|live|certificates)\.spec\.ts/,
       use: { ...devices["Pixel 7"], locale: "ar" },
     },
     {
       name: "desktop",
       dependencies: ["setup"],
-      testMatch: /(admin|security|responsive|delivery)\.spec\.ts/,
+      testMatch:
+        /(admin|security|responsive|delivery|moderation|live-admin|reports-settings|printing|order-intake|staff-verification)\.spec\.ts/,
       use: { ...devices["Desktop Chrome"], locale: "fr" },
     },
   ],

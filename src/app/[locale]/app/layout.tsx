@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { LocaleSwitcher } from "@/components/layout/locale-switcher";
+import { BottomMoreMenu } from "@/components/layout/bottom-more-menu";
 import { BottomNavLink, SidebarLink, type NavItem } from "@/components/layout/nav-link";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { UserMenu } from "@/components/layout/user-menu";
@@ -24,22 +25,15 @@ export default async function StudentLayout({ children }: LayoutProps<"/[locale]
     { href: base, label: t.dashboard, icon: <HomeIcon />, exact: true },
     { href: `${base}/course`, label: t.course, icon: <BookOpenIcon /> },
     { href: `${base}/notes`, label: t.notes, icon: <NotebookPenIcon /> },
-    {
-      href: `${base}/community`,
-      label: t.community,
-      icon: <MessagesSquareIcon />,
-      soonLabel: dict.common.soon,
-    },
-    { href: `${base}/live`, label: t.live, icon: <RadioIcon />, soonLabel: dict.common.soon },
-    {
-      href: `${base}/certificates`,
-      label: t.certificates,
-      icon: <AwardIcon />,
-      soonLabel: dict.common.soon,
-    },
+    { href: `${base}/community`, label: t.community, icon: <MessagesSquareIcon /> },
+    { href: `${base}/live`, label: t.live, icon: <RadioIcon /> },
+    { href: `${base}/certificates`, label: t.certificates, icon: <AwardIcon /> },
     { href: `${base}/settings`, label: t.settings, icon: <SettingsIcon /> },
   ];
-  const mobile = items.filter((item) => !item.soonLabel);
+  // Bottom bar on phones: four sections and "More" for the rest.
+  const mobileKeys = new Set([base, `${base}/course`, `${base}/community`, `${base}/live`]);
+  const mobile = items.filter((item) => mobileKeys.has(item.href));
+  const mobileMore = items.filter((item) => !mobileKeys.has(item.href));
 
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[264px_1fr]">
@@ -99,6 +93,7 @@ export default async function StudentLayout({ children }: LayoutProps<"/[locale]
         {mobile.map((item) => (
           <BottomNavLink key={item.href} item={item} />
         ))}
+        <BottomMoreMenu items={mobileMore} label={t.more} closeLabel={dict.common.close} />
       </nav>
     </div>
   );

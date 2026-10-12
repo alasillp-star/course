@@ -41,8 +41,9 @@ function step(message: string) {
 }
 
 /** Runs an npm script; with `capture`, also returns its standard output. */
-function npmRun(script: string, capture = false): string {
-  const result = spawnSync("npm", ["run", "--silent", script], {
+function npmRun(script: string, capture = false, args: string[] = []): string {
+  const extra = args.length > 0 ? ["--", ...args] : [];
+  const result = spawnSync("npm", ["run", "--silent", script, ...extra], {
     cwd: ROOT,
     shell: isWindows,
     encoding: "utf8",
@@ -211,7 +212,8 @@ async function main() {
 
   step("Database and e-mail inbox");
   if (docker) {
-    if (!(await waitForDockerEngine(cloud ? 180 : 60))) fail(`Docker is not running. ${dockerHint}`);
+    if (!(await waitForDockerEngine(cloud ? 180 : 60)))
+      fail(`Docker is not running. ${dockerHint}`);
     // The engine may still be settling: retry the services for ~40 s.
     let started = false;
     for (let attempt = 1; attempt <= 5 && !started; attempt += 1) {
@@ -249,6 +251,8 @@ async function main() {
     writeFileSync(DEMO_FILE, output);
   } else {
     console.log("\n  ✓ demo data already present (npm run setup -- --reset to start over)");
+    // Demo data of sections added since (community, live sessions…): idempotent.
+    npmRun("db:seed:dev", false, ["--extras"]);
   }
 
   // APP_URL from the environment wins (npm run codespace / start:phone set it).

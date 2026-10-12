@@ -9,7 +9,13 @@
 export const USER_STATUSES = ["active", "suspended", "deleted"] as const;
 export type UserStatus = (typeof USER_STATUSES)[number];
 
-export const OTP_PURPOSES = ["login", "activation", "email_change"] as const;
+export const OTP_PURPOSES = [
+  "login",
+  "activation",
+  "email_change",
+  /** Second sign-in step for staff without an authenticator app: a code e-mailed to them. */
+  "staff_verification",
+] as const;
 export type OtpPurpose = (typeof OTP_PURPOSES)[number];
 
 export const SESSION_CLIENT_TYPES = ["web", "mobile"] as const;
@@ -26,6 +32,8 @@ export const SYSTEM_ROLES = [
   "moderator",
   "support_agent",
   "sales_agent",
+  /** Prints personalised activation cards from the print queue; sees nothing else. */
+  "print_operator",
   "student",
 ] as const;
 export type SystemRole = (typeof SYSTEM_ROLES)[number];
@@ -38,6 +46,7 @@ export const STAFF_ROLES: readonly SystemRole[] = [
   "moderator",
   "support_agent",
   "sales_agent",
+  "print_operator",
 ];
 
 // Catalog / content -----------------------------------------------------------
@@ -96,6 +105,14 @@ export type SubmissionStatus = (typeof SUBMISSION_STATUSES)[number];
 export const ACTIVATION_CODE_STATUSES = ["available", "sold", "activated", "revoked"] as const;
 export type ActivationCodeStatus = (typeof ACTIVATION_CODE_STATUSES)[number];
 
+/** blank: cards without a name; personalized: one card per confirmed order, with the recipient's name. */
+export const CARD_PRINT_KINDS = ["blank", "personalized"] as const;
+export type CardPrintKind = (typeof CARD_PRINT_KINDS)[number];
+
+/** a4_sheet: 10 cards per A4 page with crop marks; single_card: one 85.6 x 54 mm page per card (card printers). */
+export const CARD_PRINT_LAYOUTS = ["a4_sheet", "single_card"] as const;
+export type CardPrintLayout = (typeof CARD_PRINT_LAYOUTS)[number];
+
 export const ACTIVATION_BATCH_STATUSES = ["active", "archived"] as const;
 export type ActivationBatchStatus = (typeof ACTIVATION_BATCH_STATUSES)[number];
 
@@ -115,6 +132,8 @@ export const ACTIVATION_EVENT_TYPES = [
   "code_unlocked",
   "pin_failed",
   "redemption_rejected",
+  /** A card was printed (again): blank, or personalised with an order recipient's name. */
+  "code_printed",
 ] as const;
 export type ActivationEventType = (typeof ACTIVATION_EVENT_TYPES)[number];
 
@@ -144,6 +163,14 @@ export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
 export const ORDER_CHANNELS = ["in_person", "reseller", "phone", "online"] as const;
 export type OrderChannel = (typeof ORDER_CHANNELS)[number];
+
+/**
+ * How an order was confirmed with the customer (phone confirmation): by a
+ * connected system (EcoManager, the landing site…), a CSV import, or by hand.
+ * Only confirmed orders reach the card print queue.
+ */
+export const ORDER_CONFIRMATION_SOURCES = ["integration", "import", "manual"] as const;
+export type OrderConfirmationSource = (typeof ORDER_CONFIRMATION_SOURCES)[number];
 
 export const ORDER_ITEM_KINDS = ["activation_card", "course_access"] as const;
 
@@ -194,6 +221,8 @@ export const INVOICE_STATUSES = ["issued", "void"] as const;
 // Community -------------------------------------------------------------------------------
 export const COMMUNITY_SPACE_KEYS = [
   "general",
+  /** Group chat room: short messages shown as a live conversation. */
+  "chat",
   "questions",
   "success_stories",
   "case_studies",
@@ -222,13 +251,47 @@ export const REPORT_REASONS = [
 export type ReportReason = (typeof REPORT_REASONS)[number];
 
 export const REPORT_STATUSES = ["open", "resolved", "dismissed"] as const;
+export type ReportStatus = (typeof REPORT_STATUSES)[number];
 
 // Live sessions -------------------------------------------------------------------------------
 export const LIVE_SESSION_KINDS = ["group", "one_on_one"] as const;
+export type LiveSessionKind = (typeof LIVE_SESSION_KINDS)[number];
 export const LIVE_SESSION_STATUSES = ["scheduled", "live", "ended", "cancelled"] as const;
-export const MEETING_PROVIDERS = ["zoom", "google_meet", "jitsi", "teams", "custom"] as const;
+export type LiveSessionStatus = (typeof LIVE_SESSION_STATUSES)[number];
+/** Where the session takes place (YouTube / Facebook: a live stream; the others: a meeting). */
+export const MEETING_PROVIDERS = [
+  "youtube",
+  "facebook",
+  "zoom",
+  "google_meet",
+  "jitsi",
+  "teams",
+  "custom",
+] as const;
+export type MeetingProvider = (typeof MEETING_PROVIDERS)[number];
 export const BOOKING_STATUSES = ["booked", "cancelled", "attended", "no_show"] as const;
+export type BookingStatus = (typeof BOOKING_STATUSES)[number];
 export const AVAILABILITY_STATUSES = ["open", "booked", "blocked"] as const;
+
+// Notifications ------------------------------------------------------------------------------
+/** In-app notification kinds; texts come from the "notifications" dictionary (type + data). */
+export const NOTIFICATION_TYPES = [
+  /** data: { postTitle?: string } — someone commented on your post */
+  "community.reply",
+  /** data: { postTitle?: string } — your answer was marked as the verified answer */
+  "community.answer_verified",
+  /** data: { postTitle?: string } — the team posted in Announcements */
+  "community.announcement",
+  /** data: { title: string, startsAt: string (ISO) } */
+  "live.scheduled",
+  /** data: { title: string, startsAt: string (ISO) } */
+  "live.cancelled",
+  /** data: { title: string } — a replay is available */
+  "live.recording",
+  /** data: { certificateNumber: string } */
+  "certificate.issued",
+] as const;
+export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
 
 // Support ---------------------------------------------------------------------------------------
 export const TICKET_CATEGORIES = [

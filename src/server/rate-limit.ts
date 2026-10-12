@@ -27,6 +27,21 @@ export const RATE_LIMITS = {
   "activation:start:ip": { limit: 15, windowSeconds: 15 * 60 },
   // Staff second factor
   "mfa:verify:user": { limit: 10, windowSeconds: 15 * 60 },
+  "mfa:email:send:user": { limit: 5, windowSeconds: 15 * 60 },
+  // Community (per member)
+  "community:post:user": { limit: 20, windowSeconds: 60 * 60 },
+  "community:comment:user": { limit: 60, windowSeconds: 60 * 60 },
+  "community:chat:user": { limit: 20, windowSeconds: 60 },
+  "community:react:user": { limit: 300, windowSeconds: 60 * 60 },
+  "community:report:user": { limit: 20, windowSeconds: 24 * 60 * 60 },
+  // Live sessions and certificates
+  "live:join:user": { limit: 60, windowSeconds: 60 * 60 },
+  "certificate:user": { limit: 30, windowSeconds: 60 * 60 },
+  "certificate:verify:ip": { limit: 120, windowSeconds: 60 * 60 },
+  // Card printing (each PDF decrypts card secrets)
+  "printing:user": { limit: 120, windowSeconds: 60 * 60 },
+  // Report exports
+  "reports:export:user": { limit: 30, windowSeconds: 60 * 60 },
   // Learning: generous for real students, a ceiling for scripted scraping
   "playback:user": { limit: 300, windowSeconds: 60 * 60 },
   "progress:user": { limit: 1200, windowSeconds: 60 * 60 },

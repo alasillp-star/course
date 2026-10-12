@@ -1,4 +1,13 @@
 import type { Dictionary } from "./ar";
+import { community } from "./features/community";
+import { live } from "./features/live";
+import { notifications } from "./features/notifications";
+import { certificates } from "./features/certificates";
+import { reports } from "./features/reports";
+import { settings } from "./features/settings";
+import { printing } from "./features/printing";
+import { orderIntake } from "./features/orderIntake";
+import { staffVerification } from "./features/staffVerification";
 
 export const fr: Dictionary = {
   meta: {
@@ -241,6 +250,7 @@ export const fr: Dictionary = {
       notes: "Mes notes",
       settings: "Paramètres",
       security: "Sécurité et appareils",
+      more: "Plus",
     },
     dashboard: {
       welcome: "Bonjour {name} 👋",
@@ -379,6 +389,8 @@ export const fr: Dictionary = {
       staff: "Équipe et permissions",
       audit: "Journal d'audit",
       settings: "Paramètres",
+      printing: "File d'impression",
+      certificates: "Certificats",
       backToSite: "Retour au site",
     },
     mfa: {
@@ -934,6 +946,7 @@ export const fr: Dictionary = {
     moderator: "Modérateur",
     support_agent: "Agent support",
     sales_agent: "Commercial",
+    print_operator: "Opérateur d'impression",
     student: "Apprenant",
   },
   errors: {
@@ -977,10 +990,33 @@ export const fr: Dictionary = {
     WEBHOOK_SIGNATURE_INVALID: "Signature invalide.",
     PROVIDER_NOT_CONFIGURED: "Ce service n'est pas encore configuré sur la plateforme.",
     INVALID_STATE: "Action impossible dans l'état actuel.",
+    PRINT_NO_CARDS_AVAILABLE:
+      "Aucune carte vierge disponible. Créez un nouveau lot dans « Cartes d'activation ».",
+    PRINT_ORDER_NOT_READY:
+      "Cette commande n'attend plus de carte (non confirmée, annulée ou carte déjà prête).",
+    MFA_METHOD_NOT_ALLOWED:
+      "Votre compte utilise une application d'authentification : saisissez le code de l'application.",
+    FEATURE_DISABLED: "Cette section est désactivée pour le moment.",
+    COMMUNITY_BANNED:
+      "Votre participation à la communauté est suspendue. Contactez le support en cas d'erreur.",
+    COMMUNITY_POSTING_RESTRICTED: "Seule l'équipe de l'académie publie dans cet espace.",
+    LIVE_SESSION_NOT_OPEN: "Le lien s'ouvre peu avant le début de la session et se ferme à la fin.",
+    LIVE_SESSION_FULL: "Cette session est complète.",
+    CERTIFICATE_NOT_ELIGIBLE:
+      "Terminez d'abord les leçons de la formation pour obtenir le certificat.",
     INTERNAL_ERROR: "Erreur serveur. Réessayez.",
     SERVICE_UNAVAILABLE:
       "Service temporairement indisponible (envoi d'e-mail). Réessayez dans un instant.",
   },
+  community: community.fr,
+  live: live.fr,
+  notifications: notifications.fr,
+  certificates: certificates.fr,
+  reports: reports.fr,
+  settings: settings.fr,
+  printing: printing.fr,
+  orderIntake: orderIntake.fr,
+  staffVerification: staffVerification.fr,
   forbidden: {
     title: "Accès refusé",
     body: "Cette page n'est pas accessible avec votre compte. Si c'est une erreur, contactez un administrateur.",

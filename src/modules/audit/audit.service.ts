@@ -16,6 +16,7 @@ export type AuditAction =
   | "auth.mfa_failed"
   | "auth.mfa_recovery_code_used"
   | "auth.mfa_reset"
+  | "auth.mfa_code_sent"
   | "auth.email_changed"
   // Users & RBAC
   | "user.created"
@@ -33,6 +34,7 @@ export type AuditAction =
   | "activation.code_replaced"
   | "activation.code_unlocked"
   | "activation.code_redeemed"
+  | "activation.cards_printed"
   // Orders & delivery
   | "orders.created"
   | "orders.updated"
@@ -43,6 +45,9 @@ export type AuditAction =
   | "orders.delivery_status_changed"
   | "orders.delivery_override"
   | "orders.delivery_imported"
+  | "orders.confirmed"
+  | "orders.confirmation_cleared"
+  | "orders.imported"
   // Entitlements
   | "entitlement.granted"
   | "entitlement.revoked"
@@ -63,7 +68,28 @@ export type AuditAction =
   | "media.upload_started"
   | "media.ready"
   | "media.failed"
-  | "media.video_detached";
+  | "media.video_detached"
+  // Community
+  | "community.post_moderated"
+  | "community.comment_moderated"
+  | "community.post_pinned"
+  | "community.post_unpinned"
+  | "community.answer_verified"
+  | "community.report_resolved"
+  | "community.user_banned"
+  | "community.ban_lifted"
+  // Live sessions
+  | "live.session_created"
+  | "live.session_updated"
+  | "live.session_cancelled"
+  | "live.session_deleted"
+  | "live.recording_set"
+  // Certificates
+  | "certificate.issued"
+  | "certificate.revoked"
+  // Reports & settings
+  | "reports.exported"
+  | "settings.updated";
 
 export type AuditEntry = {
   action: AuditAction;

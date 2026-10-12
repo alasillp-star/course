@@ -26,6 +26,10 @@ const nextConfig: NextConfig = {
   // Development server reached through GitHub Codespaces port forwarding.
   allowedDevOrigins: ["*.app.github.dev"],
   reactStrictMode: true,
+  // Files read with fs at runtime by the PDF routes (cards, certificates).
+  outputFileTracingIncludes: {
+    "/api/**": ["./assets/fonts/**", "./public/brand/**"],
+  },
   turbopack: {
     rules: {
       "*.css": {

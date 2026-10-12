@@ -17,6 +17,7 @@ import { assignRoleUnchecked, syncAccessCatalog } from "../access/rbac.service";
 
 const SPACE_NAMES: Record<CommunitySpaceKey, { ar: string; fr: string; en: string }> = {
   general: { ar: "النقاش العام", fr: "Discussion générale", en: "General discussion" },
+  chat: { ar: "الدردشة", fr: "Chat", en: "Chat" },
   questions: { ar: "الأسئلة والأجوبة", fr: "Questions & réponses", en: "Questions & answers" },
   success_stories: { ar: "قصص النجاح", fr: "Réussites", en: "Success stories" },
   case_studies: { ar: "دراسات الحالة", fr: "Études de cas", en: "Case studies" },

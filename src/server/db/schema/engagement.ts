@@ -114,6 +114,8 @@ export const liveSessions = pgTable(
     joinUrlCiphertext: text(),
     status: text({ enum: LIVE_SESSION_STATUSES }).notNull().default("scheduled"),
     recordingAssetId: uuid().references(() => mediaAssets.id, { onDelete: "set null" }),
+    /** Replay hosted elsewhere (e.g. an unlisted YouTube video), encrypted like the join URL. */
+    recordingUrlCiphertext: text(),
     createdBy: uuid().references(() => users.id, { onDelete: "set null" }),
     createdAt: createdAt(),
     updatedAt: updatedAt(),

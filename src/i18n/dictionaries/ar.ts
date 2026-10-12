@@ -1,3 +1,13 @@
+import { community } from "./features/community";
+import { live } from "./features/live";
+import { notifications } from "./features/notifications";
+import { certificates } from "./features/certificates";
+import { reports } from "./features/reports";
+import { settings } from "./features/settings";
+import { printing } from "./features/printing";
+import { orderIntake } from "./features/orderIntake";
+import { staffVerification } from "./features/staffVerification";
+
 /**
  * Arabic dictionary — the reference for every other locale (type `Dictionary`).
  * Placeholders use {name} syntax, see `format()` in src/i18n/format.ts.
@@ -235,6 +245,7 @@ export const ar = {
       notes: "ملاحظاتي",
       settings: "الإعدادات",
       security: "الأمان والأجهزة",
+      more: "المزيد",
     },
     dashboard: {
       welcome: "أهلًا {name} 👋",
@@ -372,6 +383,8 @@ export const ar = {
       staff: "الفريق والصلاحيات",
       audit: "سجل العمليات",
       settings: "الإعدادات",
+      printing: "طابور الطباعة",
+      certificates: "الشهادات",
       backToSite: "العودة إلى الموقع",
     },
     mfa: {
@@ -915,6 +928,7 @@ export const ar = {
     moderator: "مشرف مجتمع",
     support_agent: "موظف دعم",
     sales_agent: "موظف مبيعات",
+    print_operator: "عامل الطباعة",
     student: "طالب",
   },
   errors: {
@@ -957,9 +971,28 @@ export const ar = {
     WEBHOOK_SIGNATURE_INVALID: "توقيع غير صالح.",
     PROVIDER_NOT_CONFIGURED: "الخدمة غير مُعدّة بعد على المنصة.",
     INVALID_STATE: "لا يمكن تنفيذ العملية في الحالة الحالية.",
+    PRINT_NO_CARDS_AVAILABLE:
+      "لا توجد بطاقات فارغة متاحة للطباعة. أنشئ دفعة جديدة من «بطاقات التفعيل».",
+    PRINT_ORDER_NOT_READY: "هذه الطلبية لم تعد تنتظر بطاقة (غير مؤكدة، ملغاة، أو بطاقتها جاهزة).",
+    MFA_METHOD_NOT_ALLOWED: "حسابك يستعمل تطبيق المصادقة: أدخل الرمز من التطبيق.",
+    FEATURE_DISABLED: "هذا القسم غير مفعّل حاليًا.",
+    COMMUNITY_BANNED: "تم إيقاف مشاركتك في المجتمع. تواصل مع الدعم إذا كان هذا خطأ.",
+    COMMUNITY_POSTING_RESTRICTED: "النشر في هذا القسم مخصّص لفريق الأكاديمية.",
+    LIVE_SESSION_NOT_OPEN: "رابط الجلسة يُفتح قبل موعدها بقليل، ويُغلق عند نهايتها.",
+    LIVE_SESSION_FULL: "اكتملت المقاعد في هذه الجلسة.",
+    CERTIFICATE_NOT_ELIGIBLE: "أكمل دروس الدورة أولًا للحصول على الشهادة.",
     INTERNAL_ERROR: "حدث خطأ في الخادم. حاول مرة أخرى.",
     SERVICE_UNAVAILABLE: "الخدمة غير متاحة مؤقتًا (إرسال البريد). حاول بعد قليل.",
   },
+  community: community.ar,
+  live: live.ar,
+  notifications: notifications.ar,
+  certificates: certificates.ar,
+  reports: reports.ar,
+  settings: settings.ar,
+  printing: printing.ar,
+  orderIntake: orderIntake.ar,
+  staffVerification: staffVerification.ar,
   forbidden: {
     title: "لا تملك صلاحية الوصول",
     body: "هذه الصفحة غير متاحة لحسابك. إذا كنت تعتقد أن هذا خطأ، تواصل مع مدير المنصة.",
